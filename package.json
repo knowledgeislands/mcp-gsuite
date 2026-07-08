@@ -1,6 +1,6 @@
 {
   "name": "@knowledgeislands/mcp-gsuite",
-  "description": "MCP for Google Workspace — email today (read, search, draft, label, send), with calendar and drive/sheets to follow.",
+  "description": "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API.",
   "version": "0.0.1",
   "author": "kris@kris.me.uk",
   "bin": {
