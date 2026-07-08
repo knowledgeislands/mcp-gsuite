@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/mcp-server/index.ts!",
+    "src/auth-server/index.ts!",
+    "src/config/index.ts!",
+    "src/main/*/index.ts!",
+    "scripts/integration.ts"
+  ],
+  "project": ["src/**/*.ts", "scripts/**/*.ts"],
+  "ignore": ["src/generated/**"],
+  "ignoreDependencies": ["google-auth-library", "googleapis-common"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreBinaries": ["printf", "keys"]
+}

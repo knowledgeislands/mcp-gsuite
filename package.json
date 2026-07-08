@@ -1,0 +1,159 @@
+{
+  "name": "@knowledgeislands/mcp-gsuite",
+  "description": "MCP for Google Workspace — email today (read, search, draft, label, send), with calendar and drive/sheets to follow.",
+  "version": "0.0.1",
+  "author": "kris@kris.me.uk",
+  "bin": {
+    "mcp-gsuite": "dist/mcp-server/index.js",
+    "mcp-gsuite-auth": "dist/auth-server/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/knowledgeislands/mcp-gsuite/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "googleapis": "^173.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.2",
+    "@types/node": "^26.1.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "husky": "^9.1.7",
+    "knip": "^6.25.0",
+    "lint-staged": "^17.0.8",
+    "markdownlint-cli2": "^0.23.0",
+    "mcporter": "^0.12.3",
+    "prettier": "^3.9.4",
+    "syncpack": "^15.3.2",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/mcp-server/index.d.ts",
+      "import": "./dist/mcp-server/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js"
+    },
+    "./auth": {
+      "types": "./dist/main/auth/index.d.ts",
+      "import": "./dist/main/auth/index.js"
+    },
+    "./google-client": {
+      "types": "./dist/main/google-client/index.d.ts",
+      "import": "./dist/main/google-client/index.js"
+    },
+    "./email": {
+      "types": "./dist/main/email/parse.d.ts",
+      "import": "./dist/main/email/parse.js"
+    },
+    "./auth-info": {
+      "types": "./dist/main/auth-info/index.d.ts",
+      "import": "./dist/main/auth-info/index.js"
+    },
+    "./labels": {
+      "types": "./dist/main/labels/index.d.ts",
+      "import": "./dist/main/labels/index.js"
+    },
+    "./messages": {
+      "types": "./dist/main/messages/index.d.ts",
+      "import": "./dist/main/messages/index.js"
+    },
+    "./threads": {
+      "types": "./dist/main/threads/index.d.ts",
+      "import": "./dist/main/threads/index.js"
+    },
+    "./drafts": {
+      "types": "./dist/main/drafts/index.d.ts",
+      "import": "./dist/main/drafts/index.js"
+    },
+    "./attachments": {
+      "types": "./dist/main/attachments/index.d.ts",
+      "import": "./dist/main/attachments/index.js"
+    },
+    "./drive-client": {
+      "types": "./dist/main/drive-client/index.d.ts",
+      "import": "./dist/main/drive-client/index.js"
+    },
+    "./sheets-client": {
+      "types": "./dist/main/sheets-client/index.d.ts",
+      "import": "./dist/main/sheets-client/index.js"
+    },
+    "./calendar": {
+      "types": "./dist/main/calendar/index.d.ts",
+      "import": "./dist/main/calendar/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/knowledgeislands/mcp-gsuite#readme",
+  "keywords": [
+    "anthropic",
+    "claude",
+    "gmail",
+    "google",
+    "gsuite",
+    "mcp",
+    "model-context-protocol"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "*.{ts,js,json,jsonc}": "bunx @biomejs/biome check --write --no-errors-on-unmatched",
+    "*.md": [
+      "bunx prettier --write",
+      "bunx markdownlint-cli2"
+    ]
+  },
+  "main": "dist/mcp-server/index.js",
+  "packageManager": "bun@1.3.14",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knowledgeislands/mcp-gsuite.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf {dist,node_modules}",
+    "ki:authoring:audit": "bun .claude/skills/ki-authoring/scripts/audit-authoring.ts .",
+    "ki:conform": "bun run ki:deps:refresh && bun run ki:lint:package && bun run ki:lint:format && bun run ki:lint:fix && bun run ki:lint:md && bun run build && bun run test",
+    "ki:deps:check": "bunx knip --dependencies --no-config-hints",
+    "ki:deps:fix": "bunx knip --dependencies --fix --no-config-hints",
+    "ki:deps:refresh": "bun update --force",
+    "ki:deps:update": "bun update --latest && bun install",
+    "ki:engineering:audit": "bun .claude/skills/ki-engineering/scripts/audit-engineering.ts .",
+    "ki:generate:client": "mcporter emit-ts kit-mcp-gsuite --mode client --out src/generated/client.ts --types-out src/generated/types.d.ts && printf '// @ts-nocheck\\n' | cat - src/generated/client.ts > /tmp/gen-tmp.ts && mv /tmp/gen-tmp.ts src/generated/client.ts",
+    "ki:knip": "bunx knip --no-config-hints",
+    "ki:lint:check": "bunx @biomejs/biome check",
+    "ki:lint:fix": "bunx @biomejs/biome check --write --unsafe",
+    "ki:lint:format": "bunx @biomejs/biome format --write",
+    "ki:lint:md": "bunx prettier --write \"**/*.md\" --ignore-path .gitignore && bunx markdownlint-cli2",
+    "ki:lint:md:check": "bunx prettier --check \"**/*.md\" --ignore-path .gitignore && bunx markdownlint-cli2",
+    "ki:lint:package": "bunx syncpack format",
+    "ki:lint:types": "tsc --noEmit",
+    "ki:mcp:audit": "bun .claude/skills/ki-mcp/scripts/audit-mcp.ts .",
+    "ki:repo:audit": "bun .claude/skills/ki-repo/scripts/audit-repo.ts .",
+    "ki:repo:conform": "bun .claude/skills/ki-repo/scripts/conform-repo.ts .",
+    "ki:server:auth:dev": "NODE_ENV=development bun --watch src/auth-server/index.ts",
+    "ki:server:auth:start": "bun run build && node dist/auth-server/index.js",
+    "ki:server:mcp:dev": "NODE_ENV=development bun --watch src/mcp-server/index.ts",
+    "ki:server:mcp:inspect": "NODE_ENV=development bunx @modelcontextprotocol/inspector bun src/mcp-server/index.ts",
+    "ki:server:mcp:start": "bun run build && node dist/mcp-server/index.js",
+    "ki:skills:link:project": "bun $HOME/.claude/skills/ki-bootstrap/scripts/link-skills.ts",
+    "ki:test:record": "mcporter record gsuite-integration --server kit-mcp-gsuite -- bun scripts/integration.ts && cp ~/.mcporter/recordings/gsuite-integration.ndjson fixtures/recordings/gsuite-integration.ndjson",
+    "ki:test:replay": "cp fixtures/recordings/gsuite-integration.ndjson ~/.mcporter/recordings/gsuite-integration.ndjson && mcporter replay gsuite-integration -- bun scripts/integration.ts",
+    "ki:test:smoke": "bun run build && bun scripts/smoke.ts",
+    "ki:verify": "bun run ki:lint:check && bun run ki:lint:types && bun run ki:lint:md:check && bun run ki:knip && bun run build && bun run test:coverage",
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "type": "module"
+}

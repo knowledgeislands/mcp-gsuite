@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-gsuite": {
+      "command": "node",
+      "args": ["/path/to/mcp-gsuite/dist/mcp-server/index.js"],
+      "env": {
+        "MCP_GSUITE_CLIENT_ID": "your-client-id",
+        "MCP_GSUITE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
