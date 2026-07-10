@@ -118,8 +118,7 @@ describe('registerLabelTools', () => {
 
   it("'gsuite_email_label_delete' requires labelId", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_label_delete')
-    // schema is a ZodObject (.strict()); fields live on .shape
-    expect((c?.config.inputSchema as { shape: Record<string, unknown> }).shape).toHaveProperty('labelId')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelId')
   })
 })
 
@@ -193,8 +192,7 @@ describe('registerAttachmentTools', () => {
 
   it("'gsuite_email_attachment_get' requires messageId + attachmentId", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_attachment_get')
-    // schema is a ZodObject (.strict()); fields live on .shape
-    const shape = (c?.config.inputSchema as { shape: Record<string, unknown> }).shape
+    const shape = shapeOf(c?.config.inputSchema)
     expect(shape).toHaveProperty('messageId')
     expect(shape).toHaveProperty('attachmentId')
   })
