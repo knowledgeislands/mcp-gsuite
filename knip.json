@@ -8,7 +8,7 @@
     "scripts/integration.ts"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.ts"],
-  "ignore": ["src/generated/**"],
+  "ignore": ["src/generated/**", "scripts/ki/**"],
   "ignoreDependencies": ["google-auth-library", "googleapis-common"],
   "ignoreExportsUsedInFile": true,
   "ignoreBinaries": ["printf", "keys"]
