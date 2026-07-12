@@ -18,7 +18,7 @@ import { idSchema, querySchema } from '../../utils/schemas.js'
 // Each mirrors the exact shape the matching main/threads handler returns via
 // jsonResult, so clients can validate structuredContent (workspace MCP §12,
 // spec 2025-11-25 SHOULD). Defined inline in this coverage-excluded wiring
-// layer, matching the sibling mcp-kb-notion-mirror convention.
+// layer, matching the sibling mcp-ki-kb-notion-mirror convention.
 
 // A row in gsuite_email_threads_search results.
 const threadSummaryRow = z.object({

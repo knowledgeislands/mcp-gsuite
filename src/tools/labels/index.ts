@@ -9,7 +9,7 @@ import { idSchema, shortTextSchema } from '../../utils/schemas.js'
 // Each mirrors the exact shape the matching main/labels handler returns via
 // jsonResult, so clients can validate structuredContent (workspace MCP §12,
 // spec 2025-11-25 SHOULD). Defined inline in this coverage-excluded wiring
-// layer, matching the sibling mcp-kb-notion-mirror convention.
+// layer, matching the sibling mcp-ki-kb-notion-mirror convention.
 
 // gsuite_email_labels_list returns { labels: [{ id, name }] } — wrapped in an object
 // (not a bare array) so structuredContent is a valid JSON object per the spec,

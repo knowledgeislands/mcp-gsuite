@@ -9,7 +9,7 @@ import { attachmentIdSchema, idSchema } from '../../utils/schemas.js'
 // Each mirrors the exact shape the matching main/attachments handler returns
 // via jsonResult, so clients can validate structuredContent (workspace MCP §12,
 // spec 2025-11-25 SHOULD). Defined inline in this coverage-excluded wiring
-// layer, matching the sibling mcp-kb-notion-mirror convention.
+// layer, matching the sibling mcp-ki-kb-notion-mirror convention.
 
 // gsuite_email_attachment_get has two return shapes depending on `outputPath`:
 //   with outputPath → { messageId, path, sizeBytes }   (bytes written to disk)
