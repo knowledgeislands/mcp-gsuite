@@ -8,8 +8,8 @@
     "scripts/integration.ts"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.ts"],
-  "ignore": ["src/generated/**", "scripts/ki/**"],
-  "ignoreDependencies": ["google-auth-library", "googleapis-common"],
+  "ignore": ["src/generated/**", ".ki-meta/**"],
+  "ignoreDependencies": ["google-auth-library", "googleapis-common", "syncpack"],
   "ignoreExportsUsedInFile": true,
   "ignoreBinaries": ["printf", "keys"]
 }
