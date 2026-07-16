@@ -10,7 +10,6 @@ Actively broken, or blocking the `Next` horizon: takes priority over everything 
 
 Scoped and ready to start — the immediate queue, picked up before anything in **Soon** or **Future**.
 
-- [Foundation Tooling: Adopt uniform governance modes and bootstrap](docs/roadmap/foundation-tooling/ROADMAP.md#adopt-uniform-governance-modes-and-bootstrap)
 - [Tool Surface: Add incremental Gmail history](docs/roadmap/tool-surface/ROADMAP.md#add-incremental-gmail-history)
 - [Tool Surface: Add single-message label modification](docs/roadmap/tool-surface/ROADMAP.md#add-single-message-label-modification)
 
