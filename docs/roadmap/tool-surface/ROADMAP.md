@@ -1,3 +1,7 @@
+---
+code: TOOL
+---
+
 # Tool surface roadmap
 
 The service remains drafts-only: permanent deletion, Pub/Sub watch delivery, and direct send tools are deliberately out of scope unless a future policy decision changes that boundary. A single server process supports one Gmail account at a time.
