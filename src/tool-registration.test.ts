@@ -244,15 +244,13 @@ describe('registerThreadTools', () => {
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
   })
 
-  it.each([
-    'gsuite_email_thread_mark_read',
-    'gsuite_email_thread_mark_unread',
-    'gsuite_email_thread_archive',
-    'gsuite_email_thread_trash'
-  ])("'%s' requires only `threadId`", (name) => {
-    const c = calls.find((c) => c.name === name)
-    expect(shapeOf(c?.config.inputSchema)).toEqual({ threadId: expect.anything() })
-  })
+  it.each(['gsuite_email_thread_mark_read', 'gsuite_email_thread_mark_unread', 'gsuite_email_thread_archive', 'gsuite_email_thread_trash'])(
+    "'%s' requires only `threadId`",
+    (name) => {
+      const c = calls.find((c) => c.name === name)
+      expect(shapeOf(c?.config.inputSchema)).toEqual({ threadId: expect.anything() })
+    }
+  )
 })
 
 describe('registerDraftTools', () => {
