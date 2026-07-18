@@ -1,7 +1,7 @@
-// Generated on 2026-07-12T10:44:02.392Z by @knowledgeislands/mcp-gsuite@0.0.1
+// Generated on 2026-07-18T16:27:32.340Z by @knowledgeislands/mcp-gsuite@0.0.1
 // Server: kit-mcp-gsuite
 // Source: /Users/krisbrown/.mcporter/mcporter.json
-// Transport: STDIO /Users/krisbrown/.local/share/mise/installs/node/lts/bin/node /Users/krisbrown/kis/knowledgeislands/mcp-gsuite/dist/mcp-server/index.js
+// Transport: STDIO /Users/krisbrown/.local/share/mise/installs/node/lts/bin/node /Users/krisbrown/workspaces/kis/knowledgeislands/mcp-gsuite/dist/mcp-server/index.js
 
 import type { CallResult } from 'mcporter';
 
