@@ -42,7 +42,7 @@ const hydrateEnvFromFiles = (): void => {
 }
 
 export const SERVER_NAME = 'mcp-gsuite'
-export const SERVER_VERSION = '0.0.1'
+export const SERVER_VERSION = '0.9.0'
 
 /**
  * Single ordinal access level. Each level implies all lower ones:
