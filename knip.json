@@ -5,6 +5,7 @@
     "src/auth-server/index.ts!",
     "src/config/index.ts!",
     "src/main/*/index.ts!",
+    "src/main/email/parse.ts!",
     "scripts/integration.ts"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.ts"],
