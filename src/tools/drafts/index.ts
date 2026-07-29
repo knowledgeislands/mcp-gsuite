@@ -126,6 +126,34 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
+    'gsuite_email_draft_delete',
+    {
+      description:
+        "Permanently delete a draft. Idempotent on the outcome (already-deleted drafts return 404 from Gmail). `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the draft and returns its subject in `would_delete` without calling Gmail's delete API.",
+      inputSchema: z
+        .object({
+          draftId: idSchema,
+          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+        })
+        .strict(),
+      outputSchema: deleteDraftOutput,
+      annotations: DESTRUCTIVE_REMOTE
+    },
+    (args) => deleteDraft(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_draft_get',
+    {
+      description: "Get a draft's full body, headers, label ids, and attachment refs.",
+      inputSchema: z.object({ draftId: idSchema }).strict(),
+      outputSchema: getDraftOutput,
+      annotations: READ_ONLY_REMOTE
+    },
+    (args) => getDraft(cfg, args)
+  )
+
+  server.registerTool(
     'gsuite_email_draft_update',
     {
       description: 'Replace an existing draft entirely. Same shape as `gsuite_email_draft_create` plus `draftId`.',
@@ -164,33 +192,5 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
       annotations: READ_ONLY_REMOTE
     },
     (args) => listDrafts(cfg, args)
-  )
-
-  server.registerTool(
-    'gsuite_email_draft_get',
-    {
-      description: "Get a draft's full body, headers, label ids, and attachment refs.",
-      inputSchema: z.object({ draftId: idSchema }).strict(),
-      outputSchema: getDraftOutput,
-      annotations: READ_ONLY_REMOTE
-    },
-    (args) => getDraft(cfg, args)
-  )
-
-  server.registerTool(
-    'gsuite_email_draft_delete',
-    {
-      description:
-        "Permanently delete a draft. Idempotent on the outcome (already-deleted drafts return 404 from Gmail). `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the draft and returns its subject in `would_delete` without calling Gmail's delete API.",
-      inputSchema: z
-        .object({
-          draftId: idSchema,
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
-        })
-        .strict(),
-      outputSchema: deleteDraftOutput,
-      annotations: DESTRUCTIVE_REMOTE
-    },
-    (args) => deleteDraft(cfg, args)
   )
 }

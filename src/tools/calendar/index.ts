@@ -74,42 +74,6 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
-    'gsuite_calendar_events_list',
-    {
-      description:
-        'List events on a calendar, ordered by start time (recurring events are expanded into instances). Returns trimmed events `{id → eventId, summary, start, end, location?, status}`; `start`/`end` are RFC 3339 timestamps (or bare dates for all-day events).',
-      inputSchema: z
-        .object({
-          calendarId: calendarIdSchema.optional(),
-          timeMin: rfc3339Schema.optional().describe('Lower bound (exclusive) on end time, RFC 3339 (e.g. `2026-07-08T00:00:00Z`).'),
-          timeMax: rfc3339Schema.optional().describe('Upper bound (exclusive) on start time, RFC 3339.'),
-          query: shortTextSchema.min(1).optional().describe('Free-text search over event fields.'),
-          maxResults: z.number().int().positive().max(2500).optional().describe('Max events to return (Calendar default 250, max 2500).')
-        })
-        .strict(),
-      outputSchema: listEventsOutput,
-      annotations: READ_ONLY_REMOTE
-    },
-    (args) => listEvents(cfg, args)
-  )
-
-  server.registerTool(
-    'gsuite_calendar_event_get',
-    {
-      description: 'Get a single event, including its description and attendee emails.',
-      inputSchema: z
-        .object({
-          calendarId: calendarIdSchema.optional(),
-          eventId: eventIdSchema
-        })
-        .strict(),
-      outputSchema: getEventOutput,
-      annotations: READ_ONLY_REMOTE
-    },
-    (args) => getEvent(cfg, args)
-  )
-
-  server.registerTool(
     'gsuite_calendar_event_create',
     {
       description:
@@ -129,6 +93,40 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
       annotations: WRITE_REMOTE
     },
     (args) => createEvent(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_calendar_event_delete',
+    {
+      description:
+        'Delete an event. Attendees are notified per the calendar’s defaults. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the event and returns its trimmed projection in `would_delete` without calling the delete API.',
+      inputSchema: z
+        .object({
+          calendarId: calendarIdSchema.optional(),
+          eventId: eventIdSchema,
+          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+        })
+        .strict(),
+      outputSchema: deleteEventOutput,
+      annotations: DESTRUCTIVE_REMOTE
+    },
+    (args) => deleteEvent(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_calendar_event_get',
+    {
+      description: 'Get a single event, including its description and attendee emails.',
+      inputSchema: z
+        .object({
+          calendarId: calendarIdSchema.optional(),
+          eventId: eventIdSchema
+        })
+        .strict(),
+      outputSchema: getEventOutput,
+      annotations: READ_ONLY_REMOTE
+    },
+    (args) => getEvent(cfg, args)
   )
 
   server.registerTool(
@@ -155,20 +153,22 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
-    'gsuite_calendar_event_delete',
+    'gsuite_calendar_events_list',
     {
       description:
-        'Delete an event. Attendees are notified per the calendar’s defaults. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the event and returns its trimmed projection in `would_delete` without calling the delete API.',
+        'List events on a calendar, ordered by start time (recurring events are expanded into instances). Returns trimmed events `{id → eventId, summary, start, end, location?, status}`; `start`/`end` are RFC 3339 timestamps (or bare dates for all-day events).',
       inputSchema: z
         .object({
           calendarId: calendarIdSchema.optional(),
-          eventId: eventIdSchema,
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+          timeMin: rfc3339Schema.optional().describe('Lower bound (exclusive) on end time, RFC 3339 (e.g. `2026-07-08T00:00:00Z`).'),
+          timeMax: rfc3339Schema.optional().describe('Upper bound (exclusive) on start time, RFC 3339.'),
+          query: shortTextSchema.min(1).optional().describe('Free-text search over event fields.'),
+          maxResults: z.number().int().positive().max(2500).optional().describe('Max events to return (Calendar default 250, max 2500).')
         })
         .strict(),
-      outputSchema: deleteEventOutput,
-      annotations: DESTRUCTIVE_REMOTE
+      outputSchema: listEventsOutput,
+      annotations: READ_ONLY_REMOTE
     },
-    (args) => deleteEvent(cfg, args)
+    (args) => listEvents(cfg, args)
   )
 }

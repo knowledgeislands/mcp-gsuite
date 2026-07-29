@@ -36,17 +36,6 @@ const deleteLabelOutput = z.object({
 
 export const registerLabelTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
-    'gsuite_email_labels_list',
-    {
-      description: 'List all Gmail labels (system + user) with id and name. Returns `{labels: [{id, name}]}`.',
-      inputSchema: z.object({}).strict(),
-      outputSchema: listLabelsOutput,
-      annotations: READ_ONLY_REMOTE
-    },
-    () => listLabels(cfg)
-  )
-
-  server.registerTool(
     'gsuite_email_label_create',
     {
       description: 'Create a new user label.',
@@ -59,6 +48,23 @@ export const registerLabelTools = (server: McpServer, cfg: Config): void => {
       annotations: WRITE_REMOTE
     },
     (args) => createLabel(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_label_delete',
+    {
+      description:
+        "Delete a user label entirely. The label disappears from every message that had it (the messages themselves are untouched). System labels (INBOX, SENT, etc.) cannot be deleted. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the label and returns its name and type in `would_delete` without calling Gmail's delete API.",
+      inputSchema: z
+        .object({
+          labelId: idSchema.describe('Label id (from `gsuite_email_labels_list`).'),
+          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+        })
+        .strict(),
+      outputSchema: deleteLabelOutput,
+      annotations: DESTRUCTIVE_REMOTE
+    },
+    (args) => deleteLabel(cfg, args)
   )
 
   server.registerTool(
@@ -79,19 +85,13 @@ export const registerLabelTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
-    'gsuite_email_label_delete',
+    'gsuite_email_labels_list',
     {
-      description:
-        "Delete a user label entirely. The label disappears from every message that had it (the messages themselves are untouched). System labels (INBOX, SENT, etc.) cannot be deleted. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the label and returns its name and type in `would_delete` without calling Gmail's delete API.",
-      inputSchema: z
-        .object({
-          labelId: idSchema.describe('Label id (from `gsuite_email_labels_list`).'),
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
-        })
-        .strict(),
-      outputSchema: deleteLabelOutput,
-      annotations: DESTRUCTIVE_REMOTE
+      description: 'List all Gmail labels (system + user) with id and name. Returns `{labels: [{id, name}]}`.',
+      inputSchema: z.object({}).strict(),
+      outputSchema: listLabelsOutput,
+      annotations: READ_ONLY_REMOTE
     },
-    (args) => deleteLabel(cfg, args)
+    () => listLabels(cfg)
   )
 }

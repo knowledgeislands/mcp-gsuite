@@ -72,39 +72,14 @@ const threadLabelStateOutput = z.object({
 
 export const registerThreadTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
-    'gsuite_email_threads_search',
+    'gsuite_email_thread_archive',
     {
-      description:
-        'Search threads with a Gmail query string (same syntax as `gsuite_email_messages_search`). Returns `{threads, nextPageToken?}` where each thread carries id, snippet, messageCount, latest-message headers, and the union of label ids across all messages. To filter by a label whose name contains spaces, either pass its exact id(s) via `labelIds` (most reliable) or quote the name in the query (`label:"Matters/Criminal - False Allegations"`) — the server rewrites quoted names to the hyphenated form Gmail expects. An unquoted `label:` with spaces silently matches nothing.',
-      inputSchema: z
-        .object({
-          query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com newer_than:30d`'),
-          maxResults: z
-            .number()
-            .int()
-            .positive()
-            .max(500)
-            .optional()
-            .describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
-          pageToken: z
-            .string()
-            .min(1)
-            .max(4096)
-            .optional()
-            .describe('Continuation token from a previous `gsuite_email_threads_search` call.'),
-          labelIds: z
-            .array(idSchema)
-            .min(1)
-            .optional()
-            .describe(
-              'Exact label ids (from `gsuite_email_labels_list`) a message in the thread must carry. Reliable for any label name, including those with spaces or slashes; ANDed with `query`.'
-            )
-        })
-        .strict(),
-      outputSchema: searchThreadsOutput,
-      annotations: READ_ONLY_REMOTE
+      description: 'Archive an entire thread (remove the `INBOX` system label from every message). The thread remains searchable.',
+      inputSchema: z.object({ threadId: idSchema }).strict(),
+      outputSchema: threadLabelStateOutput,
+      annotations: WRITE_IDEMPOTENT_REMOTE
     },
-    (args) => searchThreads(cfg, args)
+    (args) => threadArchive(cfg, args)
   )
 
   server.registerTool(
@@ -139,22 +114,6 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
-    'gsuite_email_thread_unlabel',
-    {
-      description: 'Remove one or more labels from every message in a thread.',
-      inputSchema: z
-        .object({
-          threadId: idSchema,
-          labelIds: z.array(idSchema).min(1)
-        })
-        .strict(),
-      outputSchema: threadLabelStateOutput,
-      annotations: WRITE_IDEMPOTENT_REMOTE
-    },
-    (args) => unlabelThread(cfg, args)
-  )
-
-  server.registerTool(
     'gsuite_email_thread_mark_read',
     {
       description: 'Mark every message in a thread as read (remove the `UNREAD` system label).',
@@ -177,17 +136,6 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
   )
 
   server.registerTool(
-    'gsuite_email_thread_archive',
-    {
-      description: 'Archive an entire thread (remove the `INBOX` system label from every message). The thread remains searchable.',
-      inputSchema: z.object({ threadId: idSchema }).strict(),
-      outputSchema: threadLabelStateOutput,
-      annotations: WRITE_IDEMPOTENT_REMOTE
-    },
-    (args) => threadArchive(cfg, args)
-  )
-
-  server.registerTool(
     'gsuite_email_thread_trash',
     {
       description:
@@ -197,5 +145,57 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
       annotations: WRITE_IDEMPOTENT_REMOTE
     },
     (args) => threadTrash(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_thread_unlabel',
+    {
+      description: 'Remove one or more labels from every message in a thread.',
+      inputSchema: z
+        .object({
+          threadId: idSchema,
+          labelIds: z.array(idSchema).min(1)
+        })
+        .strict(),
+      outputSchema: threadLabelStateOutput,
+      annotations: WRITE_IDEMPOTENT_REMOTE
+    },
+    (args) => unlabelThread(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_threads_search',
+    {
+      description:
+        'Search threads with a Gmail query string (same syntax as `gsuite_email_messages_search`). Returns `{threads, nextPageToken?}` where each thread carries id, snippet, messageCount, latest-message headers, and the union of label ids across all messages. To filter by a label whose name contains spaces, either pass its exact id(s) via `labelIds` (most reliable) or quote the name in the query (`label:"Matters/Criminal - False Allegations"`) — the server rewrites quoted names to the hyphenated form Gmail expects. An unquoted `label:` with spaces silently matches nothing.',
+      inputSchema: z
+        .object({
+          query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com newer_than:30d`'),
+          maxResults: z
+            .number()
+            .int()
+            .positive()
+            .max(500)
+            .optional()
+            .describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
+          pageToken: z
+            .string()
+            .min(1)
+            .max(4096)
+            .optional()
+            .describe('Continuation token from a previous `gsuite_email_threads_search` call.'),
+          labelIds: z
+            .array(idSchema)
+            .min(1)
+            .optional()
+            .describe(
+              'Exact label ids (from `gsuite_email_labels_list`) a message in the thread must carry. Reliable for any label name, including those with spaces or slashes; ANDed with `query`.'
+            )
+        })
+        .strict(),
+      outputSchema: searchThreadsOutput,
+      annotations: READ_ONLY_REMOTE
+    },
+    (args) => searchThreads(cfg, args)
   )
 }

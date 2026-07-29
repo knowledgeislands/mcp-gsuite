@@ -14,11 +14,11 @@ describe('registerCalendarTools', () => {
     const registered = registerTool.mock.calls.map(([name, config]) => [name, config.annotations])
     expect(registered).toEqual([
       ['gsuite_calendar_calendars_list', READ_ONLY_REMOTE],
-      ['gsuite_calendar_events_list', READ_ONLY_REMOTE],
-      ['gsuite_calendar_event_get', READ_ONLY_REMOTE],
       ['gsuite_calendar_event_create', WRITE_REMOTE],
+      ['gsuite_calendar_event_delete', DESTRUCTIVE_REMOTE],
+      ['gsuite_calendar_event_get', READ_ONLY_REMOTE],
       ['gsuite_calendar_event_update', WRITE_IDEMPOTENT_REMOTE],
-      ['gsuite_calendar_event_delete', DESTRUCTIVE_REMOTE]
+      ['gsuite_calendar_events_list', READ_ONLY_REMOTE]
     ])
   })
 })
