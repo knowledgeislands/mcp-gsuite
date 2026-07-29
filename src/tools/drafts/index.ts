@@ -99,9 +99,7 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
           cc: optionalRecipientField,
           bcc: optionalRecipientField,
           subject: shortTextSchema.optional().describe('If omitted and `replyToMessageId` is set, defaults to "Re: <original subject>".'),
-          bodyText: bodyTextSchema
-            .optional()
-            .describe('Plain-text body. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'),
+          bodyText: bodyTextSchema.optional().describe('Plain-text body. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'),
           bodyHtml: bodyTextSchema
             .optional()
             .describe(

@@ -103,9 +103,7 @@ describe('listFiles', () => {
 
     const r = await listFiles(cfg, { folderId: 'root' })
     expect(r).toHaveProperty('isError', true)
-    expect(r.content[0].text).toBe(
-      'Error listing Drive files: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
-    )
+    expect(r.content[0].text).toBe('Error listing Drive files: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
   })
 
   it('returns an error result when driveService itself throws (no token)', async () => {

@@ -83,9 +83,7 @@ describe('buildOAuthClient', () => {
   })
 
   it('throws when both are missing', () => {
-    expect(() => buildOAuthClient({ ...auth, clientId: '', clientSecret: '' })).toThrow(
-      /MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/
-    )
+    expect(() => buildOAuthClient({ ...auth, clientId: '', clientSecret: '' })).toThrow(/MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/)
   })
 })
 

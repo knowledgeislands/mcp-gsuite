@@ -123,9 +123,7 @@ describe('buildRfc2822 (no attachments)', () => {
   })
 
   it('rejects newlines in recipient lists (header-injection guard)', () => {
-    expect(() => buildRfc2822({ to: ['ok@x.com', 'bad@x.com\r\nBcc: secret@x.com'], subject: 'S', bodyText: 'b' })).toThrow(
-      /header injection/
-    )
+    expect(() => buildRfc2822({ to: ['ok@x.com', 'bad@x.com\r\nBcc: secret@x.com'], subject: 'S', bodyText: 'b' })).toThrow(/header injection/)
   })
 
   it('rejects newlines in cc / bcc', () => {

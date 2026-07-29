@@ -90,9 +90,7 @@ describe('handleListLabels', () => {
 
     const r = await handleListLabels()
     expect(r).toHaveProperty('isError', true)
-    expect(r.content[0].text).toBe(
-      'Error listing labels: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
-    )
+    expect(r.content[0].text).toBe('Error listing labels: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
   })
 
   it('returns an error result when gmailService itself throws (no token)', async () => {

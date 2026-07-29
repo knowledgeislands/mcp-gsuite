@@ -29,8 +29,7 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, defaultSearchResults: 20, downloadPath: os.tmpdir() } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleSearchMessages = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) =>
-  searchMessages(cfg, args)
+const handleSearchMessages = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) => searchMessages(cfg, args)
 const handleGetMessage = (args: { messageId: string; format?: 'metadata' | 'full' }) => getMessage(cfg, args)
 const handleGetRawMessage = (args: { messageId: string; outputPath: string }) => getRawMessage(cfg, args)
 const handleLabelMessage = (args: { messageId: string; labelIds: string[] }) => labelMessage(cfg, args)
@@ -39,8 +38,7 @@ const handleMessageMarkRead = (args: { messageId: string }) => messageMarkRead(c
 const handleMessageMarkUnread = (args: { messageId: string }) => messageMarkUnread(cfg, args)
 const handleMessageArchive = (args: { messageId: string }) => messageArchive(cfg, args)
 const handleMessageTrash = (args: { messageId: string }) => messageTrash(cfg, args)
-const handleMessageBatchModify = (args: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }) =>
-  messageBatchModify(cfg, args)
+const handleMessageBatchModify = (args: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }) => messageBatchModify(cfg, args)
 
 const b64 = (s: string): string => Buffer.from(s, 'utf8').toString('base64url')
 

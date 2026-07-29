@@ -6,9 +6,7 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const auth = await import('../google-client/index.js')
-const { getThread, labelThread, searchThreads, threadArchive, threadMarkRead, threadMarkUnread, threadTrash, unlabelThread } = await import(
-  './index.js'
-)
+const { getThread, labelThread, searchThreads, threadArchive, threadMarkRead, threadMarkUnread, threadTrash, unlabelThread } = await import('./index.js')
 
 const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 
@@ -16,8 +14,7 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, defaultSearchResults: 20 } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleSearchThreads = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) =>
-  searchThreads(cfg, args)
+const handleSearchThreads = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) => searchThreads(cfg, args)
 const handleGetThread = (args: { threadId: string }) => getThread(cfg, args)
 const handleLabelThread = (args: { threadId: string; labelIds: string[] }) => labelThread(cfg, args)
 const handleUnlabelThread = (args: { threadId: string; labelIds: string[] }) => unlabelThread(cfg, args)

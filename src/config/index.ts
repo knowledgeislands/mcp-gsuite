@@ -182,9 +182,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
       clientSecret: env.MCP_GSUITE_CLIENT_SECRET || '',
       redirectUri: env.MCP_GSUITE_REDIRECT_URI || `http://localhost:${authPort}/auth/callback`,
       scopes: parseScopes(env.MCP_GSUITE_SCOPES),
-      tokenStorePath: env.MCP_GSUITE_TOKEN_PATH?.trim()
-        ? path.resolve(env.MCP_GSUITE_TOKEN_PATH.trim())
-        : path.join(homeDir, '.mcp-gsuite-tokens.json'),
+      tokenStorePath: env.MCP_GSUITE_TOKEN_PATH?.trim() ? path.resolve(env.MCP_GSUITE_TOKEN_PATH.trim()) : path.join(homeDir, '.mcp-gsuite-tokens.json'),
       authServerPort: authPort,
       authServerUrl: `http://localhost:${authPort}`
     },
@@ -195,9 +193,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
       : path.join(homeDir, '.local', 'state', 'mcp-gsuite', 'audit.jsonl'),
     auditLogMaxBytes: parseNonNegativeInt(env.MCP_GSUITE_AUDIT_LOG_MAX_BYTES, 10 * 1024 * 1024, 'MCP_GSUITE_AUDIT_LOG_MAX_BYTES'),
     auditLogKeep: parseNonNegativeInt(env.MCP_GSUITE_AUDIT_LOG_KEEP, 5, 'MCP_GSUITE_AUDIT_LOG_KEEP'),
-    downloadPath: env.MCP_GSUITE_DOWNLOAD_PATH?.trim()
-      ? path.resolve(env.MCP_GSUITE_DOWNLOAD_PATH.trim())
-      : path.join(homeDir, 'Downloads'),
+    downloadPath: env.MCP_GSUITE_DOWNLOAD_PATH?.trim() ? path.resolve(env.MCP_GSUITE_DOWNLOAD_PATH.trim()) : path.join(homeDir, 'Downloads'),
     inlineAttachmentMaxBytes: parseInlineMax(env.MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES, 256 * 1024)
   }
 }

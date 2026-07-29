@@ -56,9 +56,7 @@ afterEach(() => {
 describe('handleGetAttachment (inline / base64 response)', () => {
   it('returns {filename, mimeType, data} with the base64url data from the API verbatim', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'invoice.pdf', 'application/pdf', 12345)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'invoice.pdf', 'application/pdf', 12345))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: { data: 'BASE64URL_DATA_xyz', size: 12345 }
     })
@@ -75,9 +73,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
   it('does NOT re-encode the data field (passes through whatever Gmail returns)', async () => {
     const gmail = makeGmail()
     const rawFromApi = '-_AbC123-_' // base64url-safe chars
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 7)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 7))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { data: rawFromApi } })
     gmailServiceMock.mockReturnValue(gmail)
 
@@ -87,9 +83,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
 
   it('looks up filename/mimeType from the message payload', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'real-name.pdf', 'application/pdf', 100)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'real-name.pdf', 'application/pdf', 100))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { data: 'd' } })
     gmailServiceMock.mockReturnValue(gmail)
 
@@ -106,9 +100,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
   // we can't resolve filename/mimeType locally.
   it('still calls the Gmail API and returns data even when the part metadata lookup misses', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A_DIFFERENT', 'x.pdf', 'application/pdf', 1)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A_DIFFERENT', 'x.pdf', 'application/pdf', 1))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { data: 'API_DATA' } })
     gmailServiceMock.mockReturnValue(gmail)
 
@@ -137,9 +129,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
 
   it('returns an empty data string when the attachment payload has no data', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 0)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 0))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} })
     gmailServiceMock.mockReturnValue(gmail)
 
@@ -161,9 +151,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
 
   it('returns an error result when the attachment fetch fails', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 0)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'x.bin', 'application/octet-stream', 0))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockRejectedValue({
       response: { status: 500, data: { error: { message: 'Internal' } } }
     })
@@ -177,9 +165,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
   it('rejects (without fetching bytes) when the metadata reports size above the inline cap', async () => {
     const oversized = 256 * 1024 + 1
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'huge.bin', 'application/octet-stream', oversized)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'huge.bin', 'application/octet-stream', oversized))
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1' })
@@ -195,9 +181,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
     // be enforced after the bytes are fetched. The handler decodes and bails.
     const oversizedBase64 = 'a'.repeat(((256 * 1024 + 64) / 3 + 1) * 4)
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A_OTHER', 'x.bin', 'application/octet-stream', 1)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A_OTHER', 'x.bin', 'application/octet-stream', 1))
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { data: oversizedBase64 } })
     gmailServiceMock.mockReturnValue(gmail)
 
@@ -303,9 +287,7 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
 describe('handleGetAttachmentMetadata', () => {
   it('returns {messageId, attachmentId, filename, mimeType, sizeBytes} from the message part tree', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('A1', 'invoice.pdf', 'application/pdf', 98765)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('A1', 'invoice.pdf', 'application/pdf', 98765))
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleGetAttachmentMetadata({ messageId: 'm1', attachmentId: 'A1' })
@@ -323,9 +305,7 @@ describe('handleGetAttachmentMetadata', () => {
 
   it('returns an error result when the attachmentId is not found on the message', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(
-      messageWithAttachment('OTHER_ID', 'x.pdf', 'application/pdf', 1)
-    )
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue(messageWithAttachment('OTHER_ID', 'x.pdf', 'application/pdf', 1))
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleGetAttachmentMetadata({ messageId: 'm1', attachmentId: 'NOT_THERE' })

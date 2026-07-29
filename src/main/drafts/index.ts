@@ -127,9 +127,7 @@ const composeDraft = async (cfg: Config, input: DraftInput): Promise<ResolvedSpe
     const gmail = gmailService(cfg.auth)
     // For plain reply we only need Message-ID + Subject + References; for
     // reply-all we additionally need From / To / Cc to rebuild the audience.
-    const metadataHeaders = input.replyAll
-      ? ['Message-ID', 'Subject', 'References', 'From', 'To', 'Cc']
-      : ['Message-ID', 'Subject', 'References']
+    const metadataHeaders = input.replyAll ? ['Message-ID', 'Subject', 'References', 'From', 'To', 'Cc'] : ['Message-ID', 'Subject', 'References']
     const orig = await gmail.users.messages.get({
       userId: 'me',
       id: input.replyToMessageId,
@@ -224,10 +222,7 @@ export const updateDraft = async (cfg: Config, input: DraftInput & { draftId: st
   }
 }
 
-export const listDrafts = async (
-  cfg: Config,
-  { query, maxResults, pageToken }: { query?: string; maxResults?: number; pageToken?: string }
-) => {
+export const listDrafts = async (cfg: Config, { query, maxResults, pageToken }: { query?: string; maxResults?: number; pageToken?: string }) => {
   try {
     const gmail = gmailService(cfg.auth)
     const limit = maxResults ?? cfg.defaultSearchResults

@@ -102,9 +102,7 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
           format: z
             .enum(['metadata', 'full'])
             .optional()
-            .describe(
-              '`full` (default): full body + attachment refs. `metadata`: headers + labels only; `body` and `attachments` are empty.'
-            )
+            .describe('`full` (default): full body + attachment refs. `metadata`: headers + labels only; `body` and `attachments` are empty.')
         })
         .strict(),
       outputSchema: getMessageOutput,
@@ -229,19 +227,8 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com has:attachment newer_than:7d`'),
-          maxResults: z
-            .number()
-            .int()
-            .positive()
-            .max(500)
-            .optional()
-            .describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
-          pageToken: z
-            .string()
-            .min(1)
-            .max(4096)
-            .optional()
-            .describe('Continuation token from a previous `gsuite_email_messages_search` call.'),
+          maxResults: z.number().int().positive().max(500).optional().describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
+          pageToken: z.string().min(1).max(4096).optional().describe('Continuation token from a previous `gsuite_email_messages_search` call.'),
           labelIds: z
             .array(idSchema)
             .min(1)

@@ -102,10 +102,7 @@ export const registerDriveTools = (server: McpServer, cfg: Config): void => {
           spreadsheetId: idSchema.describe('Spreadsheet id.'),
           range: rangeSchema,
           values: z.array(z.array(shortTextSchema)).min(1).describe('Row-major cell values to write.'),
-          valueInputOption: z
-            .enum(['USER_ENTERED', 'RAW'])
-            .optional()
-            .describe('`USER_ENTERED` (default): parse like UI input. `RAW`: store verbatim.')
+          valueInputOption: z.enum(['USER_ENTERED', 'RAW']).optional().describe('`USER_ENTERED` (default): parse like UI input. `RAW`: store verbatim.')
         })
         .strict(),
       outputSchema: updateValuesOutput,

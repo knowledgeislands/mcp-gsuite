@@ -50,12 +50,7 @@ export const getValues = async (
 
 export const updateValues = async (
   cfg: Config,
-  {
-    spreadsheetId,
-    range,
-    values,
-    valueInputOption
-  }: { spreadsheetId: string; range: string; values: string[][]; valueInputOption?: 'USER_ENTERED' | 'RAW' }
+  { spreadsheetId, range, values, valueInputOption }: { spreadsheetId: string; range: string; values: string[][]; valueInputOption?: 'USER_ENTERED' | 'RAW' }
 ) => {
   try {
     const sheets = sheetsService(cfg.auth)

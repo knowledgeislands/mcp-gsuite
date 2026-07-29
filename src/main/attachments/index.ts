@@ -46,10 +46,7 @@ export const getAttachmentMetadata = async (cfg: Config, { messageId, attachment
   }
 }
 
-export const getAttachment = async (
-  cfg: Config,
-  { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath?: string }
-) => {
+export const getAttachment = async (cfg: Config, { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath?: string }) => {
   try {
     const gmail = gmailService(cfg.auth)
 

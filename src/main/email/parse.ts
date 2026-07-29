@@ -24,10 +24,7 @@ export const decodeBase64Url = (data: string): string => {
  * preserved; every other operator and the unquoted form pass through untouched.
  */
 export const normaliseQueryLabels = (query: string): string =>
-  query.replace(
-    /(^|[\s(])(-?)label:"([^"]*)"/g,
-    (_match, pre: string, neg: string, name: string) => `${pre}${neg}label:${name.replace(/ /g, '-')}`
-  )
+  query.replace(/(^|[\s(])(-?)label:"([^"]*)"/g, (_match, pre: string, neg: string, name: string) => `${pre}${neg}label:${name.replace(/ /g, '-')}`)
 
 export const headerValue = (headers: gmail_v1.Schema$MessagePartHeader[] | undefined, name: string): string => {
   if (!headers) return ''

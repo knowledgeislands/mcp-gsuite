@@ -49,9 +49,7 @@ describe('parseScopes (via auth.scopes)', () => {
 describe('auth paths and ports', () => {
   it('uses MCP_GSUITE_TOKEN_PATH when set', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_TOKEN_PATH: '/tmp/my-custom-tokens.json' }).auth.tokenStorePath).toBe(
-      '/tmp/my-custom-tokens.json'
-    )
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_TOKEN_PATH: '/tmp/my-custom-tokens.json' }).auth.tokenStorePath).toBe('/tmp/my-custom-tokens.json')
   })
 
   it('defaults tokenStorePath to ~/.mcp-gsuite-tokens.json when MCP_GSUITE_TOKEN_PATH is unset', async () => {
@@ -149,16 +147,12 @@ describe('parseInlineMax (via inlineAttachmentMaxBytes)', () => {
 
   it('throws on a non-numeric MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: 'lots' })).toThrow(
-      /Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/
-    )
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: 'lots' })).toThrow(/Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/)
   })
 
   it('throws on a non-positive MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '0' })).toThrow(
-      /Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/
-    )
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '0' })).toThrow(/Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/)
   })
 })
 

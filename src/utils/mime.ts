@@ -118,10 +118,7 @@ const validateRecipients = (label: string, list: string[] | undefined): void => 
 // Discriminated union over the three legal shapes a draft body can take:
 // text-only (back-compat), html-only, or both (→ multipart/alternative).
 // "Empty html" is normalised to not-provided; "empty text" remains valid.
-type BodyParts =
-  | { kind: 'alt'; text: string; html: string; boundary: string }
-  | { kind: 'text'; text: string }
-  | { kind: 'html'; html: string }
+type BodyParts = { kind: 'alt'; text: string; html: string; boundary: string } | { kind: 'text'; text: string } | { kind: 'html'; html: string }
 
 const resolveBodyParts = (spec: DraftSpec): BodyParts => {
   const text = spec.bodyText
@@ -179,11 +176,7 @@ export const buildRfc2822 = (spec: DraftSpec): Buffer => {
     const onlyBody = body.kind === 'text' ? body.text : body.html
     headerLines.push(emitHeader('Content-Type', `${onlyType}; charset=UTF-8`))
     headerLines.push(emitHeader('Content-Transfer-Encoding', '8bit'))
-    return Buffer.concat([
-      Buffer.from(headerLines.join(''), 'utf8'),
-      Buffer.from(CRLF, 'utf8'),
-      Buffer.from(normalizeNewlines(onlyBody), 'utf8')
-    ])
+    return Buffer.concat([Buffer.from(headerLines.join(''), 'utf8'), Buffer.from(CRLF, 'utf8'), Buffer.from(normalizeNewlines(onlyBody), 'utf8')])
   }
 
   // With attachments → multipart/mixed wraps body section + attachment parts.

@@ -159,15 +159,13 @@ describe('registerMessageTools', () => {
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
   })
 
-  it.each([
-    'gsuite_email_message_mark_read',
-    'gsuite_email_message_mark_unread',
-    'gsuite_email_message_archive',
-    'gsuite_email_message_trash'
-  ])("'%s' requires only `messageId`", (name) => {
-    const c = calls.find((c) => c.name === name)
-    expect(shapeOf(c?.config.inputSchema)).toEqual({ messageId: expect.anything() })
-  })
+  it.each(['gsuite_email_message_mark_read', 'gsuite_email_message_mark_unread', 'gsuite_email_message_archive', 'gsuite_email_message_trash'])(
+    "'%s' requires only `messageId`",
+    (name) => {
+      const c = calls.find((c) => c.name === name)
+      expect(shapeOf(c?.config.inputSchema)).toEqual({ messageId: expect.anything() })
+    }
+  )
 
   it("'gsuite_email_messages_batch_modify' accepts ids + add/remove label arrays", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_messages_batch_modify')
