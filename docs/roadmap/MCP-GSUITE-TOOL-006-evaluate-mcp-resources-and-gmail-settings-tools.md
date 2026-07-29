@@ -1,0 +1,19 @@
+---
+id: MCP-GSUITE-TOOL-006
+title: Evaluate MCP resources and Gmail settings tools
+theme: tool-surface
+horizon: future
+status: open
+candidate: true
+blocks: []
+blocked-by: []
+baseline-ref: null
+---
+
+## Context
+
+Evaluate resource exposure, filter management, and aliases/Send-As tools only if a client need justifies their additional surface area.
+
+## Boundary
+
+Keep the work limited to the stated surface.
