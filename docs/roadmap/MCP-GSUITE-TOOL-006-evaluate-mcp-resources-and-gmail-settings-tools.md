@@ -17,3 +17,7 @@ Evaluate resource exposure, filter management, and aliases/Send-As tools only if
 ## Boundary
 
 Keep the work limited to the stated surface.
+
+## Discussion
+
+No discussion recorded yet; this item is unshaped by design at the `future` horizon.
