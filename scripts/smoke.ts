@@ -4,7 +4,7 @@
 // drift between code and the *wire* contract (registration tests cover the
 // in-process registration call pattern; this covers the actual protocol round-trip).
 //
-// Run via `bun run test:smoke` (builds dist/ first). Runs in CI without secrets:
+// Run via `bun run ki:test:smoke` (builds dist/ first). Runs in CI without secrets:
 // the server boots without MCP_GSUITE_CLIENT_ID / MCP_GSUITE_CLIENT_SECRET — it just warns.
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
