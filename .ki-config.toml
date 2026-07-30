@@ -1,4 +1,7 @@
 ["knowledgeislands/ki-agentic-harness:ki-repo"]
+title = "mcp-gsuite"
+description = "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API."
+repo_code = "MCP-GSUITE"
 supported_runtimes = ["claude-code", "codex"]
 visibility = "public"
 
@@ -9,8 +12,6 @@ visibility = "public"
 ["knowledgeislands/ki-agentic-harness:ki-mcp"]
 
 ["knowledgeislands/ki-agentic-harness:ki-roadmap"]
-repo_code = "MCP-GSUITE"
-
 ["knowledgeislands/ki-agentic-harness:ki-roadmap".themes]
 FND = "foundation-tooling"
 TOOL = "tool-surface"
