@@ -2,7 +2,7 @@
 title = "mcp-gsuite"
 description = "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API."
 repo_code = "MCP-GSUITE"
-supported_runtimes = ["claude-code", "codex"]
+supported_runtimes = ["claude-code", "chatgpt-codex"]
 visibility = "public"
 
 ["knowledgeislands/ki-agentic-harness:ki-authoring"]
