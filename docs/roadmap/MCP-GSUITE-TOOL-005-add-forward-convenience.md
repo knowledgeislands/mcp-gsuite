@@ -10,6 +10,10 @@ blocked-by: []
 baseline-ref: null
 ---
 
+## Goal
+
+Achieve the stated outcome: Add forward convenience.
+
 ## Context
 
 Add forwarding that inlines the original message and attachments.

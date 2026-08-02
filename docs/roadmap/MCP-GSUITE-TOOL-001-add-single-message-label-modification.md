@@ -9,6 +9,10 @@ blocked-by: []
 baseline-ref: null
 ---
 
+## Goal
+
+Achieve the stated outcome: Add single-message label modification.
+
 ## Context
 
 Add `message_modify` as a convenience for combined add/remove labels on one message; retain batch modification as the more general operation.
@@ -29,11 +33,11 @@ A caller swapping labels on a single message therefore either makes two round tr
 
 ## Steps
 
-1. Export a combined handler from `src/main/messages/index.ts` taking `{messageId, addLabelIds?, removeLabelIds?}`, reusing the existing private `modifyMessage` helper, rejecting a call with neither list populated the way `messageBatchModify` does, and returning the existing `{messageId, labelIds}` shape via `jsonResult` / `errorResult`.
-2. Register the tool in `src/tools/messages/index.ts` with the `WRITE_IDEMPOTENT_REMOTE` annotation preset and the existing `messageLabelStateOutput` output schema, alongside the `_label` / `_unlabel` registrations.
-3. Extend `src/main/messages/index.test.ts` with cases for both lists supplied, add-only, remove-only, neither supplied, and the API-error path, so the repository's 100% coverage thresholds still hold.
-4. Add the new tool name to the expectations in `src/tool-registration.test.ts` and to `EXPECTED_TOOLS` in `scripts/smoke.ts`, which are the two places the tool surface is asserted.
-5. Add a row to the Available Tools table in `README.md`, noting that batch modification remains the general operation for multiple messages.
+- [ ] Export a combined handler from `src/main/messages/index.ts` taking `{messageId, addLabelIds?, removeLabelIds?}`, reusing the existing private `modifyMessage` helper, rejecting a call with neither list populated the way `messageBatchModify` does, and returning the existing `{messageId, labelIds}` shape via `jsonResult` / `errorResult`.
+- [ ] Register the tool in `src/tools/messages/index.ts` with the `WRITE_IDEMPOTENT_REMOTE` annotation preset and the existing `messageLabelStateOutput` output schema, alongside the `_label` / `_unlabel` registrations.
+- [ ] Extend `src/main/messages/index.test.ts` with cases for both lists supplied, add-only, remove-only, neither supplied, and the API-error path, so the repository's 100% coverage thresholds still hold.
+- [ ] Add the new tool name to the expectations in `src/tool-registration.test.ts` and to `EXPECTED_TOOLS` in `scripts/smoke.ts`, which are the two places the tool surface is asserted.
+- [ ] Add a row to the Available Tools table in `README.md`, noting that batch modification remains the general operation for multiple messages.
 
 ## Files touched
 

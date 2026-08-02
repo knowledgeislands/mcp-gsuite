@@ -9,6 +9,10 @@ blocked-by: []
 baseline-ref: null
 ---
 
+## Goal
+
+Achieve the stated outcome: Add incremental Gmail history.
+
 ## Context
 
 Add `history_list({ startHistoryId, maxResults? })` using Gmail `users.history.list` to show changes without rescanning the inbox.
@@ -27,12 +31,12 @@ Nothing in the current surface hands a caller a `historyId` to start from. `getM
 
 ## Steps
 
-1. Add a `historyList` handler calling `gmail.users.history.list` — either a new `src/main/history/` module or an addition to `src/main/messages/index.ts` — projecting the response to a stable shape and passing `nextPageToken` through the way `searchMessages` does.
-2. Decide and implement how a caller obtains a `startHistoryId`: add a history field to an existing read projection, or add a mailbox-level read that returns the current `historyId`.
-3. Map an expired or unknown `startHistoryId` to an actionable error directing the caller to fall back to `gsuite_email_messages_search`, rather than surfacing the raw API failure.
-4. Register the tool in `src/tools/messages/index.ts` (or a new group file wired from `src/tools/index.ts`) with the `READ_ONLY_REMOTE` annotation preset and an output schema mirroring the projection.
-5. Add unit tests following the `vi.mock('../google-client/index.js')` pattern in `src/main/messages/index.test.ts`, covering a populated history, an empty history, pagination, and the expired-start-point error, so the 100% coverage thresholds still hold.
-6. Add the tool name to `src/tool-registration.test.ts` and `EXPECTED_TOOLS` in `scripts/smoke.ts`, and add a row to the Available Tools table in `README.md`.
+- [ ] Add a `historyList` handler calling `gmail.users.history.list` — either a new `src/main/history/` module or an addition to `src/main/messages/index.ts` — projecting the response to a stable shape and passing `nextPageToken` through the way `searchMessages` does.
+- [ ] Decide and implement how a caller obtains a `startHistoryId`: add a history field to an existing read projection, or add a mailbox-level read that returns the current `historyId`.
+- [ ] Map an expired or unknown `startHistoryId` to an actionable error directing the caller to fall back to `gsuite_email_messages_search`, rather than surfacing the raw API failure.
+- [ ] Register the tool in `src/tools/messages/index.ts` (or a new group file wired from `src/tools/index.ts`) with the `READ_ONLY_REMOTE` annotation preset and an output schema mirroring the projection.
+- [ ] Add unit tests following the `vi.mock('../google-client/index.js')` pattern in `src/main/messages/index.test.ts`, covering a populated history, an empty history, pagination, and the expired-start-point error, so the 100% coverage thresholds still hold.
+- [ ] Add the tool name to `src/tool-registration.test.ts` and `EXPECTED_TOOLS` in `scripts/smoke.ts`, and add a row to the Available Tools table in `README.md`.
 
 ## Files touched
 

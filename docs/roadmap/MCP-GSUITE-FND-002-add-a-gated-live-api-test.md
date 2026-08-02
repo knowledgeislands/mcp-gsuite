@@ -9,6 +9,10 @@ blocked-by: []
 baseline-ref: null
 ---
 
+## Goal
+
+Achieve the stated outcome: Add a gated live API test.
+
 ## Context
 
 Add an `INTEGRATION=1` test against a real test account to complement mocked Google API coverage.

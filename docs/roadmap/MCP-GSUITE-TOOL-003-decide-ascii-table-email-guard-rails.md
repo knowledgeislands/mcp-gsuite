@@ -9,6 +9,10 @@ blocked-by: []
 baseline-ref: null
 ---
 
+## Goal
+
+Achieve the stated outcome: Decide ASCII-table email guard rails.
+
 ## Context
 
 Choose whether HTML email bodies containing ASCII tables should be rejected with guidance, converted, or documented as-is.
