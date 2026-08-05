@@ -1,6 +1,6 @@
 ---
 id: MCP-GSUITE-TOOL-006
-title: Evaluate MCP resources and Gmail settings tools
+title: Evaluate Gmail MCP tools
 theme: tool-surface
 horizon: future
 status: open

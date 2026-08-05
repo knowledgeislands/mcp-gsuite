@@ -1,6 +1,6 @@
 ---
 id: MCP-GSUITE-TOOL-003
-title: Decide ASCII-table email guard rails
+title: Decide email table guards
 theme: tool-surface
 horizon: soon
 status: open

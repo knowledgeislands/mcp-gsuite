@@ -1,6 +1,6 @@
 ---
 id: MCP-GSUITE-FND-002
-title: Add a gated live API test
+title: Add gated API test
 theme: foundation-tooling
 horizon: soon
 status: open
