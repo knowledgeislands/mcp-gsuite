@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-003
 title: Decide email table guards
 theme: tool-surface
 horizon: soon
-status: open
+status: draft
 blocks: []
 blocked-by: []
 baseline-ref: null

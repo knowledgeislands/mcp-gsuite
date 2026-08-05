@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-005
 title: Add forward convenience
 theme: tool-surface
 horizon: future
-status: open
+status: draft
 candidate: true
 blocks: []
 blocked-by: []

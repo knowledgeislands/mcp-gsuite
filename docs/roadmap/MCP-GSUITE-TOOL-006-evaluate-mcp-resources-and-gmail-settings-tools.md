@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-006
 title: Evaluate Gmail MCP tools
 theme: tool-surface
 horizon: future
-status: open
+status: draft
 candidate: true
 blocks: []
 blocked-by: []

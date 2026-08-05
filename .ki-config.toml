@@ -1,4 +1,5 @@
 ["knowledgeislands/ki-agentic-harness:ki-repo"]
+repository = "https://github.com/knowledgeislands/mcp-gsuite"
 title = "mcp-gsuite"
 description = "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API."
 repo_code = "MCP-GSUITE"

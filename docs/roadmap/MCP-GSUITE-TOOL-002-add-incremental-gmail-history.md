@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-002
 title: Add incremental Gmail history
 theme: tool-surface
 horizon: next
-status: open
+status: draft
 blocks: []
 blocked-by: []
 baseline-ref: null

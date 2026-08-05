@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-004
 title: Review sending policy
 theme: tool-surface
 horizon: future
-status: open
+status: draft
 candidate: true
 blocks: []
 blocked-by: []

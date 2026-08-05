@@ -3,7 +3,7 @@ id: MCP-GSUITE-TOOL-001
 title: Add single-message label modification
 theme: tool-surface
 horizon: next
-status: open
+status: draft
 blocks: []
 blocked-by: []
 baseline-ref: null

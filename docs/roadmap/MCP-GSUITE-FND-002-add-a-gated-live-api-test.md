@@ -3,7 +3,7 @@ id: MCP-GSUITE-FND-002
 title: Add gated API test
 theme: foundation-tooling
 horizon: soon
-status: open
+status: draft
 blocks: []
 blocked-by: []
 baseline-ref: null
