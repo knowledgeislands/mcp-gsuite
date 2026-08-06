@@ -3,7 +3,12 @@
 
 const escapeHtml = (str: string | null | undefined): string => {
   if (!str) return ''
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 const page = (title: string, body: string): string =>
@@ -47,7 +52,8 @@ export const tokenExchangeError = (message: string): string =>
 export const missingCode = (): string =>
   page(
     'Missing authorization code',
-    `<h1 class="err">Missing authorization code</h1>` + `<div class="box err"><p>The OAuth callback did not include a <code>code</code> parameter.</p></div>`
+    `<h1 class="err">Missing authorization code</h1>` +
+      `<div class="box err"><p>The OAuth callback did not include a <code>code</code> parameter.</p></div>`
   )
 
 export const invalidState = (): string =>

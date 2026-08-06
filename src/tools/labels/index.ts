@@ -58,7 +58,10 @@ export const registerLabelTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           labelId: idSchema.describe('Label id (from `gsuite_email_labels_list`).'),
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+          dry_run: z
+            .boolean()
+            .default(true)
+            .describe('Preview only; do not delete. Default true — pass false to actually delete.')
         })
         .strict(),
       outputSchema: deleteLabelOutput,

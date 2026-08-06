@@ -193,7 +193,12 @@ describe('updateValues', () => {
     sheetsServiceMock.mockReturnValue(sheets)
 
     const r = await updateValues(cfg, { spreadsheetId: 'sid', range: 'A1', values: [['x']] })
-    expect(JSON.parse(r.content[0].text)).toEqual({ updatedRange: 'A1', updatedCells: 0, updatedRows: 0, updatedColumns: 0 })
+    expect(JSON.parse(r.content[0].text)).toEqual({
+      updatedRange: 'A1',
+      updatedCells: 0,
+      updatedRows: 0,
+      updatedColumns: 0
+    })
   })
 
   it('returns an error result when the Sheets API throws', async () => {

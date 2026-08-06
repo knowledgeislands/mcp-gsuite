@@ -79,7 +79,9 @@ describe('listCalendars', () => {
 
     const r = await listCalendars(cfg)
     expect(r).toHaveProperty('isError', true)
-    expect(r.content[0].text).toBe('Error listing calendars: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
+    expect(r.content[0].text).toBe(
+      'Error listing calendars: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+    )
   })
 
   it('returns an error result when calendarService itself throws (no token)', async () => {
@@ -108,7 +110,13 @@ describe('listEvents', () => {
             location: 'Meet'
           },
           // All-day event: start/end carry `date`, no location.
-          { id: 'e2', summary: 'Holiday', start: { date: '2026-07-09' }, end: { date: '2026-07-10' }, status: 'confirmed' }
+          {
+            id: 'e2',
+            summary: 'Holiday',
+            start: { date: '2026-07-09' },
+            end: { date: '2026-07-10' },
+            status: 'confirmed'
+          }
         ]
       }
     })

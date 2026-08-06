@@ -25,8 +25,33 @@
  *   DESTRUCTIVE_ONESHOT     — closed-world destructive, NON-idempotent
  *                             (effect depends on current state — e.g. prune)
  */
-export const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const
-export const READ_ONLY_REMOTE = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const
-export const WRITE_REMOTE = { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true } as const
-export const WRITE_IDEMPOTENT_REMOTE = { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const
-export const DESTRUCTIVE_REMOTE = { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true } as const
+export const READ_ONLY = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false
+} as const
+export const READ_ONLY_REMOTE = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: true
+} as const
+export const WRITE_REMOTE = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: false,
+  openWorldHint: true
+} as const
+export const WRITE_IDEMPOTENT_REMOTE = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: true
+} as const
+export const DESTRUCTIVE_REMOTE = {
+  readOnlyHint: false,
+  destructiveHint: true,
+  idempotentHint: true,
+  openWorldHint: true
+} as const

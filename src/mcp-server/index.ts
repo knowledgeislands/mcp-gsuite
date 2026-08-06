@@ -21,7 +21,9 @@ console.error(`  MCP_GSUITE_ACCESS_LEVEL=${config.accessLevel}`)
 console.error(`  token store : ${config.auth.tokenStorePath}`)
 console.error(`  auth server : ${config.auth.authServerUrl}`)
 console.error(`  scopes      : ${config.auth.scopes.join(' ')}`)
-console.error(`  audit log   : MCP_GSUITE_AUDIT_LOG=${config.auditLogMode}${config.auditLogMode === 'off' ? '' : ` (path: ${config.auditLogPath})`}`)
+console.error(
+  `  audit log   : MCP_GSUITE_AUDIT_LOG=${config.auditLogMode}${config.auditLogMode === 'off' ? '' : ` (path: ${config.auditLogPath})`}`
+)
 if (!config.auth.clientId || !config.auth.clientSecret) {
   console.error('  WARNING: MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET are not set.')
 }

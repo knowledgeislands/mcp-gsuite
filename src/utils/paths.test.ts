@@ -60,7 +60,9 @@ describe('paths containment helpers (mcp-gsuite)', () => {
     })
 
     it('throws on an absolute target outside the root', async () => {
-      await expect(assertOutputPathWithinDownloadRoot(root, path.join(tmpRoot, 'elsewhere.eml'))).rejects.toThrow(/escapes download root/)
+      await expect(assertOutputPathWithinDownloadRoot(root, path.join(tmpRoot, 'elsewhere.eml'))).rejects.toThrow(
+        /escapes download root/
+      )
     })
 
     it('handles a download root that already ends with a path separator', async () => {

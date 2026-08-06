@@ -33,7 +33,12 @@ describe('listFiles', () => {
     drive.files.list.mockResolvedValue({
       data: {
         files: [
-          { id: 'f1', name: 'Budget', mimeType: 'application/vnd.google-apps.spreadsheet', modifiedTime: '2026-07-01T00:00:00Z' },
+          {
+            id: 'f1',
+            name: 'Budget',
+            mimeType: 'application/vnd.google-apps.spreadsheet',
+            modifiedTime: '2026-07-01T00:00:00Z'
+          },
           { id: 'f2', name: 'Notes.md', mimeType: 'text/markdown', modifiedTime: '2026-06-01T00:00:00Z' }
         ]
       }
@@ -43,7 +48,12 @@ describe('listFiles', () => {
     const r = await listFiles(cfg, { folderId: 'root' })
     expect(JSON.parse(r.content[0].text)).toEqual({
       files: [
-        { id: 'f1', name: 'Budget', mimeType: 'application/vnd.google-apps.spreadsheet', modifiedTime: '2026-07-01T00:00:00Z' },
+        {
+          id: 'f1',
+          name: 'Budget',
+          mimeType: 'application/vnd.google-apps.spreadsheet',
+          modifiedTime: '2026-07-01T00:00:00Z'
+        },
         { id: 'f2', name: 'Notes.md', mimeType: 'text/markdown', modifiedTime: '2026-06-01T00:00:00Z' }
       ]
     })
@@ -91,7 +101,9 @@ describe('listFiles', () => {
 
     drive.files.list.mockResolvedValueOnce({ data: { files: [{}] } })
     const sparse = await listFiles(cfg, { folderId: 'root' })
-    expect(JSON.parse(sparse.content[0].text)).toEqual({ files: [{ id: '', name: '', mimeType: '', modifiedTime: '' }] })
+    expect(JSON.parse(sparse.content[0].text)).toEqual({
+      files: [{ id: '', name: '', mimeType: '', modifiedTime: '' }]
+    })
   })
 
   it('returns an error result when the Drive API throws', async () => {
@@ -103,7 +115,9 @@ describe('listFiles', () => {
 
     const r = await listFiles(cfg, { folderId: 'root' })
     expect(r).toHaveProperty('isError', true)
-    expect(r.content[0].text).toBe('Error listing Drive files: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
+    expect(r.content[0].text).toBe(
+      'Error listing Drive files: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+    )
   })
 
   it('returns an error result when driveService itself throws (no token)', async () => {

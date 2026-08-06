@@ -31,7 +31,10 @@ describe('parseScopes (via auth.scopes)', () => {
       ...baseEnv(),
       MCP_GSUITE_SCOPES: 'https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/userinfo.email'
     })
-    expect(cfg.auth.scopes).toEqual(['https://www.googleapis.com/auth/gmail.modify', 'https://www.googleapis.com/auth/userinfo.email'])
+    expect(cfg.auth.scopes).toEqual([
+      'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ])
   })
 
   it('tolerates extra whitespace (newlines, tabs, multiple spaces) between scopes', async () => {
@@ -49,7 +52,9 @@ describe('parseScopes (via auth.scopes)', () => {
 describe('auth paths and ports', () => {
   it('uses MCP_GSUITE_TOKEN_PATH when set', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_TOKEN_PATH: '/tmp/my-custom-tokens.json' }).auth.tokenStorePath).toBe('/tmp/my-custom-tokens.json')
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_TOKEN_PATH: '/tmp/my-custom-tokens.json' }).auth.tokenStorePath).toBe(
+      '/tmp/my-custom-tokens.json'
+    )
   })
 
   it('defaults tokenStorePath to ~/.mcp-gsuite-tokens.json when MCP_GSUITE_TOKEN_PATH is unset', async () => {
@@ -66,12 +71,16 @@ describe('auth paths and ports', () => {
 
   it('defaults the redirect URI to the configured port', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_AUTH_PORT: '5555' }).auth.redirectUri).toBe('http://localhost:5555/auth/callback')
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_AUTH_PORT: '5555' }).auth.redirectUri).toBe(
+      'http://localhost:5555/auth/callback'
+    )
   })
 
   it('uses MCP_GSUITE_REDIRECT_URI verbatim when set', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_REDIRECT_URI: 'http://example.test/cb' }).auth.redirectUri).toBe('http://example.test/cb')
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_REDIRECT_URI: 'http://example.test/cb' }).auth.redirectUri).toBe(
+      'http://example.test/cb'
+    )
   })
 })
 
@@ -84,7 +93,11 @@ describe('homeDir fallback chain (HOME || USERPROFILE || os.homedir() || "/tmp")
 
   it('falls back to USERPROFILE when HOME is unset (Windows-style)', async () => {
     const { loadConfig } = await import('./index.js')
-    const cfg = loadConfig({ USERPROFILE: 'C:\\Users\\bob', MCP_GSUITE_CLIENT_ID: 'cid', MCP_GSUITE_CLIENT_SECRET: 'cs' })
+    const cfg = loadConfig({
+      USERPROFILE: 'C:\\Users\\bob',
+      MCP_GSUITE_CLIENT_ID: 'cid',
+      MCP_GSUITE_CLIENT_SECRET: 'cs'
+    })
     expect(cfg.auth.tokenStorePath).toMatch(/\.mcp-gsuite-tokens\.json$/)
     expect(cfg.auth.tokenStorePath.startsWith('C:\\Users\\bob')).toBe(true)
   })
@@ -130,7 +143,9 @@ describe('parseAccessLevel (via accessLevel)', () => {
 
   it('throws on an unrecognized MCP_GSUITE_ACCESS_LEVEL', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_ACCESS_LEVEL: 'superuser' })).toThrow(/Invalid MCP_GSUITE_ACCESS_LEVEL/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_ACCESS_LEVEL: 'superuser' })).toThrow(
+      /Invalid MCP_GSUITE_ACCESS_LEVEL/
+    )
   })
 })
 
@@ -142,17 +157,23 @@ describe('parseInlineMax (via inlineAttachmentMaxBytes)', () => {
 
   it('parses a positive integer override', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '4096' }).inlineAttachmentMaxBytes).toBe(4096)
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '4096' }).inlineAttachmentMaxBytes).toBe(
+      4096
+    )
   })
 
   it('throws on a non-numeric MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: 'lots' })).toThrow(/Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: 'lots' })).toThrow(
+      /Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/
+    )
   })
 
   it('throws on a non-positive MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '0' })).toThrow(/Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES: '0' })).toThrow(
+      /Invalid MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES/
+    )
   })
 })
 
@@ -166,7 +187,11 @@ describe('auth client id / secret passthrough', () => {
 
   it('threads the configured client id / secret through', async () => {
     const { loadConfig } = await import('./index.js')
-    const cfg = loadConfig({ HOME: '/home/test', MCP_GSUITE_CLIENT_ID: 'real-id', MCP_GSUITE_CLIENT_SECRET: 'real-secret' })
+    const cfg = loadConfig({
+      HOME: '/home/test',
+      MCP_GSUITE_CLIENT_ID: 'real-id',
+      MCP_GSUITE_CLIENT_SECRET: 'real-secret'
+    })
     expect(cfg.auth.clientId).toBe('real-id')
     expect(cfg.auth.clientSecret).toBe('real-secret')
   })
@@ -184,17 +209,23 @@ describe('audit and download config', () => {
 
   it('rejects an invalid MCP_GSUITE_AUDIT_LOG value', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG: 'sometimes' })).toThrow(/Invalid MCP_GSUITE_AUDIT_LOG/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG: 'sometimes' })).toThrow(
+      /Invalid MCP_GSUITE_AUDIT_LOG/
+    )
   })
 
   it('rejects an invalid MCP_GSUITE_AUDIT_LOG_MAX_BYTES value', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_MAX_BYTES: 'lots' })).toThrow(/Invalid MCP_GSUITE_AUDIT_LOG_MAX_BYTES/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_MAX_BYTES: 'lots' })).toThrow(
+      /Invalid MCP_GSUITE_AUDIT_LOG_MAX_BYTES/
+    )
   })
 
   it('rejects a negative MCP_GSUITE_AUDIT_LOG_KEEP value', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_KEEP: '-1' })).toThrow(/Invalid MCP_GSUITE_AUDIT_LOG_KEEP/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_KEEP: '-1' })).toThrow(
+      /Invalid MCP_GSUITE_AUDIT_LOG_KEEP/
+    )
   })
 
   it('parses valid MCP_GSUITE_AUDIT_LOG_MAX_BYTES / KEEP overrides (including 0)', async () => {
@@ -206,7 +237,9 @@ describe('audit and download config', () => {
 
   it('rejects a non-numeric MCP_GSUITE_AUDIT_LOG_KEEP value (NaN branch)', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_KEEP: 'lots' })).toThrow(/Invalid MCP_GSUITE_AUDIT_LOG_KEEP/)
+    expect(() => loadConfig({ ...baseEnv(), MCP_GSUITE_AUDIT_LOG_KEEP: 'lots' })).toThrow(
+      /Invalid MCP_GSUITE_AUDIT_LOG_KEEP/
+    )
   })
 
   it('accepts the audit-log mode aliases off / all', async () => {

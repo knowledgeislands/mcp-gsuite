@@ -28,7 +28,11 @@ describe('errMessage', () => {
     })
 
     it('parses numeric string code as HTTP status', () => {
-      const err = { code: '403', message: 'Forbidden', response: { data: { error: { message: 'Insufficient Permission' } } } }
+      const err = {
+        code: '403',
+        message: 'Forbidden',
+        response: { data: { error: { message: 'Insufficient Permission' } } }
+      }
       expect(errMessage(err)).toBe('HTTP 403: Insufficient Permission')
     })
 
@@ -55,12 +59,16 @@ describe('errMessage', () => {
 
     it('appends the `gsuite_auth_start` hint on HTTP 401 with an API message', () => {
       const err = { response: { status: 401, data: { error: { message: 'Invalid Credentials' } } } }
-      expect(errMessage(err)).toBe('HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
+      expect(errMessage(err)).toBe(
+        'HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+      )
     })
 
     it('appends the `gsuite_auth_start` hint on HTTP 401 with only a top-level message', () => {
       const err = { message: 'token expired', response: { status: 401 } }
-      expect(errMessage(err)).toBe('HTTP 401: token expired — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
+      expect(errMessage(err)).toBe(
+        'HTTP 401: token expired — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+      )
     })
 
     it('does not append the auth hint on non-401 statuses', () => {

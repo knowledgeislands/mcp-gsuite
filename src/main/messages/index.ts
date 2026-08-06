@@ -14,7 +14,12 @@ import { gmailService } from '../google-client/index.js'
 
 export const searchMessages = async (
   cfg: Config,
-  { query, maxResults, pageToken, labelIds }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }
+  {
+    query,
+    maxResults,
+    pageToken,
+    labelIds
+  }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }
 ) => {
   try {
     const gmail = gmailService(cfg.auth)
@@ -62,7 +67,10 @@ export const searchMessages = async (
   }
 }
 
-export const getMessage = async (cfg: Config, { messageId, format }: { messageId: string; format?: 'metadata' | 'full' }) => {
+export const getMessage = async (
+  cfg: Config,
+  { messageId, format }: { messageId: string; format?: 'metadata' | 'full' }
+) => {
   try {
     const gmail = gmailService(cfg.auth)
     // `format=metadata` returns headers + labels but omits the part tree and
@@ -89,7 +97,10 @@ export const getMessage = async (cfg: Config, { messageId, format }: { messageId
   }
 }
 
-export const getRawMessage = async (cfg: Config, { messageId, outputPath }: { messageId: string; outputPath: string }) => {
+export const getRawMessage = async (
+  cfg: Config,
+  { messageId, outputPath }: { messageId: string; outputPath: string }
+) => {
   try {
     // Ensure the download root exists so realpath() can resolve it, then
     // validate outputPath against it. Rejects "..", absolute escapes, and
@@ -137,7 +148,10 @@ export const labelMessage = async (cfg: Config, { messageId, labelIds }: { messa
   }
 }
 
-export const unlabelMessage = async (cfg: Config, { messageId, labelIds }: { messageId: string; labelIds: string[] }) => {
+export const unlabelMessage = async (
+  cfg: Config,
+  { messageId, labelIds }: { messageId: string; labelIds: string[] }
+) => {
   try {
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.messages.modify({
@@ -202,13 +216,20 @@ export const messageTrash = async (cfg: Config, { messageId }: { messageId: stri
 
 export const messageBatchModify = async (
   cfg: Config,
-  { messageIds, addLabelIds, removeLabelIds }: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }
+  {
+    messageIds,
+    addLabelIds,
+    removeLabelIds
+  }: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }
 ) => {
   // Gmail's `batchModify` is a one-call alternative to N individual `modify`
   // calls. The API returns 204 No Content on success, so we echo the
   // inputs back as the result for caller-side auditing.
   if (!addLabelIds?.length && !removeLabelIds?.length) {
-    return errorResult('batch-modifying messages', new Error('At least one of `addLabelIds` or `removeLabelIds` must be provided.'))
+    return errorResult(
+      'batch-modifying messages',
+      new Error('At least one of `addLabelIds` or `removeLabelIds` must be provided.')
+    )
   }
   try {
     const gmail = gmailService(cfg.auth)

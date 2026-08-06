@@ -75,7 +75,13 @@ describe('handleCheckAuthStatus', () => {
   })
 
   it('passes through the not-authenticated shape', async () => {
-    redactedMock.mockReturnValue({ authenticated: false, hasRefreshToken: false, scope: [], expiresAt: null, tokenStorePath: '/p' })
+    redactedMock.mockReturnValue({
+      authenticated: false,
+      hasRefreshToken: false,
+      scope: [],
+      expiresAt: null,
+      tokenStorePath: '/p'
+    })
     const r = await handleCheckAuthStatus()
     expect(JSON.parse(r.content[0].text).authenticated).toBe(false)
   })

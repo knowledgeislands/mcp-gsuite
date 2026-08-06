@@ -41,7 +41,9 @@ const exchangeCodeForTokens = async (code: string, codeVerifier: string): Promis
   const tokens = await exchangeAuthCode(auth, { code, codeVerifier })
   saveTokensFromAuthFlow(auth, tokens)
   // Never log token values. Acknowledge success via shape only.
-  console.error(`Tokens saved (refresh_token=${tokens.refresh_token ? 'yes' : 'no'}, scope=${tokens.scope ?? '<unset>'}).`)
+  console.error(
+    `Tokens saved (refresh_token=${tokens.refresh_token ? 'yes' : 'no'}, scope=${tokens.scope ?? '<unset>'}).`
+  )
 }
 
 const server = http.createServer((req, res) => {

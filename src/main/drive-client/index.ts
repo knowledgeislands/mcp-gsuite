@@ -15,7 +15,12 @@ const escapeQ = (s: string): string => s.replace(/\\/g, '\\\\').replace(/'/g, "\
 
 export const listFiles = async (
   cfg: Config,
-  { folderId, nameContains, mimeType, pageSize }: { folderId: string; nameContains?: string; mimeType?: string; pageSize?: number }
+  {
+    folderId,
+    nameContains,
+    mimeType,
+    pageSize
+  }: { folderId: string; nameContains?: string; mimeType?: string; pageSize?: number }
 ) => {
   try {
     const drive = driveService(cfg.auth)

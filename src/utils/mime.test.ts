@@ -89,7 +89,9 @@ describe('buildRfc2822 (no attachments)', () => {
   })
 
   it('includes Cc and Bcc when provided, omits them when not', () => {
-    const withCc = decode(buildRfc2822({ to: ['a@x.com'], cc: ['c@x.com'], bcc: ['b@x.com'], subject: 'S', bodyText: 'B' }))
+    const withCc = decode(
+      buildRfc2822({ to: ['a@x.com'], cc: ['c@x.com'], bcc: ['b@x.com'], subject: 'S', bodyText: 'B' })
+    )
     expect(withCc).toContain('Cc: c@x.com\r\n')
     expect(withCc).toContain('Bcc: b@x.com\r\n')
 
@@ -123,12 +125,18 @@ describe('buildRfc2822 (no attachments)', () => {
   })
 
   it('rejects newlines in recipient lists (header-injection guard)', () => {
-    expect(() => buildRfc2822({ to: ['ok@x.com', 'bad@x.com\r\nBcc: secret@x.com'], subject: 'S', bodyText: 'b' })).toThrow(/header injection/)
+    expect(() =>
+      buildRfc2822({ to: ['ok@x.com', 'bad@x.com\r\nBcc: secret@x.com'], subject: 'S', bodyText: 'b' })
+    ).toThrow(/header injection/)
   })
 
   it('rejects newlines in cc / bcc', () => {
-    expect(() => buildRfc2822({ to: ['ok@x.com'], cc: ['a\nb'], subject: 'S', bodyText: 'b' })).toThrow(/header injection/)
-    expect(() => buildRfc2822({ to: ['ok@x.com'], bcc: ['a\r\nx'], subject: 'S', bodyText: 'b' })).toThrow(/header injection/)
+    expect(() => buildRfc2822({ to: ['ok@x.com'], cc: ['a\nb'], subject: 'S', bodyText: 'b' })).toThrow(
+      /header injection/
+    )
+    expect(() => buildRfc2822({ to: ['ok@x.com'], bcc: ['a\r\nx'], subject: 'S', bodyText: 'b' })).toThrow(
+      /header injection/
+    )
   })
 
   it('rejects newlines in subject', () => {
@@ -136,7 +144,9 @@ describe('buildRfc2822 (no attachments)', () => {
   })
 
   it('rejects an empty recipient list', () => {
-    expect(() => buildRfc2822({ to: [], subject: 'S', bodyText: 'b' })).toThrow(/At least one `to` recipient is required/)
+    expect(() => buildRfc2822({ to: [], subject: 'S', bodyText: 'b' })).toThrow(
+      /At least one `to` recipient is required/
+    )
   })
 })
 
@@ -232,7 +242,9 @@ describe('buildRfc2822 (recipient name encoding)', () => {
   })
 
   it('encodes a non-ASCII display name in `cc` and `bcc`', () => {
-    const out = decode(buildRfc2822({ to: ['x@y.com'], cc: ['Héllo <h@w.com>'], bcc: ['Wörld <w@x.com>'], subject: 'S', bodyText: 'b' }))
+    const out = decode(
+      buildRfc2822({ to: ['x@y.com'], cc: ['Héllo <h@w.com>'], bcc: ['Wörld <w@x.com>'], subject: 'S', bodyText: 'b' })
+    )
     expect(out).toMatch(/Cc: =\?UTF-8\?B\?.+\?= <h@w\.com>\r\n/)
     expect(out).toMatch(/Bcc: =\?UTF-8\?B\?.+\?= <w@x\.com>\r\n/)
   })

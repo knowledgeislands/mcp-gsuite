@@ -75,15 +75,21 @@ describe('buildOAuthClient', () => {
   })
 
   it('throws when clientId is missing', () => {
-    expect(() => buildOAuthClient({ ...auth, clientId: '' })).toThrow(/MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/)
+    expect(() => buildOAuthClient({ ...auth, clientId: '' })).toThrow(
+      /MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/
+    )
   })
 
   it('throws when clientSecret is missing', () => {
-    expect(() => buildOAuthClient({ ...auth, clientSecret: '' })).toThrow(/MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/)
+    expect(() => buildOAuthClient({ ...auth, clientSecret: '' })).toThrow(
+      /MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/
+    )
   })
 
   it('throws when both are missing', () => {
-    expect(() => buildOAuthClient({ ...auth, clientId: '', clientSecret: '' })).toThrow(/MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/)
+    expect(() => buildOAuthClient({ ...auth, clientId: '', clientSecret: '' })).toThrow(
+      /MCP_GSUITE_CLIENT_ID and MCP_GSUITE_CLIENT_SECRET must be set/
+    )
   })
 })
 

@@ -13,7 +13,8 @@ import type { Config } from './config/index.js'
 // on `.shape`. Older registrations passed a plain shape object directly —
 // fall through to that case so this test stays correct during transitions.
 const shapeOf = (schema: unknown): Record<string, unknown> => {
-  if (schema && typeof schema === 'object' && 'shape' in schema) return (schema as { shape: Record<string, unknown> }).shape
+  if (schema && typeof schema === 'object' && 'shape' in schema)
+    return (schema as { shape: Record<string, unknown> }).shape
   return schema as Record<string, unknown>
 }
 
@@ -159,13 +160,15 @@ describe('registerMessageTools', () => {
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
   })
 
-  it.each(['gsuite_email_message_mark_read', 'gsuite_email_message_mark_unread', 'gsuite_email_message_archive', 'gsuite_email_message_trash'])(
-    "'%s' requires only `messageId`",
-    (name) => {
-      const c = calls.find((c) => c.name === name)
-      expect(shapeOf(c?.config.inputSchema)).toEqual({ messageId: expect.anything() })
-    }
-  )
+  it.each([
+    'gsuite_email_message_mark_read',
+    'gsuite_email_message_mark_unread',
+    'gsuite_email_message_archive',
+    'gsuite_email_message_trash'
+  ])("'%s' requires only `messageId`", (name) => {
+    const c = calls.find((c) => c.name === name)
+    expect(shapeOf(c?.config.inputSchema)).toEqual({ messageId: expect.anything() })
+  })
 
   it("'gsuite_email_messages_batch_modify' accepts ids + add/remove label arrays", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_messages_batch_modify')
@@ -242,13 +245,15 @@ describe('registerThreadTools', () => {
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
   })
 
-  it.each(['gsuite_email_thread_mark_read', 'gsuite_email_thread_mark_unread', 'gsuite_email_thread_archive', 'gsuite_email_thread_trash'])(
-    "'%s' requires only `threadId`",
-    (name) => {
-      const c = calls.find((c) => c.name === name)
-      expect(shapeOf(c?.config.inputSchema)).toEqual({ threadId: expect.anything() })
-    }
-  )
+  it.each([
+    'gsuite_email_thread_mark_read',
+    'gsuite_email_thread_mark_unread',
+    'gsuite_email_thread_archive',
+    'gsuite_email_thread_trash'
+  ])("'%s' requires only `threadId`", (name) => {
+    const c = calls.find((c) => c.name === name)
+    expect(shapeOf(c?.config.inputSchema)).toEqual({ threadId: expect.anything() })
+  })
 })
 
 describe('registerDraftTools', () => {

@@ -30,7 +30,11 @@ export const getSheet = async (cfg: Config, { spreadsheetId }: { spreadsheetId: 
 
 export const getValues = async (
   cfg: Config,
-  { spreadsheetId, range, majorDimension }: { spreadsheetId: string; range: string; majorDimension?: 'ROWS' | 'COLUMNS' }
+  {
+    spreadsheetId,
+    range,
+    majorDimension
+  }: { spreadsheetId: string; range: string; majorDimension?: 'ROWS' | 'COLUMNS' }
 ) => {
   try {
     const sheets = sheetsService(cfg.auth)
@@ -50,7 +54,12 @@ export const getValues = async (
 
 export const updateValues = async (
   cfg: Config,
-  { spreadsheetId, range, values, valueInputOption }: { spreadsheetId: string; range: string; values: string[][]; valueInputOption?: 'USER_ENTERED' | 'RAW' }
+  {
+    spreadsheetId,
+    range,
+    values,
+    valueInputOption
+  }: { spreadsheetId: string; range: string; values: string[][]; valueInputOption?: 'USER_ENTERED' | 'RAW' }
 ) => {
   try {
     const sheets = sheetsService(cfg.auth)

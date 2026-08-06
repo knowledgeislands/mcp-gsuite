@@ -1,12 +1,21 @@
 import type { gmail_v1 } from 'googleapis'
 import { describe, expect, it } from 'vitest'
-import { decodeBase64Url, extractAttachments, extractBody, hasAttachments, headerValue, normaliseQueryLabels } from './parse.js'
+import {
+  decodeBase64Url,
+  extractAttachments,
+  extractBody,
+  hasAttachments,
+  headerValue,
+  normaliseQueryLabels
+} from './parse.js'
 
 const b64 = (s: string): string => Buffer.from(s, 'utf8').toString('base64url')
 
 describe('normaliseQueryLabels', () => {
   it('rewrites a quoted label name to the hyphenated form Gmail expects', () => {
-    expect(normaliseQueryLabels('label:"Matters/Criminal - False Allegations"')).toBe('label:Matters/Criminal---False-Allegations')
+    expect(normaliseQueryLabels('label:"Matters/Criminal - False Allegations"')).toBe(
+      'label:Matters/Criminal---False-Allegations'
+    )
   })
 
   it('preserves slashes (nesting) and existing hyphens, replacing only spaces', () => {
@@ -18,7 +27,9 @@ describe('normaliseQueryLabels', () => {
   })
 
   it('rewrites a quoted label appearing mid-query, keeping the rest intact', () => {
-    expect(normaliseQueryLabels('from:a@b.com label:"Foo Bar" newer_than:7d')).toBe('from:a@b.com label:Foo-Bar newer_than:7d')
+    expect(normaliseQueryLabels('from:a@b.com label:"Foo Bar" newer_than:7d')).toBe(
+      'from:a@b.com label:Foo-Bar newer_than:7d'
+    )
   })
 
   it('rewrites a quoted label immediately after an opening paren', () => {
@@ -210,7 +221,9 @@ describe('extractAttachments', () => {
         { mimeType: 'application/pdf', filename: 'invoice.pdf', body: { attachmentId: 'A1', size: 12345 } }
       ]
     }
-    expect(extractAttachments(payload)).toEqual([{ attachmentId: 'A1', filename: 'invoice.pdf', mimeType: 'application/pdf', size: 12345 }])
+    expect(extractAttachments(payload)).toEqual([
+      { attachmentId: 'A1', filename: 'invoice.pdf', mimeType: 'application/pdf', size: 12345 }
+    ])
   })
 
   it('extracts multiple attachments and walks nested parts', () => {
@@ -242,7 +255,9 @@ describe('extractAttachments', () => {
         { mimeType: 'application/pdf', filename: 'doc.pdf', body: { attachmentId: 'REAL', size: 5000 } }
       ]
     }
-    expect(extractAttachments(payload)).toEqual([{ attachmentId: 'REAL', filename: 'doc.pdf', mimeType: 'application/pdf', size: 5000 }])
+    expect(extractAttachments(payload)).toEqual([
+      { attachmentId: 'REAL', filename: 'doc.pdf', mimeType: 'application/pdf', size: 5000 }
+    ])
   })
 
   it('defaults mimeType to application/octet-stream when missing', () => {

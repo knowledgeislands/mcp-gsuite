@@ -47,9 +47,18 @@ export const registerDriveTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           folderId: idSchema.describe('Drive folder id (`root` for My Drive root).'),
-          nameContains: shortTextSchema.min(1).optional().describe('Case-insensitive substring the file name must contain.'),
+          nameContains: shortTextSchema
+            .min(1)
+            .optional()
+            .describe('Case-insensitive substring the file name must contain.'),
           mimeType: shortTextSchema.min(1).optional().describe('Exact MIME type the file must have.'),
-          pageSize: z.number().int().positive().max(1000).optional().describe('Max files to return (Drive default 100, max 1000).')
+          pageSize: z
+            .number()
+            .int()
+            .positive()
+            .max(1000)
+            .optional()
+            .describe('Max files to return (Drive default 100, max 1000).')
         })
         .strict(),
       outputSchema: listFilesOutput,
@@ -83,7 +92,10 @@ export const registerDriveTools = (server: McpServer, cfg: Config): void => {
         .object({
           spreadsheetId: idSchema.describe('Spreadsheet id.'),
           range: rangeSchema,
-          majorDimension: z.enum(['ROWS', 'COLUMNS']).optional().describe('Whether each inner array is a row (default `ROWS`) or a column.')
+          majorDimension: z
+            .enum(['ROWS', 'COLUMNS'])
+            .optional()
+            .describe('Whether each inner array is a row (default `ROWS`) or a column.')
         })
         .strict(),
       outputSchema: getValuesOutput,
@@ -102,7 +114,10 @@ export const registerDriveTools = (server: McpServer, cfg: Config): void => {
           spreadsheetId: idSchema.describe('Spreadsheet id.'),
           range: rangeSchema,
           values: z.array(z.array(shortTextSchema)).min(1).describe('Row-major cell values to write.'),
-          valueInputOption: z.enum(['USER_ENTERED', 'RAW']).optional().describe('`USER_ENTERED` (default): parse like UI input. `RAW`: store verbatim.')
+          valueInputOption: z
+            .enum(['USER_ENTERED', 'RAW'])
+            .optional()
+            .describe('`USER_ENTERED` (default): parse like UI input. `RAW`: store verbatim.')
         })
         .strict(),
       outputSchema: updateValuesOutput,

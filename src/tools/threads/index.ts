@@ -1,7 +1,16 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { Config } from '../../config/index.js'
-import { getThread, labelThread, searchThreads, threadArchive, threadMarkRead, threadMarkUnread, threadTrash, unlabelThread } from '../../main/threads/index.js'
+import {
+  getThread,
+  labelThread,
+  searchThreads,
+  threadArchive,
+  threadMarkRead,
+  threadMarkUnread,
+  threadTrash,
+  unlabelThread
+} from '../../main/threads/index.js'
 import { READ_ONLY_REMOTE, WRITE_IDEMPOTENT_REMOTE } from '../../utils/annotations.js'
 import { idSchema, querySchema } from '../../utils/schemas.js'
 
@@ -65,7 +74,8 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
     'gsuite_email_thread_archive',
     {
-      description: 'Archive an entire thread (remove the `INBOX` system label from every message). The thread remains searchable.',
+      description:
+        'Archive an entire thread (remove the `INBOX` system label from every message). The thread remains searchable.',
       inputSchema: z.object({ threadId: idSchema }).strict(),
       outputSchema: threadLabelStateOutput,
       annotations: WRITE_IDEMPOTENT_REMOTE
@@ -76,7 +86,8 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
     'gsuite_email_thread_get',
     {
-      description: 'Get every message in a thread, each with headers, plain-text body (HTML stripped), label ids, and attachment refs.',
+      description:
+        'Get every message in a thread, each with headers, plain-text body (HTML stripped), label ids, and attachment refs.',
       inputSchema: z
         .object({
           threadId: idSchema
@@ -162,8 +173,19 @@ export const registerThreadTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com newer_than:30d`'),
-          maxResults: z.number().int().positive().max(500).optional().describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
-          pageToken: z.string().min(1).max(4096).optional().describe('Continuation token from a previous `gsuite_email_threads_search` call.'),
+          maxResults: z
+            .number()
+            .int()
+            .positive()
+            .max(500)
+            .optional()
+            .describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
+          pageToken: z
+            .string()
+            .min(1)
+            .max(4096)
+            .optional()
+            .describe('Continuation token from a previous `gsuite_email_threads_search` call.'),
           labelIds: z
             .array(idSchema)
             .min(1)

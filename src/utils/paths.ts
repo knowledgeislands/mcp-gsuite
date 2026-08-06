@@ -55,7 +55,9 @@ export const assertOutputPathWithinDownloadRoot = async (downloadRoot: string, o
   const resolved = path.isAbsolute(outputPath) ? path.resolve(outputPath) : path.resolve(downloadRoot, outputPath)
   const rootWithSep = downloadRoot.endsWith(path.sep) ? downloadRoot : downloadRoot + path.sep
   if (resolved !== downloadRoot && !resolved.startsWith(rootWithSep)) {
-    throw new Error(`outputPath escapes download root: "${outputPath}" resolves to "${resolved}" (root: ${downloadRoot})`)
+    throw new Error(
+      `outputPath escapes download root: "${outputPath}" resolves to "${resolved}" (root: ${downloadRoot})`
+    )
   }
   await assertRealPathWithinRoot(downloadRoot, resolved)
   return resolved

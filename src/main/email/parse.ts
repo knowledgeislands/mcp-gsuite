@@ -24,7 +24,10 @@ export const decodeBase64Url = (data: string): string => {
  * preserved; every other operator and the unquoted form pass through untouched.
  */
 export const normaliseQueryLabels = (query: string): string =>
-  query.replace(/(^|[\s(])(-?)label:"([^"]*)"/g, (_match, pre: string, neg: string, name: string) => `${pre}${neg}label:${name.replace(/ /g, '-')}`)
+  query.replace(
+    /(^|[\s(])(-?)label:"([^"]*)"/g,
+    (_match, pre: string, neg: string, name: string) => `${pre}${neg}label:${name.replace(/ /g, '-')}`
+  )
 
 export const headerValue = (headers: gmail_v1.Schema$MessagePartHeader[] | undefined, name: string): string => {
   if (!headers) return ''
@@ -35,13 +38,19 @@ export const headerValue = (headers: gmail_v1.Schema$MessagePartHeader[] | undef
   return ''
 }
 
-const walkParts = (part: gmail_v1.Schema$MessagePart | undefined, visit: (p: gmail_v1.Schema$MessagePart) => void): void => {
+const walkParts = (
+  part: gmail_v1.Schema$MessagePart | undefined,
+  visit: (p: gmail_v1.Schema$MessagePart) => void
+): void => {
   if (!part) return
   visit(part)
   for (const child of part.parts ?? []) walkParts(child, visit)
 }
 
-const findPart = (payload: gmail_v1.Schema$MessagePart | undefined, mimeType: string): gmail_v1.Schema$MessagePart | undefined => {
+const findPart = (
+  payload: gmail_v1.Schema$MessagePart | undefined,
+  mimeType: string
+): gmail_v1.Schema$MessagePart | undefined => {
   let found: gmail_v1.Schema$MessagePart | undefined
   walkParts(payload, (p) => {
     if (!found && p.mimeType === mimeType && p.body?.data) found = p

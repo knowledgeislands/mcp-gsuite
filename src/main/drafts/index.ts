@@ -90,7 +90,10 @@ interface ResolvedSpec {
 // attachment, so every path runs through the two-layer
 // `assertOutputPathWithinDownloadRoot` guard (lexical "../" check + realpath
 // symlink check) before any `fs.readFileSync`.
-const readAttachments = async (downloadRoot: string, entries: AttachmentInput[] | undefined): Promise<PreparedAttachment[]> => {
+const readAttachments = async (
+  downloadRoot: string,
+  entries: AttachmentInput[] | undefined
+): Promise<PreparedAttachment[]> => {
   if (!entries?.length) return []
   // Ensure the root exists so the realpath layer of the guard can resolve it.
   await fsp.mkdir(downloadRoot, { recursive: true })
@@ -127,7 +130,9 @@ const composeDraft = async (cfg: Config, input: DraftInput): Promise<ResolvedSpe
     const gmail = gmailService(cfg.auth)
     // For plain reply we only need Message-ID + Subject + References; for
     // reply-all we additionally need From / To / Cc to rebuild the audience.
-    const metadataHeaders = input.replyAll ? ['Message-ID', 'Subject', 'References', 'From', 'To', 'Cc'] : ['Message-ID', 'Subject', 'References']
+    const metadataHeaders = input.replyAll
+      ? ['Message-ID', 'Subject', 'References', 'From', 'To', 'Cc']
+      : ['Message-ID', 'Subject', 'References']
     const orig = await gmail.users.messages.get({
       userId: 'me',
       id: input.replyToMessageId,
@@ -167,7 +172,9 @@ const composeDraft = async (cfg: Config, input: DraftInput): Promise<ResolvedSpe
   }
 
   if (!to || to.length === 0) {
-    throw new Error('At least one `to` recipient is required (or use `replyAll` to auto-populate from the original message).')
+    throw new Error(
+      'At least one `to` recipient is required (or use `replyAll` to auto-populate from the original message).'
+    )
   }
 
   const raw = buildRfc2822({
@@ -222,7 +229,10 @@ export const updateDraft = async (cfg: Config, input: DraftInput & { draftId: st
   }
 }
 
-export const listDrafts = async (cfg: Config, { query, maxResults, pageToken }: { query?: string; maxResults?: number; pageToken?: string }) => {
+export const listDrafts = async (
+  cfg: Config,
+  { query, maxResults, pageToken }: { query?: string; maxResults?: number; pageToken?: string }
+) => {
   try {
     const gmail = gmailService(cfg.auth)
     const limit = maxResults ?? cfg.defaultSearchResults

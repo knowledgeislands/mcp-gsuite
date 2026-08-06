@@ -53,7 +53,8 @@ export const registerAuthTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
     'gsuite_auth_status',
     {
-      description: 'Return the current authentication state. Does NOT expose token values — only presence, scope, and expiry.',
+      description:
+        'Return the current authentication state. Does NOT expose token values — only presence, scope, and expiry.',
       inputSchema: z.object({}).strict(),
       outputSchema: authStatusOutput,
       annotations: READ_ONLY

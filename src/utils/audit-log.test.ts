@@ -63,7 +63,17 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     })
     await flushAsync()
     const event = JSON.parse((await fs.readFile(logPath, 'utf-8')).trim())
-    for (const k of ['bodyText', 'bodyHtml', 'body', 'htmlBody', 'rawMessage', 'attachmentData', 'data', 'code', 'state']) {
+    for (const k of [
+      'bodyText',
+      'bodyHtml',
+      'body',
+      'htmlBody',
+      'rawMessage',
+      'attachmentData',
+      'data',
+      'code',
+      'state'
+    ]) {
       expect(event.args[k]).toMatch(/^\[redacted \d+B\]$/)
     }
     // Non-redacted args pass through untouched.
@@ -123,7 +133,9 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
   it('skips all levels when mode is "off"', async () => {
     const { withAuditLog } = await import('./audit-log.js')
     const writeHandler = vi.fn(async (_args: unknown) => ({ content: [{ type: 'text', text: 'ok' }] }))
-    expect(withAuditLog(auditCfg({ mode: 'off' }), 'gsuite_email_draft_delete', 'destructive', writeHandler)).toBe(writeHandler)
+    expect(withAuditLog(auditCfg({ mode: 'off' }), 'gsuite_email_draft_delete', 'destructive', writeHandler)).toBe(
+      writeHandler
+    )
     await writeHandler({})
     await flushAsync()
     await expect(fs.access(logPath)).rejects.toThrow()
@@ -149,7 +161,8 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     const { makeAccessGatedRegister } = await import('./access-level.js')
     const calls: { name: string; handler: (args: unknown) => Promise<unknown> }[] = []
     const stub = {
-      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) => calls.push({ name, handler })
+      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) =>
+        calls.push({ name, handler })
     }
     const wrapped = makeAccessGatedRegister(stub as never, 'destructive', auditCfg({ mode: 'all' }))
     wrapped('gsuite_email_messages_list', { annotations: { readOnlyHint: true } }, async () => ({
@@ -165,12 +178,17 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     const { makeAccessGatedRegister } = await import('./access-level.js')
     const calls: { name: string; handler: (args: unknown) => Promise<unknown> }[] = []
     const stub = {
-      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) => calls.push({ name, handler })
+      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) =>
+        calls.push({ name, handler })
     }
     const wrapped = makeAccessGatedRegister(stub as never, 'destructive', auditCfg())
-    wrapped('gsuite_email_message_send', { annotations: { readOnlyHint: false, destructiveHint: false } }, async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    wrapped(
+      'gsuite_email_message_send',
+      { annotations: { readOnlyHint: false, destructiveHint: false } },
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     await calls[0].handler({})
     await flushAsync()
     const event = JSON.parse((await fs.readFile(logPath, 'utf-8')).trim())
@@ -181,7 +199,8 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     const { makeAccessGatedRegister } = await import('./access-level.js')
     const calls: { name: string; handler: (args: unknown) => Promise<unknown> }[] = []
     const stub = {
-      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) => calls.push({ name, handler })
+      registerTool: (name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) =>
+        calls.push({ name, handler })
     }
     const wrapped = makeAccessGatedRegister(stub as never, 'destructive', auditCfg())
     wrapped('gsuite_email_draft_delete', { annotations: { readOnlyHint: false, destructiveHint: true } }, async () => ({
@@ -215,9 +234,13 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     wrapped('gsuite_email_messages_list', { annotations: { readOnlyHint: true } }, async () => ({
       content: [{ type: 'text', text: 'ok' }]
     }))
-    wrapped('gsuite_email_message_send', { annotations: { readOnlyHint: false, destructiveHint: false } }, async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    wrapped(
+      'gsuite_email_message_send',
+      { annotations: { readOnlyHint: false, destructiveHint: false } },
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     wrapped('gsuite_email_draft_delete', { annotations: { readOnlyHint: false, destructiveHint: true } }, async () => ({
       content: [{ type: 'text', text: 'ok' }]
     }))
@@ -301,9 +324,14 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     await fs.chmod(path.dirname(noPermsPath), 0o500)
 
     const { withAuditLog } = await import('./audit-log.js')
-    const wrapped = withAuditLog(auditCfg({ path: noPermsPath }), 'gsuite_email_draft_delete', 'destructive', async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    const wrapped = withAuditLog(
+      auditCfg({ path: noPermsPath }),
+      'gsuite_email_draft_delete',
+      'destructive',
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {})
     const result = (await wrapped({})) as { content: Array<{ type: string; text: string }> }
     expect(result.content[0]?.text).toBe('ok')
@@ -329,9 +357,14 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
 
   it('discards the live log when keep=0', async () => {
     const { withAuditLog } = await import('./audit-log.js')
-    const wrapped = withAuditLog(auditCfg({ maxBytes: 64, keep: 0 }), 'gsuite_email_draft_delete', 'destructive', async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    const wrapped = withAuditLog(
+      auditCfg({ maxBytes: 64, keep: 0 }),
+      'gsuite_email_draft_delete',
+      'destructive',
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     await wrapped({ draftId: 'a' })
     await flushAsync()
     await wrapped({ draftId: 'b' })
@@ -344,9 +377,14 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     await fs.writeFile(`${logPath}.1`, 'prior-rotation\n', { mode: 0o600 })
 
     const { withAuditLog } = await import('./audit-log.js')
-    const wrapped = withAuditLog(auditCfg({ maxBytes: 64, keep: 3 }), 'gsuite_email_draft_delete', 'destructive', async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    const wrapped = withAuditLog(
+      auditCfg({ maxBytes: 64, keep: 3 }),
+      'gsuite_email_draft_delete',
+      'destructive',
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     await wrapped({ draftId: 'a' })
     await flushAsync()
     await wrapped({ draftId: 'b' })
@@ -373,9 +411,14 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     // slot-shift loop in between — wedging `.1` as a non-empty directory makes the
     // `fs.rm` (force, non-recursive) throw EISDIR, hitting the outer rotate catch.
     const { withAuditLog } = await import('./audit-log.js')
-    const wrapped = withAuditLog(auditCfg({ maxBytes: 64, keep: 1 }), 'gsuite_email_draft_delete', 'destructive', async () => ({
-      content: [{ type: 'text', text: 'ok' }]
-    }))
+    const wrapped = withAuditLog(
+      auditCfg({ maxBytes: 64, keep: 1 }),
+      'gsuite_email_draft_delete',
+      'destructive',
+      async () => ({
+        content: [{ type: 'text', text: 'ok' }]
+      })
+    )
     await wrapped({ draftId: 'a' })
     await flushAsync()
     // First append already rotated live → `.1`; replace `.1` with a non-empty dir
@@ -438,7 +481,11 @@ describe('appendAuditEvent / withAuditLog (mcp-gsuite)', () => {
     // between append and stat) — the catch returns and the append still succeeds.
     vi.doMock('node:fs/promises', async () => {
       const real = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises')
-      return { ...real, default: { ...real, stat: () => Promise.reject(new Error('boom')) }, stat: () => Promise.reject(new Error('boom')) }
+      return {
+        ...real,
+        default: { ...real, stat: () => Promise.reject(new Error('boom')) },
+        stat: () => Promise.reject(new Error('boom'))
+      }
     })
     const { withAuditLog } = await import('./audit-log.js')
     const wrapped = withAuditLog(auditCfg({ maxBytes: 64 }), 'gsuite_email_draft_delete', 'destructive', async () => ({

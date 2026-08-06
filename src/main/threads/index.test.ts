@@ -6,7 +6,16 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const auth = await import('../google-client/index.js')
-const { getThread, labelThread, searchThreads, threadArchive, threadMarkRead, threadMarkUnread, threadTrash, unlabelThread } = await import('./index.js')
+const {
+  getThread,
+  labelThread,
+  searchThreads,
+  threadArchive,
+  threadMarkRead,
+  threadMarkUnread,
+  threadTrash,
+  unlabelThread
+} = await import('./index.js')
 
 const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 
@@ -14,7 +23,8 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, defaultSearchResults: 20 } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleSearchThreads = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) => searchThreads(cfg, args)
+const handleSearchThreads = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) =>
+  searchThreads(cfg, args)
 const handleGetThread = (args: { threadId: string }) => getThread(cfg, args)
 const handleLabelThread = (args: { threadId: string; labelIds: string[] }) => labelThread(cfg, args)
 const handleUnlabelThread = (args: { threadId: string; labelIds: string[] }) => unlabelThread(cfg, args)
@@ -92,7 +102,12 @@ describe('handleSearchThreads', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     await handleSearchThreads({ query: 'from:foo', maxResults: 5, pageToken: 'TK' })
-    expect(gmail.users.threads.list).toHaveBeenCalledWith({ userId: 'me', q: 'from:foo', maxResults: 5, pageToken: 'TK' })
+    expect(gmail.users.threads.list).toHaveBeenCalledWith({
+      userId: 'me',
+      q: 'from:foo',
+      maxResults: 5,
+      pageToken: 'TK'
+    })
   })
 
   it('normalises a quoted label name in the query and passes labelIds through when provided', async () => {
@@ -126,7 +141,9 @@ describe('handleSearchThreads', () => {
 
   it('returns nextPageToken when Gmail signals more results', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.threads.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { threads: [], nextPageToken: 'NEXT' } })
+    ;(gmail.users.threads.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { threads: [], nextPageToken: 'NEXT' }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleSearchThreads({ query: 'q' })
@@ -249,7 +266,12 @@ describe('handleGetThread', () => {
       hasAttachments: true,
       attachments: [{ attachmentId: 'A1', filename: 'doc.pdf', mimeType: 'application/pdf', size: 9 }]
     })
-    expect(payload.messages[1]).toMatchObject({ messageId: 'm2', subject: 'Re: Hi', body: 'reply', hasAttachments: false })
+    expect(payload.messages[1]).toMatchObject({
+      messageId: 'm2',
+      subject: 'Re: Hi',
+      body: 'reply',
+      hasAttachments: false
+    })
   })
 
   it('requests format=full', async () => {
@@ -321,7 +343,11 @@ describe('handleLabelThread', () => {
     expect(payload.threadId).toBe('t1')
     expect(payload.labelIds).toEqual(expect.arrayContaining(['INBOX', 'X', 'Y']))
     expect(payload.labelIds).toHaveLength(3)
-    expect(gmail.users.threads.modify).toHaveBeenCalledWith({ userId: 'me', id: 't1', requestBody: { addLabelIds: ['X', 'Y'] } })
+    expect(gmail.users.threads.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 't1',
+      requestBody: { addLabelIds: ['X', 'Y'] }
+    })
   })
 
   it('falls back to the requested threadId and an empty labelIds when the response is minimal', async () => {
@@ -365,7 +391,11 @@ describe('handleUnlabelThread', () => {
 
     const r = await handleUnlabelThread({ threadId: 't1', labelIds: ['X'] })
     expect(JSON.parse(r.content[0].text)).toEqual({ threadId: 't1', labelIds: ['INBOX'] })
-    expect(gmail.users.threads.modify).toHaveBeenCalledWith({ userId: 'me', id: 't1', requestBody: { removeLabelIds: ['X'] } })
+    expect(gmail.users.threads.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 't1',
+      requestBody: { removeLabelIds: ['X'] }
+    })
   })
 
   it('falls back to the requested threadId when the API response is minimal', async () => {
@@ -406,7 +436,11 @@ describe('handleThreadMarkRead', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleThreadMarkRead({ threadId: 't1' })
-    expect(gmail.users.threads.modify).toHaveBeenCalledWith({ userId: 'me', id: 't1', requestBody: { removeLabelIds: ['UNREAD'] } })
+    expect(gmail.users.threads.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 't1',
+      requestBody: { removeLabelIds: ['UNREAD'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ threadId: 't1', labelIds: ['INBOX'] })
   })
 
@@ -448,7 +482,11 @@ describe('handleThreadMarkUnread', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleThreadMarkUnread({ threadId: 't1' })
-    expect(gmail.users.threads.modify).toHaveBeenCalledWith({ userId: 'me', id: 't1', requestBody: { addLabelIds: ['UNREAD'] } })
+    expect(gmail.users.threads.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 't1',
+      requestBody: { addLabelIds: ['UNREAD'] }
+    })
     expect(JSON.parse(r.content[0].text).labelIds).toEqual(expect.arrayContaining(['INBOX', 'UNREAD']))
   })
 
@@ -472,7 +510,11 @@ describe('handleThreadArchive', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleThreadArchive({ threadId: 't1' })
-    expect(gmail.users.threads.modify).toHaveBeenCalledWith({ userId: 'me', id: 't1', requestBody: { removeLabelIds: ['INBOX'] } })
+    expect(gmail.users.threads.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 't1',
+      requestBody: { removeLabelIds: ['INBOX'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ threadId: 't1', labelIds: ['IMPORTANT'] })
   })
 

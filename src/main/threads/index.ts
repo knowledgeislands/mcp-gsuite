@@ -10,7 +10,12 @@ import { gmailService } from '../google-client/index.js'
 
 export const searchThreads = async (
   cfg: Config,
-  { query, maxResults, pageToken, labelIds }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }
+  {
+    query,
+    maxResults,
+    pageToken,
+    labelIds
+  }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }
 ) => {
   try {
     const gmail = gmailService(cfg.auth)

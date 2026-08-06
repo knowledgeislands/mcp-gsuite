@@ -22,7 +22,10 @@ const inlineTooLargeError = (inlineMax: number, sizeBytes: number): ReturnType<t
   )
 }
 
-export const getAttachmentMetadata = async (cfg: Config, { messageId, attachmentId }: { messageId: string; attachmentId: string }) => {
+export const getAttachmentMetadata = async (
+  cfg: Config,
+  { messageId, attachmentId }: { messageId: string; attachmentId: string }
+) => {
   try {
     const gmail = gmailService(cfg.auth)
     // `messages.get(format=full)` returns the part tree (including filename,
@@ -32,7 +35,10 @@ export const getAttachmentMetadata = async (cfg: Config, { messageId, attachment
     const msg = await gmail.users.messages.get({ userId: 'me', id: messageId, format: 'full' })
     const found = extractAttachments(msg.data.payload).find((a) => a.attachmentId === attachmentId)
     if (!found) {
-      return errorResult('getting attachment metadata', new Error(`No attachment with id "${attachmentId}" on message "${messageId}"`))
+      return errorResult(
+        'getting attachment metadata',
+        new Error(`No attachment with id "${attachmentId}" on message "${messageId}"`)
+      )
     }
     return jsonResult({
       messageId,
@@ -46,7 +52,10 @@ export const getAttachmentMetadata = async (cfg: Config, { messageId, attachment
   }
 }
 
-export const getAttachment = async (cfg: Config, { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath?: string }) => {
+export const getAttachment = async (
+  cfg: Config,
+  { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath?: string }
+) => {
   try {
     const gmail = gmailService(cfg.auth)
 

@@ -92,7 +92,10 @@ export const buildAuthUrl = (auth: AuthConfig, params: { state: string; codeChal
  * for this flow's `state` so Google can verify the PKCE binding. Returns the raw
  * `Credentials` (caller persists them); never logs token values.
  */
-export const exchangeAuthCode = async (auth: AuthConfig, params: { code: string; codeVerifier: string }): Promise<Credentials> => {
+export const exchangeAuthCode = async (
+  auth: AuthConfig,
+  params: { code: string; codeVerifier: string }
+): Promise<Credentials> => {
   const client = buildOAuthClient(auth)
   const { tokens } = await client.getToken({ code: params.code, codeVerifier: params.codeVerifier })
   return tokens
@@ -110,7 +113,9 @@ export const getAuthClient = (auth: AuthConfig): OAuth2Client => {
 
   const tokens = loadTokensFromDisk(auth.tokenStorePath)
   if (!tokens?.access_token && !tokens?.refresh_token) {
-    throw new Error(`No tokens found at ${auth.tokenStorePath}. Run the \`gsuite_auth_start\` tool or \`mcp-gsuite-auth\` to grant access.`)
+    throw new Error(
+      `No tokens found at ${auth.tokenStorePath}. Run the \`gsuite_auth_start\` tool or \`mcp-gsuite-auth\` to grant access.`
+    )
   }
 
   const client = buildOAuthClient(auth)
@@ -151,7 +156,13 @@ export interface TokenSummary {
 export const redactedTokenSummary = (auth: AuthConfig): TokenSummary => {
   const tokens = loadTokensFromDisk(auth.tokenStorePath)
   if (!tokens?.access_token) {
-    return { authenticated: false, hasRefreshToken: false, scope: [], expiresAt: null, tokenStorePath: auth.tokenStorePath }
+    return {
+      authenticated: false,
+      hasRefreshToken: false,
+      scope: [],
+      expiresAt: null,
+      tokenStorePath: auth.tokenStorePath
+    }
   }
   return {
     authenticated: true,

@@ -83,7 +83,8 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
     'gsuite_email_message_archive',
     {
-      description: 'Archive a message (remove the `INBOX` system label). The message remains searchable; it just leaves the inbox view.',
+      description:
+        'Archive a message (remove the `INBOX` system label). The message remains searchable; it just leaves the inbox view.',
       inputSchema: z.object({ messageId: idSchema }).strict(),
       outputSchema: messageLabelStateOutput,
       annotations: WRITE_IDEMPOTENT_REMOTE
@@ -102,7 +103,9 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
           format: z
             .enum(['metadata', 'full'])
             .optional()
-            .describe('`full` (default): full body + attachment refs. `metadata`: headers + labels only; `body` and `attachments` are empty.')
+            .describe(
+              '`full` (default): full body + attachment refs. `metadata`: headers + labels only; `body` and `attachments` are empty.'
+            )
         })
         .strict(),
       outputSchema: getMessageOutput,
@@ -208,7 +211,11 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
         'Add and/or remove labels on up to 1000 messages in a single Gmail `messages.batchModify` call. At least one of `addLabelIds` or `removeLabelIds` is required. Returns `{count, messageIds, addLabelIds, removeLabelIds}` echoing the operation (Gmail returns 204 No Content on success).',
       inputSchema: z
         .object({
-          messageIds: z.array(idSchema).min(1).max(1000).describe('Up to 1000 message ids in a single call (Gmail API limit).'),
+          messageIds: z
+            .array(idSchema)
+            .min(1)
+            .max(1000)
+            .describe('Up to 1000 message ids in a single call (Gmail API limit).'),
           addLabelIds: z.array(idSchema).optional(),
           removeLabelIds: z.array(idSchema).optional()
         })
@@ -227,8 +234,19 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com has:attachment newer_than:7d`'),
-          maxResults: z.number().int().positive().max(500).optional().describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
-          pageToken: z.string().min(1).max(4096).optional().describe('Continuation token from a previous `gsuite_email_messages_search` call.'),
+          maxResults: z
+            .number()
+            .int()
+            .positive()
+            .max(500)
+            .optional()
+            .describe(`Max results per page (default ${cfg.defaultSearchResults}).`),
+          pageToken: z
+            .string()
+            .min(1)
+            .max(4096)
+            .optional()
+            .describe('Continuation token from a previous `gsuite_email_messages_search` call.'),
           labelIds: z
             .array(idSchema)
             .min(1)

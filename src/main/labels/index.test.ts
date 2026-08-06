@@ -90,7 +90,9 @@ describe('handleListLabels', () => {
 
     const r = await handleListLabels()
     expect(r).toHaveProperty('isError', true)
-    expect(r.content[0].text).toBe('Error listing labels: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.')
+    expect(r.content[0].text).toBe(
+      'Error listing labels: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+    )
   })
 
   it('returns an error result when gmailService itself throws (no token)', async () => {
@@ -107,7 +109,9 @@ describe('handleListLabels', () => {
 describe('handleCreateLabel', () => {
   it('creates the label and returns labelId + name', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.labels.create as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'Label_42', name: 'Archive/2026' } })
+    ;(gmail.users.labels.create as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'Label_42', name: 'Archive/2026' }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleCreateLabel({ name: 'Archive/2026' })
@@ -169,7 +173,9 @@ describe('handleCreateLabel', () => {
 describe('handleUpdateLabel', () => {
   it('renames the label via labels.patch and returns the updated {labelId, name}', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.labels.patch as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'Label_42', name: 'Archive/2026' } })
+    ;(gmail.users.labels.patch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'Label_42', name: 'Archive/2026' }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleUpdateLabel({ labelId: 'Label_42', name: 'Archive/2026' })

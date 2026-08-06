@@ -9,7 +9,9 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const auth = await import('../google-client/index.js')
-const { _resetAuthEmailCacheForTests, createDraft, deleteDraft, getDraft, listDrafts, updateDraft } = await import('./index.js')
+const { _resetAuthEmailCacheForTests, createDraft, deleteDraft, getDraft, listDrafts, updateDraft } = await import(
+  './index.js'
+)
 
 const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 
@@ -390,7 +392,11 @@ describe('handleCreateDraft (attachment path containment)', () => {
     const link = path.join(downloadRoot, 'escape')
     fs.symlinkSync(outsideDir, link)
     try {
-      const r = await handleCreateDraft({ to: ['x@y.com'], bodyText: 'b', attachments: [path.join(link, 'secret.txt')] })
+      const r = await handleCreateDraft({
+        to: ['x@y.com'],
+        bodyText: 'b',
+        attachments: [path.join(link, 'secret.txt')]
+      })
       expect(r).toHaveProperty('isError', true)
       expect(r.content[0].text).toMatch(/escapes root/)
       expect(gmail.users.drafts.create).not.toHaveBeenCalled()
@@ -403,7 +409,12 @@ describe('handleCreateDraft (attachment path containment)', () => {
     const gmail = makeGmail()
     gmailServiceMock.mockReturnValue(gmail)
 
-    const r = await handleUpdateDraft({ draftId: 'd1', to: ['x@y.com'], bodyText: 'b', attachments: ['../../etc/passwd'] })
+    const r = await handleUpdateDraft({
+      draftId: 'd1',
+      to: ['x@y.com'],
+      bodyText: 'b',
+      attachments: ['../../etc/passwd']
+    })
     expect(r).toHaveProperty('isError', true)
     expect(r.content[0].text).toMatch(/escapes download root/)
     expect(gmail.users.drafts.update).not.toHaveBeenCalled()
@@ -703,7 +714,9 @@ describe('handleUpdateDraft', () => {
 describe('handleListDrafts', () => {
   it('hydrates each draft with header metadata and snippet', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.drafts.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { drafts: [{ id: 'd1' }, { id: 'd2' }] } })
+    ;(gmail.users.drafts.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { drafts: [{ id: 'd1' }, { id: 'd2' }] }
+    })
     ;(gmail.users.drafts.get as ReturnType<typeof vi.fn>).mockImplementation(({ id }) =>
       Promise.resolve({
         data: {
@@ -745,7 +758,12 @@ describe('handleListDrafts', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     await handleListDrafts({ query: 'to:foo@x.com', maxResults: 5, pageToken: 'TK' })
-    expect(gmail.users.drafts.list).toHaveBeenCalledWith({ userId: 'me', q: 'to:foo@x.com', maxResults: 5, pageToken: 'TK' })
+    expect(gmail.users.drafts.list).toHaveBeenCalledWith({
+      userId: 'me',
+      q: 'to:foo@x.com',
+      maxResults: 5,
+      pageToken: 'TK'
+    })
   })
 
   it('defaults maxResults to DEFAULT_SEARCH_RESULTS when omitted', async () => {
@@ -759,7 +777,9 @@ describe('handleListDrafts', () => {
 
   it('returns nextPageToken when Gmail signals more results', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.drafts.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { drafts: [], nextPageToken: 'NEXT' } })
+    ;(gmail.users.drafts.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { drafts: [], nextPageToken: 'NEXT' }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleListDrafts({})

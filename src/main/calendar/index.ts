@@ -41,7 +41,13 @@ export const listCalendars = async (cfg: Config) => {
 
 export const listEvents = async (
   cfg: Config,
-  { calendarId, timeMin, timeMax, query, maxResults }: { calendarId?: string; timeMin?: string; timeMax?: string; query?: string; maxResults?: number }
+  {
+    calendarId,
+    timeMin,
+    timeMax,
+    query,
+    maxResults
+  }: { calendarId?: string; timeMin?: string; timeMax?: string; query?: string; maxResults?: number }
 ) => {
   try {
     const calendar = calendarService(cfg.auth)
@@ -155,7 +161,10 @@ export const updateEvent = async (
   }
 }
 
-export const deleteEvent = async (cfg: Config, { calendarId, eventId, dry_run }: { calendarId?: string; eventId: string; dry_run: boolean }) => {
+export const deleteEvent = async (
+  cfg: Config,
+  { calendarId, eventId, dry_run }: { calendarId?: string; eventId: string; dry_run: boolean }
+) => {
   try {
     const calendar = calendarService(cfg.auth)
     const resolvedCalendarId = calendarId ?? 'primary'

@@ -1,7 +1,14 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { Config } from '../../config/index.js'
-import { createEvent, deleteEvent, getEvent, listCalendars, listEvents, updateEvent } from '../../main/calendar/index.js'
+import {
+  createEvent,
+  deleteEvent,
+  getEvent,
+  listCalendars,
+  listEvents,
+  updateEvent
+} from '../../main/calendar/index.js'
 import { DESTRUCTIVE_REMOTE, READ_ONLY_REMOTE, WRITE_IDEMPOTENT_REMOTE, WRITE_REMOTE } from '../../utils/annotations.js'
 import { shortTextSchema } from '../../utils/schemas.js'
 
@@ -9,7 +16,9 @@ import { shortTextSchema } from '../../utils/schemas.js'
 
 // Calendar ids are email-shaped (`primary`, `foo@group.calendar.google.com`),
 // so the Gmail idSchema alphabet is too narrow; length-capped free text.
-const calendarIdSchema = shortTextSchema.min(1).describe('Calendar id (from `gsuite_calendar_calendars_list`); defaults to `primary`.')
+const calendarIdSchema = shortTextSchema
+  .min(1)
+  .describe('Calendar id (from `gsuite_calendar_calendars_list`); defaults to `primary`.')
 
 // Event ids fit the base32hex-ish `[a-v0-9_]` alphabet; the shared idSchema
 // alphabet is a superset, so reuse its shape here via a local pattern.
@@ -104,7 +113,10 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
         .object({
           calendarId: calendarIdSchema.optional(),
           eventId: eventIdSchema,
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+          dry_run: z
+            .boolean()
+            .default(true)
+            .describe('Preview only; do not delete. Default true — pass false to actually delete.')
         })
         .strict(),
       outputSchema: deleteEventOutput,
@@ -143,7 +155,10 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
           end: rfc3339Schema.optional().describe('New end, RFC 3339.'),
           description: shortTextSchema.optional(),
           location: shortTextSchema.optional(),
-          attendees: z.array(emailSchema).optional().describe('Replacement attendee email list (empty array clears attendees).')
+          attendees: z
+            .array(emailSchema)
+            .optional()
+            .describe('Replacement attendee email list (empty array clears attendees).')
         })
         .strict(),
       outputSchema: eventRow,
@@ -160,10 +175,18 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           calendarId: calendarIdSchema.optional(),
-          timeMin: rfc3339Schema.optional().describe('Lower bound (exclusive) on end time, RFC 3339 (e.g. `2026-07-08T00:00:00Z`).'),
+          timeMin: rfc3339Schema
+            .optional()
+            .describe('Lower bound (exclusive) on end time, RFC 3339 (e.g. `2026-07-08T00:00:00Z`).'),
           timeMax: rfc3339Schema.optional().describe('Upper bound (exclusive) on start time, RFC 3339.'),
           query: shortTextSchema.min(1).optional().describe('Free-text search over event fields.'),
-          maxResults: z.number().int().positive().max(2500).optional().describe('Max events to return (Calendar default 250, max 2500).')
+          maxResults: z
+            .number()
+            .int()
+            .positive()
+            .max(2500)
+            .optional()
+            .describe('Max events to return (Calendar default 250, max 2500).')
         })
         .strict(),
       outputSchema: listEventsOutput,

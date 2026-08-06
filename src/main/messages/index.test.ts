@@ -29,7 +29,8 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, defaultSearchResults: 20, downloadPath: os.tmpdir() } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleSearchMessages = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) => searchMessages(cfg, args)
+const handleSearchMessages = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) =>
+  searchMessages(cfg, args)
 const handleGetMessage = (args: { messageId: string; format?: 'metadata' | 'full' }) => getMessage(cfg, args)
 const handleGetRawMessage = (args: { messageId: string; outputPath: string }) => getRawMessage(cfg, args)
 const handleLabelMessage = (args: { messageId: string; labelIds: string[] }) => labelMessage(cfg, args)
@@ -38,7 +39,8 @@ const handleMessageMarkRead = (args: { messageId: string }) => messageMarkRead(c
 const handleMessageMarkUnread = (args: { messageId: string }) => messageMarkUnread(cfg, args)
 const handleMessageArchive = (args: { messageId: string }) => messageArchive(cfg, args)
 const handleMessageTrash = (args: { messageId: string }) => messageTrash(cfg, args)
-const handleMessageBatchModify = (args: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }) => messageBatchModify(cfg, args)
+const handleMessageBatchModify = (args: { messageIds: string[]; addLabelIds?: string[]; removeLabelIds?: string[] }) =>
+  messageBatchModify(cfg, args)
 
 const b64 = (s: string): string => Buffer.from(s, 'utf8').toString('base64url')
 
@@ -65,7 +67,9 @@ afterEach(() => {
 describe('handleSearchMessages', () => {
   it('fetches metadata for each result and returns the structured array', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { messages: [{ id: 'm1' }, { id: 'm2' }] } })
+    ;(gmail.users.messages.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { messages: [{ id: 'm1' }, { id: 'm2' }] }
+    })
     ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockImplementation(({ id }) =>
       Promise.resolve({
         data: {
@@ -105,7 +109,12 @@ describe('handleSearchMessages', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     await handleSearchMessages({ query: 'from:foo', maxResults: 7, pageToken: 'TOKEN_X' })
-    expect(gmail.users.messages.list).toHaveBeenCalledWith({ userId: 'me', q: 'from:foo', maxResults: 7, pageToken: 'TOKEN_X' })
+    expect(gmail.users.messages.list).toHaveBeenCalledWith({
+      userId: 'me',
+      q: 'from:foo',
+      maxResults: 7,
+      pageToken: 'TOKEN_X'
+    })
   })
 
   it('normalises a quoted label name in the query before calling the API', async () => {
@@ -140,7 +149,9 @@ describe('handleSearchMessages', () => {
 
   it('returns nextPageToken when Gmail signals there are more results', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { messages: [], nextPageToken: 'NEXT_TOKEN_42' } })
+    ;(gmail.users.messages.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { messages: [], nextPageToken: 'NEXT_TOKEN_42' }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleSearchMessages({ query: 'q' })
@@ -396,7 +407,9 @@ describe('handleGetRawMessage', () => {
   it('does NOT return the raw bytes in the tool response (must travel via the file)', async () => {
     const bigPayload = 'X'.repeat(50_000)
     const gmail = makeGmail()
-    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', raw: b64(bigPayload) } })
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', raw: b64(bigPayload) }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleGetRawMessage({ messageId: 'm1', outputPath })
@@ -488,11 +501,17 @@ describe('handleGetRawMessage (degraded response shapes)', () => {
 describe('handleLabelMessage', () => {
   it('calls modify with addLabelIds and returns the updated label ids', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', labelIds: ['INBOX', 'X'] } })
+    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', labelIds: ['INBOX', 'X'] }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleLabelMessage({ messageId: 'm1', labelIds: ['X'] })
-    expect(gmail.users.messages.modify).toHaveBeenCalledWith({ userId: 'me', id: 'm1', requestBody: { addLabelIds: ['X'] } })
+    expect(gmail.users.messages.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 'm1',
+      requestBody: { addLabelIds: ['X'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ messageId: 'm1', labelIds: ['INBOX', 'X'] })
   })
 
@@ -521,11 +540,17 @@ describe('handleLabelMessage', () => {
 describe('handleUnlabelMessage', () => {
   it('calls modify with removeLabelIds and returns the updated label ids', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', labelIds: ['INBOX'] } })
+    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', labelIds: ['INBOX'] }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleUnlabelMessage({ messageId: 'm1', labelIds: ['X'] })
-    expect(gmail.users.messages.modify).toHaveBeenCalledWith({ userId: 'me', id: 'm1', requestBody: { removeLabelIds: ['X'] } })
+    expect(gmail.users.messages.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 'm1',
+      requestBody: { removeLabelIds: ['X'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ messageId: 'm1', labelIds: ['INBOX'] })
   })
 
@@ -552,11 +577,17 @@ describe('handleUnlabelMessage', () => {
 describe('handleMessageMarkRead', () => {
   it('removes the UNREAD label and returns the updated label ids', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', labelIds: ['INBOX'] } })
+    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', labelIds: ['INBOX'] }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleMessageMarkRead({ messageId: 'm1' })
-    expect(gmail.users.messages.modify).toHaveBeenCalledWith({ userId: 'me', id: 'm1', requestBody: { removeLabelIds: ['UNREAD'] } })
+    expect(gmail.users.messages.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 'm1',
+      requestBody: { removeLabelIds: ['UNREAD'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ messageId: 'm1', labelIds: ['INBOX'] })
   })
 
@@ -583,11 +614,17 @@ describe('handleMessageMarkRead', () => {
 describe('handleMessageMarkUnread', () => {
   it('adds the UNREAD label and returns the updated label ids', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', labelIds: ['INBOX', 'UNREAD'] } })
+    ;(gmail.users.messages.modify as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', labelIds: ['INBOX', 'UNREAD'] }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleMessageMarkUnread({ messageId: 'm1' })
-    expect(gmail.users.messages.modify).toHaveBeenCalledWith({ userId: 'me', id: 'm1', requestBody: { addLabelIds: ['UNREAD'] } })
+    expect(gmail.users.messages.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 'm1',
+      requestBody: { addLabelIds: ['UNREAD'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ messageId: 'm1', labelIds: ['INBOX', 'UNREAD'] })
   })
 
@@ -609,7 +646,11 @@ describe('handleMessageArchive', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleMessageArchive({ messageId: 'm1' })
-    expect(gmail.users.messages.modify).toHaveBeenCalledWith({ userId: 'me', id: 'm1', requestBody: { removeLabelIds: ['INBOX'] } })
+    expect(gmail.users.messages.modify).toHaveBeenCalledWith({
+      userId: 'me',
+      id: 'm1',
+      requestBody: { removeLabelIds: ['INBOX'] }
+    })
     expect(JSON.parse(r.content[0].text)).toEqual({ messageId: 'm1', labelIds: [] })
   })
 
@@ -627,7 +668,9 @@ describe('handleMessageArchive', () => {
 describe('handleMessageTrash', () => {
   it('calls messages.trash and returns the updated label ids', async () => {
     const gmail = makeGmail()
-    ;(gmail.users.messages.trash as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', labelIds: ['TRASH'] } })
+    ;(gmail.users.messages.trash as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', labelIds: ['TRASH'] }
+    })
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleMessageTrash({ messageId: 'm1' })
@@ -686,7 +729,12 @@ describe('handleMessageBatchModify', () => {
       userId: 'me',
       requestBody: { ids: ['m1'], addLabelIds: undefined, removeLabelIds: ['INBOX'] }
     })
-    expect(JSON.parse(r.content[0].text)).toEqual({ count: 1, messageIds: ['m1'], addLabelIds: [], removeLabelIds: ['INBOX'] })
+    expect(JSON.parse(r.content[0].text)).toEqual({
+      count: 1,
+      messageIds: ['m1'],
+      addLabelIds: [],
+      removeLabelIds: ['INBOX']
+    })
   })
 
   it('supports both add and remove in a single call', async () => {
@@ -695,7 +743,12 @@ describe('handleMessageBatchModify', () => {
     gmailServiceMock.mockReturnValue(gmail)
 
     const r = await handleMessageBatchModify({ messageIds: ['m1', 'm2'], addLabelIds: ['A'], removeLabelIds: ['B'] })
-    expect(JSON.parse(r.content[0].text)).toEqual({ count: 2, messageIds: ['m1', 'm2'], addLabelIds: ['A'], removeLabelIds: ['B'] })
+    expect(JSON.parse(r.content[0].text)).toEqual({
+      count: 2,
+      messageIds: ['m1', 'm2'],
+      addLabelIds: ['A'],
+      removeLabelIds: ['B']
+    })
   })
 
   it('returns an error result when neither addLabelIds nor removeLabelIds is provided', async () => {

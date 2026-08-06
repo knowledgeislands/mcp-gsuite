@@ -95,11 +95,17 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
         'Create a draft email in the user\'s Drafts folder. Does NOT send — the user reviews and sends from Gmail. With `replyToMessageId`, the draft inherits the original\'s threadId, In-Reply-To and References headers, and a "Re:" subject (unless overridden). With `replyAll: true` (requires `replyToMessageId`), `to` and `cc` auto-populate from the original (deduped against the authenticated account); the caller can still override either by supplying them. At least one of `bodyText` / `bodyHtml` is required; supplying both emits `multipart/alternative` so plain-text fallback survives. Attachments are file paths on the MCP server host; mimeType is inferred from the extension.',
       inputSchema: z
         .object({
-          to: optionalRecipientField.describe('Required unless `replyAll` is true. Each entry can be "addr@host" or "Name <addr@host>".'),
+          to: optionalRecipientField.describe(
+            'Required unless `replyAll` is true. Each entry can be "addr@host" or "Name <addr@host>".'
+          ),
           cc: optionalRecipientField,
           bcc: optionalRecipientField,
-          subject: shortTextSchema.optional().describe('If omitted and `replyToMessageId` is set, defaults to "Re: <original subject>".'),
-          bodyText: bodyTextSchema.optional().describe('Plain-text body. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'),
+          subject: shortTextSchema
+            .optional()
+            .describe('If omitted and `replyToMessageId` is set, defaults to "Re: <original subject>".'),
+          bodyText: bodyTextSchema
+            .optional()
+            .describe('Plain-text body. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'),
           bodyHtml: bodyTextSchema
             .optional()
             .describe(
@@ -108,7 +114,9 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
           attachments: attachmentField.describe(
             'Each entry is either a filesystem path (filename = basename, mimeType inferred from extension) or `{path, filename?, mimeType?}` to override either field.'
           ),
-          replyToMessageId: idSchema.optional().describe('Gmail messageId of a message to reply to. Threads the draft and copies headers.'),
+          replyToMessageId: idSchema
+            .optional()
+            .describe('Gmail messageId of a message to reply to. Threads the draft and copies headers.'),
           replyAll: z
             .boolean()
             .optional()
@@ -131,7 +139,10 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
       inputSchema: z
         .object({
           draftId: idSchema,
-          dry_run: z.boolean().default(true).describe('Preview only; do not delete. Default true — pass false to actually delete.')
+          dry_run: z
+            .boolean()
+            .default(true)
+            .describe('Preview only; do not delete. Default true — pass false to actually delete.')
         })
         .strict(),
       outputSchema: deleteDraftOutput,

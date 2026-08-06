@@ -118,12 +118,16 @@ const validateRecipients = (label: string, list: string[] | undefined): void => 
 // Discriminated union over the three legal shapes a draft body can take:
 // text-only (back-compat), html-only, or both (→ multipart/alternative).
 // "Empty html" is normalised to not-provided; "empty text" remains valid.
-type BodyParts = { kind: 'alt'; text: string; html: string; boundary: string } | { kind: 'text'; text: string } | { kind: 'html'; html: string }
+type BodyParts =
+  | { kind: 'alt'; text: string; html: string; boundary: string }
+  | { kind: 'text'; text: string }
+  | { kind: 'html'; html: string }
 
 const resolveBodyParts = (spec: DraftSpec): BodyParts => {
   const text = spec.bodyText
   const html = spec.bodyHtml && spec.bodyHtml.length > 0 ? spec.bodyHtml : undefined
-  if (text !== undefined && html !== undefined) return { kind: 'alt', text, html, boundary: `ALT_BOUNDARY_${randomUUID()}` }
+  if (text !== undefined && html !== undefined)
+    return { kind: 'alt', text, html, boundary: `ALT_BOUNDARY_${randomUUID()}` }
   if (text !== undefined) return { kind: 'text', text }
   if (html !== undefined) return { kind: 'html', html }
   throw new Error('At least one of `bodyText` or `bodyHtml` must be provided')
@@ -176,7 +180,11 @@ export const buildRfc2822 = (spec: DraftSpec): Buffer => {
     const onlyBody = body.kind === 'text' ? body.text : body.html
     headerLines.push(emitHeader('Content-Type', `${onlyType}; charset=UTF-8`))
     headerLines.push(emitHeader('Content-Transfer-Encoding', '8bit'))
-    return Buffer.concat([Buffer.from(headerLines.join(''), 'utf8'), Buffer.from(CRLF, 'utf8'), Buffer.from(normalizeNewlines(onlyBody), 'utf8')])
+    return Buffer.concat([
+      Buffer.from(headerLines.join(''), 'utf8'),
+      Buffer.from(CRLF, 'utf8'),
+      Buffer.from(normalizeNewlines(onlyBody), 'utf8')
+    ])
   }
 
   // With attachments → multipart/mixed wraps body section + attachment parts.
