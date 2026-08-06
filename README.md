@@ -209,25 +209,25 @@ To force re-authentication (or if the refresh token is revoked), delete the toke
 
 ### message
 
-| Tool                                 | Level   | Purpose                                                                     |
-| ------------------------------------ | ------- | --------------------------------------------------------------------------- |
-| `gsuite_email_messages_search`       | `read`  | Gmail-query search at message granularity.[^paginated]                      |
-| `gsuite_email_message_get`           | `read`  | Full message: headers, body, labels, attachments.[^html-strip][^msg-format] |
-| `gsuite_email_message_raw`           | `read`  | Write the raw RFC 2822 message to `outputPath` (e.g. `.eml`).[^raw-no-body] |
-| `gsuite_email_message_label`         | `write` | Add label ids to a message.                                                 |
-| `gsuite_email_message_unlabel`       | `write` | Remove label ids from a message.                                            |
-| `gsuite_email_message_mark_read`     | `write` | Remove the `UNREAD` label.[^sugar]                                          |
-| `gsuite_email_message_mark_unread`   | `write` | Add the `UNREAD` label.[^sugar]                                             |
-| `gsuite_email_message_archive`       | `write` | Remove the `INBOX` label.[^sugar]                                           |
-| `gsuite_email_message_trash`         | `write` | Move to Trash via `messages.trash`.[^trash]                                 |
-| `gsuite_email_messages_batch_modify` | `write` | Add/remove labels on up to 1000 messages in one call.[^batch-modify]        |
+| Tool | Level | Purpose |
+| --- | --- | --- |
+| `gsuite_email_messages_search` | `read` | Gmail-query search at message granularity.[^paginated] |
+| `gsuite_email_message_get` | `read` | Full message: headers, body, labels, attachments.[^html-strip][^msg-format] |
+| `gsuite_email_message_raw` | `read` | Write the raw RFC 2822 message to `outputPath` (e.g. `.eml`).[^raw-no-body] |
+| `gsuite_email_message_label` | `write` | Add label ids to a message. |
+| `gsuite_email_message_unlabel` | `write` | Remove label ids from a message. |
+| `gsuite_email_message_mark_read` | `write` | Remove the `UNREAD` label.[^sugar] |
+| `gsuite_email_message_mark_unread` | `write` | Add the `UNREAD` label.[^sugar] |
+| `gsuite_email_message_archive` | `write` | Remove the `INBOX` label.[^sugar] |
+| `gsuite_email_message_trash` | `write` | Move to Trash via `messages.trash`.[^trash] |
+| `gsuite_email_messages_batch_modify` | `write` | Add/remove labels on up to 1000 messages in one call.[^batch-modify] |
 
 ### attachment
 
-| Tool                               | Level  | Purpose                                                                     |
-| ---------------------------------- | ------ | --------------------------------------------------------------------------- |
-| `gsuite_email_attachment_get`      | `read` | Download an attachment, to disk via `outputPath` or inline.[^attach-inline] |
-| `gsuite_email_attachment_metadata` | `read` | Get filename, MIME type, size without downloading bytes.[^attach-metadata]  |
+| Tool | Level | Purpose |
+| --- | --- | --- |
+| `gsuite_email_attachment_get` | `read` | Download an attachment, to disk via `outputPath` or inline.[^attach-inline] |
+| `gsuite_email_attachment_metadata` | `read` | Get filename, MIME type, size without downloading bytes.[^attach-metadata] |
 
 ### thread
 
@@ -244,13 +244,13 @@ To force re-authentication (or if the refresh token is revoked), delete the toke
 
 ### draft
 
-| Tool                        | Level         | Purpose                                                                            |
-| --------------------------- | ------------- | ---------------------------------------------------------------------------------- |
-| `gsuite_email_draft_create` | `write`       | Create a Gmail draft (saved, never sent).[^draft-shape]                            |
-| `gsuite_email_draft_update` | `write`       | Replace an existing draft's contents (same fields as `gsuite_email_draft_create`). |
-| `gsuite_email_drafts_list`  | `read`        | List drafts with headers + snippet; optional `query` filter.[^paginated]           |
-| `gsuite_email_draft_get`    | `read`        | Get a draft's full headers, body, label ids, and attachment refs.                  |
-| `gsuite_email_draft_delete` | `destructive` | Permanently delete a draft (does not go to Trash).                                 |
+| Tool | Level | Purpose |
+| --- | --- | --- |
+| `gsuite_email_draft_create` | `write` | Create a Gmail draft (saved, never sent).[^draft-shape] |
+| `gsuite_email_draft_update` | `write` | Replace an existing draft's contents (same fields as `gsuite_email_draft_create`). |
+| `gsuite_email_drafts_list` | `read` | List drafts with headers + snippet; optional `query` filter.[^paginated] |
+| `gsuite_email_draft_get` | `read` | Get a draft's full headers, body, label ids, and attachment refs. |
+| `gsuite_email_draft_delete` | `destructive` | Permanently delete a draft (does not go to Trash). |
 
 This server deliberately exposes draft creation but no sending tool. The user reviews drafts in Gmail and clicks Send — Claude never directly delivers mail. The OAuth scope technically permits sending; the MCP surface does not.
 
