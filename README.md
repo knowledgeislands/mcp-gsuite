@@ -270,6 +270,12 @@ This server deliberately exposes draft creation but no sending tool. The user re
 
 [^raw-no-body]: Returns `{messageId, path, sizeBytes}`. The body never travels through the response, so this is safe for messages with large attachments. Subject/date aren't returned — with `format=raw` Gmail does not break out headers (use `gsuite_email_message_get`).
 
+[^sugar]: Sugar over `messages.modify` / `threads.modify` so callers don't have to know the magic system-label id.
+
+[^trash]: Recoverable for ~30 days from Gmail's Trash UI. Permanent deletion (`messages.delete` / `threads.delete`) is intentionally not exposed.
+
+[^batch-modify]: Backed by Gmail `messages.batchModify`. At least one of `addLabelIds` or `removeLabelIds` is required. Returns `{count, messageIds, addLabelIds, removeLabelIds}` echoing the operation; Gmail returns 204 No Content on success.
+
 [^attach-inline]: With `outputPath`, writes the decoded bytes and returns `{messageId, path, sizeBytes}`. Without it, returns `{filename, mimeType, data}` (base64url) — suitable for small attachments only.
 
 [^attach-metadata]: Backed by `messages.get(format=full)` — fetches the message part tree without downloading the attachment bytes. Returns `{messageId, attachmentId, filename, mimeType, sizeBytes}`.
@@ -277,12 +283,6 @@ This server deliberately exposes draft creation but no sending tool. The user re
 [^thread-shape]: Each thread carries `id`, `snippet`, `messageCount`, latest-message headers, and the union of label ids across all messages.
 
 [^draft-shape]: Plain-text body via `bodyText`, optional rich body via `bodyHtml` (both → `multipart/alternative` so plain-text clients still render). Attachments accept either a bare path or `{path, filename?, mimeType?}` to override either field. With `replyToMessageId` we wire `In-Reply-To`, extend `References`, prepend `Re:` to Subject, and tie the draft to the right thread. With `replyAll: true` (requires `replyToMessageId`), `to` (= original From + To) and `cc` (= original Cc) auto-populate, with the authenticated account removed; caller-supplied `to` / `cc` win.
-
-[^sugar]: Sugar over `messages.modify` / `threads.modify` so callers don't have to know the magic system-label id.
-
-[^trash]: Recoverable for ~30 days from Gmail's Trash UI. Permanent deletion (`messages.delete` / `threads.delete`) is intentionally not exposed.
-
-[^batch-modify]: Backed by Gmail `messages.batchModify`. At least one of `addLabelIds` or `removeLabelIds` is required. Returns `{count, messageIds, addLabelIds, removeLabelIds}` echoing the operation; Gmail returns 204 No Content on success.
 
 ## Security Model
 
