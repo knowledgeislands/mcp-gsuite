@@ -1,5 +1,5 @@
 ---
-id: MCP-GSUITE-TOOL-002
+id: MCP-GSUITE-007
 title: Add incremental Gmail history
 theme: tool-surface
 horizon: next
@@ -59,7 +59,7 @@ This item declares no blocking relationships. The scope grant it needs is alread
 
 Step 2 is an internal dependency the item carries on itself: the tool is not usable until some part of the surface emits a `historyId`, so that decision has to be made inside this item rather than deferred.
 
-It shares `src/tool-registration.test.ts` and `scripts/smoke.ts` with [MCP-GSUITE-TOOL-001](MCP-GSUITE-TOOL-001-add-single-message-label-modification.md), also at the `next` horizon; whichever lands second updates the tool-surface lists on top of the first.
+It shares `src/tool-registration.test.ts` and `scripts/smoke.ts` with [MCP-GSUITE-001](MCP-GSUITE-001-add-single-message-label-modification.md), also at the `next` horizon; whichever lands second updates the tool-surface lists on top of the first.
 
 ## Discussion
 

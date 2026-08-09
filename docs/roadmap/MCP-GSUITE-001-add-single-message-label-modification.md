@@ -1,5 +1,5 @@
 ---
-id: MCP-GSUITE-TOOL-001
+id: MCP-GSUITE-001
 title: Add single-message label modification
 theme: tool-surface
 horizon: next
@@ -58,7 +58,7 @@ A caller swapping labels on a single message therefore either makes two round tr
 
 This item declares no blocking relationships, and nothing in the current tool surface has to change before it starts.
 
-It does share `src/main/messages/index.ts`, `src/tool-registration.test.ts`, and `scripts/smoke.ts` with [MCP-GSUITE-TOOL-002](MCP-GSUITE-TOOL-002-add-incremental-gmail-history.md), which is also at the `next` horizon. Whichever lands second updates the two tool-surface lists on top of the first rather than in parallel with it.
+It does share `src/main/messages/index.ts`, `src/tool-registration.test.ts`, and `scripts/smoke.ts` with [MCP-GSUITE-007](MCP-GSUITE-007-add-incremental-gmail-history.md), which is also at the `next` horizon. Whichever lands second updates the two tool-surface lists on top of the first rather than in parallel with it.
 
 ## Discussion
 

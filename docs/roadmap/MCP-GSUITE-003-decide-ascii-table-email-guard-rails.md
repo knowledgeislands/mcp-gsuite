@@ -1,5 +1,5 @@
 ---
-id: MCP-GSUITE-TOOL-003
+id: MCP-GSUITE-003
 title: Decide email table guards
 theme: tool-surface
 horizon: soon
@@ -29,7 +29,7 @@ The three outcomes named in Context sit at very different costs, so the shaping 
 
 There is a fourth answer worth pricing alongside them: the composition path already supports supplying both `bodyText` and `bodyHtml`, in which case `buildRfc2822` emits `multipart/alternative` with the plain-text part first. The plain-text alternative preserves the spacing the HTML part collapses, so the guidance may simply be "put the table in `bodyText`" with no code change beyond the tool description.
 
-There are no external dependencies. The item shares `src/utils/mime.ts` with any future body-composing work, including [MCP-GSUITE-TOOL-005](MCP-GSUITE-TOOL-005-add-forward-convenience.md) at the `future` horizon, which is a reason to prefer a schema- or documentation-level answer over a transform in the shared builder.
+There are no external dependencies. The item shares `src/utils/mime.ts` with any future body-composing work, including [MCP-GSUITE-005](MCP-GSUITE-005-add-forward-convenience.md) at the `future` horizon, which is a reason to prefer a schema- or documentation-level answer over a transform in the shared builder.
 
 The decisions still needed are whether detection is worth its false positives, whether rejecting a caller's body is proportionate given that the server only ever creates drafts, and whether the outcome needs any code at all.
 

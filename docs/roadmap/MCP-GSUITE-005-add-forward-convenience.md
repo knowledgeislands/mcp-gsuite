@@ -1,6 +1,6 @@
 ---
-id: MCP-GSUITE-TOOL-006
-title: Evaluate Gmail MCP tools
+id: MCP-GSUITE-005
+title: Add forward convenience
 theme: tool-surface
 horizon: future
 status: draft
@@ -12,11 +12,11 @@ baseline-ref: null
 
 ## Goal
 
-Achieve the stated outcome: Evaluate MCP resources and Gmail settings tools.
+Achieve the stated outcome: Add forward convenience.
 
 ## Context
 
-Evaluate resource exposure, filter management, and aliases/Send-As tools only if a client need justifies their additional surface area.
+Add forwarding that inlines the original message and attachments.
 
 ## Boundary
 

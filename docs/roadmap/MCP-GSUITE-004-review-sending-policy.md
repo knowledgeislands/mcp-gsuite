@@ -1,5 +1,5 @@
 ---
-id: MCP-GSUITE-TOOL-004
+id: MCP-GSUITE-004
 title: Review sending policy
 theme: tool-surface
 horizon: future

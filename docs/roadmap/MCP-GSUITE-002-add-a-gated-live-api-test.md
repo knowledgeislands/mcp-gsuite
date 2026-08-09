@@ -1,5 +1,5 @@
 ---
-id: MCP-GSUITE-FND-002
+id: MCP-GSUITE-002
 title: Add gated API test
 theme: foundation-tooling
 horizon: soon
