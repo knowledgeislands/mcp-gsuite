@@ -1,5 +1,6 @@
 ---
-id: MCP-GSUITE-005
+id: MCP-GSUITE-TOOL-005
+area: TOOL
 title: Add forward convenience
 theme: tool-surface
 horizon: future

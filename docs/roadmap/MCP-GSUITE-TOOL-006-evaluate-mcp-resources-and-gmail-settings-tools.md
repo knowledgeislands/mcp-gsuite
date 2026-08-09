@@ -1,6 +1,7 @@
 ---
-id: MCP-GSUITE-004
-title: Review sending policy
+id: MCP-GSUITE-TOOL-006
+area: TOOL
+title: Evaluate Gmail MCP tools
 theme: tool-surface
 horizon: future
 status: draft
@@ -12,11 +13,11 @@ baseline-ref: null
 
 ## Goal
 
-Achieve the stated outcome: Review sending policy.
+Achieve the stated outcome: Evaluate MCP resources and Gmail settings tools.
 
 ## Context
 
-Consider `message_send` or `draft_send` only through an explicit policy decision and opt-in environment flag, keeping drafts-only as the default.
+Evaluate resource exposure, filter management, and aliases/Send-As tools only if a client need justifies their additional surface area.
 
 ## Boundary
 
