@@ -370,7 +370,7 @@ bun run ki:test:smoke          # build + boot server over stdio MCP, assert wire
 bun run ki:lint:types          # tsc --noEmit
 bun run ki:lint:check          # Biome
 bun run ki:lint:fix            # Biome auto-fix (--unsafe)
-bun run ki:lint:md             # prettier + markdownlint for *.md
+ki repo audit --skill ki-authoring --repo .  # rumdl check for authored Markdown
 ```
 
 ## Extending the Server
