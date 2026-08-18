@@ -61,6 +61,24 @@ This item declares no blocking relationships, and nothing in the current tool su
 
 It does share `src/main/messages/index.ts`, `src/tool-registration.test.ts`, and `scripts/smoke.ts` with [MCP-GSUITE-TOOL-002](MCP-GSUITE-TOOL-002-add-incremental-gmail-history.md), which is also at the `next` horizon. Whichever lands second updates the two tool-surface lists on top of the first rather than in parallel with it.
 
+## Documentation impact
+
+### Decision Records
+
+None.
+
+### Specifications
+
+None.
+
+### Guides
+
+Update the README tool catalogue with single-message label modification.
+
+### Roadmap
+
+No additional roadmap impact.
+
 ## Discussion
 
 ### Registered tool name

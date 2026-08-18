@@ -62,6 +62,24 @@ Step 2 is an internal dependency the item carries on itself: the tool is not usa
 
 It shares `src/tool-registration.test.ts` and `scripts/smoke.ts` with [MCP-GSUITE-TOOL-001](MCP-GSUITE-TOOL-001-add-single-message-label-modification.md), also at the `next` horizon; whichever lands second updates the tool-surface lists on top of the first.
 
+## Documentation impact
+
+### Decision Records
+
+None.
+
+### Specifications
+
+None.
+
+### Guides
+
+Document incremental Gmail history behaviour and operational limits in the README.
+
+### Roadmap
+
+No additional roadmap impact.
+
 ## Discussion
 
 ### Where the start point comes from
