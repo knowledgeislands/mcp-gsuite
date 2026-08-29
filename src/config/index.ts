@@ -164,6 +164,17 @@ const parseInlineMax = (raw: string | undefined, fallback: number): number => {
 
 export const DEFAULT_SEARCH_RESULTS = 20
 
+const resolveXdgStateHome = (env: NodeJS.ProcessEnv, homeDir: string): string => {
+  const configured = env.XDG_STATE_HOME?.trim()
+  if (configured) {
+    if (!path.isAbsolute(configured)) {
+      throw new Error('XDG_STATE_HOME must be an absolute path')
+    }
+    return configured
+  }
+  return path.join(homeDir, '.local', 'state')
+}
+
 /**
  * Load configuration from `env` (defaults to `process.env`, after hydrating it
  * from the package's `.env*` files — see `hydrateEnvFromFiles`). Throws if a
@@ -173,6 +184,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
   hydrateEnvFromFiles()
 
   const homeDir = env.HOME || env.USERPROFILE || os.homedir() || '/tmp'
+  const stateDir = path.join(resolveXdgStateHome(env, homeDir), 'ki', 'mcp-gsuite')
   const authPort = Number.parseInt(env.MCP_GSUITE_AUTH_PORT || '3334', 10)
 
   return {
@@ -184,7 +196,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
       scopes: parseScopes(env.MCP_GSUITE_SCOPES),
       tokenStorePath: env.MCP_GSUITE_TOKEN_PATH?.trim()
         ? path.resolve(env.MCP_GSUITE_TOKEN_PATH.trim())
-        : path.join(homeDir, '.mcp-gsuite-tokens.json'),
+        : path.join(stateDir, 'oauth-tokens.json'),
       authServerPort: authPort,
       authServerUrl: `http://localhost:${authPort}`
     },
@@ -192,7 +204,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
     auditLogMode: parseAuditLogMode(env.MCP_GSUITE_AUDIT_LOG),
     auditLogPath: env.MCP_GSUITE_AUDIT_LOG_PATH?.trim()
       ? path.resolve(env.MCP_GSUITE_AUDIT_LOG_PATH.trim())
-      : path.join(homeDir, '.local', 'state', 'mcp-gsuite', 'audit.jsonl'),
+      : path.join(stateDir, 'audit.jsonl'),
     auditLogMaxBytes: parseNonNegativeInt(
       env.MCP_GSUITE_AUDIT_LOG_MAX_BYTES,
       10 * 1024 * 1024,

@@ -29,7 +29,7 @@ Out of scope:
 
 ## Token Storage
 
-OAuth tokens are stored at `~/.mcp-gsuite-tokens.json` with `0600` permissions (owner read/write only). Tokens are refreshed transparently; if you suspect your tokens have leaked, **delete that file immediately** and re-authenticate.
+OAuth tokens are stored at `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` with `0600` permissions (owner read/write only). Tokens are refreshed transparently; if you suspect your tokens have leaked, **delete that file immediately** and re-authenticate.
 
 You can also revoke the app's access from <https://myaccount.google.com/permissions>.
 

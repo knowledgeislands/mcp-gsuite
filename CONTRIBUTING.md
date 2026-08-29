@@ -36,7 +36,7 @@ bun run ki:lint:md             # prettier + markdownlint for *.md
 - **TypeScript ES modules** — `"type": "module"`, internal imports use `.js` extensions (e.g. `from '../../main/labels/index.js'`) so `tsc` emits valid JS.
 - **Arrow functions** for top-level declarations (`export const foo = () => …`).
 - **Config injection** — `loadConfig(env?)` in `src/config/index.ts` returns a plain `Config`; nothing reads env at import time. Tool defs in `src/tools/` are thin and call into `src/main/<area>/`, where every entry point takes its config slice as the first argument. See the "Project layout & config injection" section of `CLAUDE.md`.
-- **Token handling**: tokens live at `~/.mcp-gsuite-tokens.json` with `0600` permissions. Never log token values; use `redactedTokenSummary(cfg.auth)` from `src/main/auth/index.ts` when surfacing auth state.
+- **Token handling**: tokens live at `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` with `0600` permissions. Never log token values; use `redactedTokenSummary(cfg.auth)` from `src/main/auth/index.ts` when surfacing auth state.
 - **Errors**: tools return MCP errors via `errorResult(...)`; structured results via `jsonResult(...)`.
 - **Annotations**: be honest with `readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint` on every tool registration.
 

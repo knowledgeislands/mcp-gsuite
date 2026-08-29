@@ -57,9 +57,9 @@ describe('auth paths and ports', () => {
     )
   })
 
-  it('defaults tokenStorePath to ~/.mcp-gsuite-tokens.json when MCP_GSUITE_TOKEN_PATH is unset', async () => {
+  it('defaults tokenStorePath to ~/.local/state/ki/mcp-gsuite/oauth-tokens.json when MCP_GSUITE_TOKEN_PATH is unset', async () => {
     const { loadConfig } = await import('./index.js')
-    expect(loadConfig(baseEnv()).auth.tokenStorePath).toMatch(/\.mcp-gsuite-tokens\.json$/)
+    expect(loadConfig(baseEnv()).auth.tokenStorePath).toMatch(/oauth-tokens\.json$/)
   })
 
   it('uses MCP_GSUITE_AUTH_PORT when set', async () => {
@@ -88,7 +88,7 @@ describe('homeDir fallback chain (HOME || USERPROFILE || os.homedir() || "/tmp")
   it('uses HOME when set (token path under $HOME)', async () => {
     const { loadConfig } = await import('./index.js')
     const cfg = loadConfig({ HOME: '/home/alice', MCP_GSUITE_CLIENT_ID: 'cid', MCP_GSUITE_CLIENT_SECRET: 'cs' })
-    expect(cfg.auth.tokenStorePath).toBe('/home/alice/.mcp-gsuite-tokens.json')
+    expect(cfg.auth.tokenStorePath).toBe('/home/alice/.local/state/ki/mcp-gsuite/oauth-tokens.json')
   })
 
   it('falls back to USERPROFILE when HOME is unset (Windows-style)', async () => {
@@ -98,7 +98,7 @@ describe('homeDir fallback chain (HOME || USERPROFILE || os.homedir() || "/tmp")
       MCP_GSUITE_CLIENT_ID: 'cid',
       MCP_GSUITE_CLIENT_SECRET: 'cs'
     })
-    expect(cfg.auth.tokenStorePath).toMatch(/\.mcp-gsuite-tokens\.json$/)
+    expect(cfg.auth.tokenStorePath).toMatch(/oauth-tokens\.json$/)
     expect(cfg.auth.tokenStorePath.startsWith('C:\\Users\\bob')).toBe(true)
   })
 
@@ -110,7 +110,7 @@ describe('homeDir fallback chain (HOME || USERPROFILE || os.homedir() || "/tmp")
     })
     const { loadConfig } = await import('./index.js')
     const cfg = loadConfig({ MCP_GSUITE_CLIENT_ID: 'cid', MCP_GSUITE_CLIENT_SECRET: 'cs' })
-    expect(cfg.auth.tokenStorePath).toBe('/fake/homedir/.mcp-gsuite-tokens.json')
+    expect(cfg.auth.tokenStorePath).toBe('/fake/homedir/.local/state/ki/mcp-gsuite/oauth-tokens.json')
     vi.doUnmock('node:os')
     vi.resetModules()
   })
@@ -123,7 +123,7 @@ describe('homeDir fallback chain (HOME || USERPROFILE || os.homedir() || "/tmp")
     })
     const { loadConfig } = await import('./index.js')
     const cfg = loadConfig({ MCP_GSUITE_CLIENT_ID: 'cid', MCP_GSUITE_CLIENT_SECRET: 'cs' })
-    expect(cfg.auth.tokenStorePath).toBe('/tmp/.mcp-gsuite-tokens.json')
+    expect(cfg.auth.tokenStorePath).toBe('/tmp/.local/state/ki/mcp-gsuite/oauth-tokens.json')
     vi.doUnmock('node:os')
     vi.resetModules()
   })
@@ -279,5 +279,22 @@ describe('hydrateEnvFromFiles (via loadConfig)', () => {
       if (original === undefined) delete process.env.NODE_ENV
       else process.env.NODE_ENV = original
     }
+  })
+})
+
+describe('XDG state paths', () => {
+  it('uses an absolute XDG_STATE_HOME for OAuth and audit state', async () => {
+    const { loadConfig } = await import('./index.js')
+    const cfg = loadConfig({ ...baseEnv(), XDG_STATE_HOME: '/state' })
+
+    expect(cfg.auth.tokenStorePath).toBe('/state/ki/mcp-gsuite/oauth-tokens.json')
+    expect(cfg.auditLogPath).toBe('/state/ki/mcp-gsuite/audit.jsonl')
+  })
+
+  it('rejects a relative XDG_STATE_HOME', async () => {
+    const { loadConfig } = await import('./index.js')
+    expect(() => loadConfig({ ...baseEnv(), XDG_STATE_HOME: 'relative/state' })).toThrow(
+      /XDG_STATE_HOME must be an absolute path/
+    )
   })
 })

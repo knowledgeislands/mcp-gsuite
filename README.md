@@ -22,7 +22,7 @@ An MCP (Model Context Protocol) server that connects Claude with Google Workspac
 4. **Build**: `bun run build`.
 5. **Configure Claude Desktop** with `dist/mcp-server/index.js` and your `MCP_GSUITE_CLIENT_ID`/`MCP_GSUITE_CLIENT_SECRET` (see [Configuration](#configuration)).
 6. **Start the auth server**: `bun run ki:server:auth:dev` (separate process; handles OAuth on `localhost:3334`).
-7. **Authenticate** — call the `gsuite_auth_start` tool in your MCP client, follow the URL, sign in. Tokens land at `~/.mcp-gsuite-tokens.json` (mode `0600`). (`gsuite_auth_start` is annotated `WRITE_REMOTE` because it persists tokens, so it registers at `MCP_GSUITE_ACCESS_LEVEL=write` or higher; the default `read`-only configuration hides it along with every other mutating tool.)
+7. **Authenticate** — call the `gsuite_auth_start` tool in your MCP client, follow the URL, sign in. Tokens land at `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` (mode `0600`). (`gsuite_auth_start` is annotated `WRITE_REMOTE` because it persists tokens, so it registers at `MCP_GSUITE_ACCESS_LEVEL=write` or higher; the default `read`-only configuration hides it along with every other mutating tool.)
 
 ## Example Conversations
 
@@ -103,7 +103,7 @@ For brand-new projects, Google gates this behind a one-time wizard. If you see *
 1. **OAuth consent screen → Data Access** → **Add or remove scopes**.
 2. Tick each default scope: `https://www.googleapis.com/auth/gmail.modify`, `https://www.googleapis.com/auth/calendar`, `https://www.googleapis.com/auth/drive.readonly`, `https://www.googleapis.com/auth/spreadsheets` → **Update** → **Save**.
 
-After changing scopes here, **delete the token file (default `~/.mcp-gsuite-tokens.json`) and re-run the `gsuite_auth_start` tool** so the consent screen prompts again with the new scope set.
+After changing scopes here, **delete the token file (default `~/.local/state/ki/mcp-gsuite/oauth-tokens.json`) and re-run the `gsuite_auth_start` tool** so the consent screen prompts again with the new scope set.
 
 ### 4. Create OAuth credentials
 
@@ -124,12 +124,13 @@ After changing scopes here, **delete the token file (default `~/.mcp-gsuite-toke
 | `MCP_GSUITE_REDIRECT_URI` | no | `http://localhost:3334/auth/callback` | Must match the URI registered in Google Cloud. |
 | `MCP_GSUITE_SCOPES` | no | `GSUITE_DEFAULT_SCOPES` (gmail.modify + calendar + drive.readonly + spreadsheets) | Space-separated OAuth scopes. |
 | `MCP_GSUITE_AUTH_PORT` | no | `3334` | Port the auth server listens on. Must match the redirect URI port. |
-| `MCP_GSUITE_TOKEN_PATH` | no | `~/.mcp-gsuite-tokens.json` | Token file location. Override to keep multiple accounts side-by-side. |
+| `MCP_GSUITE_TOKEN_PATH` | no | `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` | Token file location. Override to keep multiple accounts side-by-side. |
+| `XDG_STATE_HOME` | no | `$HOME/.local/state` | Absolute base directory for default OAuth and audit state paths. |
 | `MCP_GSUITE_ACCESS_LEVEL` | no | `read` | Maximum tool access level to register. † |
 | `MCP_GSUITE_DOWNLOAD_PATH` | no | `~/Downloads` | Directory where attachment downloads are written. |
 | `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES` | no | `262144` (256 KiB) | Cap on inline-returned attachment bytes. ‡ |
 | `MCP_GSUITE_AUDIT_LOG` | no | `writes` | Audit-log scope. § |
-| `MCP_GSUITE_AUDIT_LOG_PATH` | no | `~/.local/state/mcp-gsuite/audit.jsonl` | Path to the JSONL audit log. |
+| `MCP_GSUITE_AUDIT_LOG_PATH` | no | `~/.local/state/ki/mcp-gsuite/audit.jsonl` | Path to the JSONL audit log. |
 | `MCP_GSUITE_AUDIT_LOG_MAX_BYTES` | no | `10485760` (10 MiB) | Size-based rotation threshold in bytes. Set to `0` to disable rotation. |
 | `MCP_GSUITE_AUDIT_LOG_KEEP` | no | `5` | Number of rotated audit-log files to retain. |
 | `NODE_ENV` | no | — | Affects which `.env*` files hydrate config. ¶ |
@@ -179,7 +180,7 @@ OAuth runs out-of-band via the standalone auth server:
 1. Start `bun run ki:server:auth:dev` (listens on `http://localhost:3334`).
 2. In your MCP client, call the `gsuite_auth_start` tool — it returns a sign-in URL.
 3. Open the URL, sign in with the Google account you want to access, grant the requested scope.
-4. Tokens (including refresh token) are persisted to `~/.mcp-gsuite-tokens.json` (override with `MCP_GSUITE_TOKEN_PATH`).
+4. Tokens (including refresh token) are persisted to `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` (override with `MCP_GSUITE_TOKEN_PATH`).
 5. The MCP server reads that file and refreshes tokens transparently when they expire.
 
 To force re-authentication (or if the refresh token is revoked), delete the token file and call `gsuite_auth_start` again.
@@ -287,7 +288,7 @@ This server deliberately exposes draft creation but no sending tool. The user re
 ## Security Model
 
 - Secrets (`MCP_GSUITE_CLIENT_SECRET`) come from env vars only; never committed. `.env*` files are gitignored except `.env*.example` templates.
-- OAuth tokens live at `MCP_GSUITE_TOKEN_PATH` (default `~/.mcp-gsuite-tokens.json`), mode `0600`.
+- OAuth tokens live at `MCP_GSUITE_TOKEN_PATH` (default `~/.local/state/ki/mcp-gsuite/oauth-tokens.json`), mode `0600`.
 - Token writes are **atomic** — temp file + `rename()`. A crash mid-write cannot corrupt the token file.
 - Token values are **never** logged or returned by any MCP tool. The `gsuite_auth_status` tool exposes presence flags and metadata only.
 - The auth server binds to `localhost:3334` only and accepts a single OAuth callback at a time; CSRF state entries expire after 10 minutes.
@@ -301,12 +302,12 @@ This server deliberately exposes draft creation but no sending tool. The user re
 bunx kill-port 3334
 ```
 
-**Gmail API returns 403 after a successful sign-in.** The OAuth consent screen didn't pre-declare the scope, so Google silently dropped it. Inspect `~/.mcp-gsuite-tokens.json` and check the `scope` field; if `gmail.modify` is missing, add it via **OAuth consent screen → Data Access** ([step 3c](#3c-configure-data-access-scopes)), delete the token file, and re-run the `gsuite_auth_start` tool.
+**Gmail API returns 403 after a successful sign-in.** The OAuth consent screen didn't pre-declare the scope, so Google silently dropped it. Inspect `~/.local/state/ki/mcp-gsuite/oauth-tokens.json` and check the `scope` field; if `gmail.modify` is missing, add it via **OAuth consent screen → Data Access** ([step 3c](#3c-configure-data-access-scopes)), delete the token file, and re-run the `gsuite_auth_start` tool.
 
 **Token revoked or refresh fails.** Delete the token file and re-authenticate:
 
 ```bash
-rm ~/.mcp-gsuite-tokens.json
+rm ~/.local/state/ki/mcp-gsuite/oauth-tokens.json
 # then call the `gsuite_auth_start` tool again
 ```
 
