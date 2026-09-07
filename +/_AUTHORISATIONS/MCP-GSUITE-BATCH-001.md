@@ -50,3 +50,10 @@ The item stops at `awaiting-review` with the canonical six-heading review packet
 ## Run ledger
 
 <!-- ki-batch-run: MCP-GSUITE-BATCH-001-RUN-001 71b725e80b7ac1f8ce1b0cc577d8e6c481c4d584c0027a486dfa1d39fc742155 -->
+
+## Run outcome
+
+- `MCP-GSUITE-FND-005` began Ready at immutable baseline `c4332340f0f3ae69ed4e99abade9da2fee746cf2` and reached `awaiting-review` after implementation commit `8aa3596f7195015e59bc0ff30d924b57987a0294`.
+- Focused `ki-engineering`, `ki-repo-mcp`, and roadmap audits passed; TypeScript passed; 21 test files and 466 tests passed; TOML parsing, package-script equality, Markdown, and diff checks passed.
+- No decision beyond the locked four-exclusion removal was taken, no delegation was used, and no external command, push, release, closure, or prune occurred.
+- Next action is human review through `ki-accept`; this authorisation grants no closure authority.
