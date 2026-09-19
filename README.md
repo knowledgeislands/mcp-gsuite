@@ -12,7 +12,7 @@ An MCP (Model Context Protocol) server that connects Claude with Google Workspac
 - **Drafts-only outbound** — compose plain text + HTML (with `multipart/alternative` fallback), attachments with filename/MIME-type overrides, reply + reply-all (self-dedupe via cached profile). **Never sends mail** — the user reviews drafts in Gmail and clicks Send.
 - **Strict input schemas** — every tool registers a Zod schema; `tools/list` reports proper JSON Schema and honest MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`).
 
-**Quality:** 420 tests at 100% coverage; CI also boots the built server over stdio MCP and asserts the wire-level tool surface on every commit ([`bun run ki:test:smoke`](#development)).
+**Quality:** the full test suite enforces 100% coverage; CI also boots the built server over stdio MCP and asserts the wire-level tool surface on every commit ([`bun run ki:test:smoke`](#development)).
 
 ## Quick Start
 
