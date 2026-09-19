@@ -5,7 +5,6 @@ title: Evaluate Gmail MCP tools
 theme: tool-surface
 horizon: future
 status: draft
-candidate: true
 blocks: []
 blocked_by: []
 baseline_ref: null
