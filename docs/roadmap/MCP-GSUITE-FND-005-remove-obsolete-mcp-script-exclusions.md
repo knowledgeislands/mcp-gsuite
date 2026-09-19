@@ -4,12 +4,12 @@ area: FND
 title: Remove MCP exclusions
 theme: foundation-tooling
 horizon: next
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: c4332340f0f3ae69ed4e99abade9da2fee746cf2
 created_at: 2026-09-07T21:08:31Z
-updated_at: 2026-09-07T21:10:02Z
+updated_at: 2026-09-19T11:51:43Z
 ---
 
 ## Goal
@@ -100,6 +100,10 @@ The goal and scope are met. The change is limited to removing a redundant config
 ### Mini recap
 
 The four existing commands now resolve through `ki-repo-mcp` without local exclusions. Verification is complete, no package or runtime behaviour changed, and no durable learning or follow-on route is required.
+
+## Done
+
+Accepted 2026-09-19 by repository owner on review packet above.
 
 ## Discussion
 
