@@ -33,7 +33,7 @@ visibility = "public"
 # -----------------------------------------------------------------------------
 
 [skills.ki-engineering]
-dependency_holds = ["zod — 4.5.4 is incompatible with @modelcontextprotocol/sdk 1.30.0 schema types"]
+dependency_holds = ["zod — 4.5.4 and later are incompatible with @modelcontextprotocol/sdk 1.30.0 schema types"]
 
 [skills.ki-decision-records]
 
