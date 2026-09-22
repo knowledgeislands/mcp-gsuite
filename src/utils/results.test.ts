@@ -3,7 +3,11 @@ import { errorResult, jsonResult, textResult } from './results.js'
 
 describe('textResult', () => {
   it('returns the MCP text-content shape', () => {
-    expect(textResult('hello')).toEqual({ content: [{ type: 'text', text: 'hello' }] })
+    expect(textResult('hello')).toEqual({ resultType: 'complete', content: [{ type: 'text', text: 'hello' }] })
+  })
+
+  it('marks the result complete', () => {
+    expect(textResult('hello').resultType).toBe('complete')
   })
 
   it('does not set isError', () => {
@@ -28,6 +32,10 @@ describe('jsonResult', () => {
   it('does not set isError', () => {
     expect('isError' in jsonResult({})).toBe(false)
   })
+
+  it('marks the result complete', () => {
+    expect(jsonResult({ x: 1 }).resultType).toBe('complete')
+  })
 })
 
 describe('errorResult', () => {
@@ -45,5 +53,9 @@ describe('errorResult', () => {
 
   it('accepts non-Error throwables', () => {
     expect(errorResult('x', 'string error').content[0].text).toBe('Error x: string error')
+  })
+
+  it('marks the result complete', () => {
+    expect(errorResult('x', new Error('boom')).resultType).toBe('complete')
   })
 })

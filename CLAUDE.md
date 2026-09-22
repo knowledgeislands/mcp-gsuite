@@ -16,14 +16,18 @@ Run `bun run` with no args for the full script list. `bun run ki:test:smoke` boo
 
 ## Architecture Invariants
 
-This server targets MCP specification revision **2025-11-25**.
+This server targets MCP specification revision **2026-07-28**. The `@modelcontextprotocol/server` major 2 runtime dependency is what selects that profile — there is no separate switch to set, and no claim in configuration that could drift from the code. Three consequences bind anything you write here:
+
+- Every synchronous result helper in [src/utils/results.ts](./src/utils/results.ts) stamps `resultType: 'complete'`. A new helper that omits it produces a wire-level failure, not a visible one at the call site.
+- [src/mcp-server/index.ts](./src/mcp-server/index.ts) hands `serveStdio` a `createServer` **factory**, not an instance. Registration must be complete before the factory returns and must never depend on connection state.
+- `serveStdio` is configured `legacy: 'serve'`, a deliberate fallback that keeps a 2025-era client working while the fleet migrates. `bun run ki:test:smoke` asserts both eras, so removing the fallback fails a gate rather than silently dropping clients.
 
 ### Project layout & config injection (the workspace MCP shape)
 
 This is the canonical layout we roll out across the MCPs:
 
 - **[src/config/index.ts](./src/config/index.ts)** — `loadConfig(env?) → Config`. Reads env (optionally hydrated from `.env.${NODE_ENV}`) into a plain `Config` value. **There is no module-level config singleton — nothing reads env at import time.** Exported constants (`SERVER_NAME`, `SERVER_VERSION`, `ACCESS_LEVELS`, `ACCESS_LEVEL_RANK`, `DEFAULT_SEARCH_RESULTS`) and types (`Config`, `AuthConfig`, `AccessLevel`, `AuditLogMode`) live here too. The OAuth/token vars are grouped under `config.auth` (an `AuthConfig`).
-- **[src/mcp-server/index.ts](./src/mcp-server/index.ts)** — the stdio MCP wrapper. Calls `loadConfig()` once, builds the `AuditConfig` from it, installs `makeAccessGatedRegister(server, config.accessLevel, audit)`, and threads the `Config` into every `registerXxxTools(server, config)`. Keep the startup logging.
+- **[src/mcp-server/index.ts](./src/mcp-server/index.ts)** — the stdio MCP wrapper. Calls `loadConfig()` once at module scope, then exposes a `createServer` factory that builds the `AuditConfig`, installs `makeAccessGatedRegister(server, config.accessLevel, audit)`, and threads the `Config` into every `registerXxxTools(server, config)`. `serveStdio` pins one instance from that factory per connection. Keep the startup logging.
 - **[src/auth-server/index.ts](./src/auth-server/index.ts)** — the standalone OAuth callback server, its own top-level entry. Also calls `loadConfig()` once and uses `config.auth`.
 - **[src/tools/](./src/tools/)** — MCP tool definitions only. Thin: each `registerXxxTools(server, cfg)` declares the schema/annotations and hands `(args) => mainFn(cfg, args)` to `server.registerTool`. Excluded from coverage.
 - **[src/main/](./src/main/)** — the real implementation, usable outside the MCP server (e.g. from a script). Grouped by concern: `main/auth/` (OAuth client + token store), `main/google-client/` (the shared authorized client + per-API service factories: gmail today; calendar/drive/sheets seams ready), `main/email/parse.ts` (Gmail payload parsing helpers), and `main/{labels,messages,threads,drafts,attachments,auth-info}/` (one function per tool). Every `main` entry point takes its config slice as its **first argument** — `listLabels(cfg)`, `gmailService(cfg.auth)`. No hidden state (the cached OAuth client in `main/auth` is the one process-lifetime exception, with `resetAuthClient()` to clear it; the cached authenticated email in `main/drafts` has `_resetAuthEmailCacheForTests()`).

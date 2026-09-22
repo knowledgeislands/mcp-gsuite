@@ -4,11 +4,18 @@
 // drift between code and the *wire* contract (registration tests cover the
 // in-process registration call pattern; this covers the actual protocol round-trip).
 //
+// It is also the repository's protocol-profile boundary: the MCP 2026-07-28
+// server profile puts `server/discover`, protocol stamping, and cache defaults
+// inside the SDK, so no source-level literal proves them. Only a live round
+// trip does, which is why the era, the negotiated version, the discovery
+// envelope, and the deliberate legacy fallback are asserted here rather than
+// in a unit test.
+//
 // Run via `bun run ki:test:smoke` (builds dist/ first). Runs in CI without secrets:
 // the server boots without MCP_GSUITE_CLIENT_ID / MCP_GSUITE_CLIENT_SECRET — it just warns.
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
+import { Client } from '@modelcontextprotocol/client'
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio'
 
 // Single source of truth for the tool surface — kept in sync with
 // `tool-registration.test.ts`. If you add a tool, update both.
@@ -63,8 +70,8 @@ const die = (msg: string, detail?: unknown): never => {
   process.exit(1)
 }
 
-const main = async (): Promise<void> => {
-  const transport = new StdioClientTransport({
+const createTransport = (): StdioClientTransport =>
+  new StdioClientTransport({
     command: 'node',
     args: ['dist/mcp-server/index.js'],
     // Raise the access level to `destructive` so the smoke test sees the full
@@ -72,11 +79,31 @@ const main = async (): Promise<void> => {
     // mutating gsuite_email_* tool.
     env: { ...(process.env as Record<string, string>), MCP_GSUITE_ACCESS_LEVEL: 'destructive' }
   })
-  const client = new Client({ name: 'mcp-gsuite-smoke', version: '0.0.0' }, { capabilities: {} })
 
-  await client.connect(transport)
+const main = async (): Promise<void> => {
+  const client = new Client(
+    { name: 'mcp-gsuite-smoke', version: '0.0.0' },
+    { capabilities: {}, versionNegotiation: { mode: 'auto' } }
+  )
+
+  await client.connect(createTransport())
 
   try {
+    // Protocol profile: the SDK owns server/discover, so this round trip is
+    // the only place the modern era and its stamped version are provable.
+    const discovery = client.getDiscoverResult()
+    if (client.getProtocolEra() !== 'modern') die('server/discover did not select the modern protocol era')
+    if (client.getNegotiatedProtocolVersion() !== '2026-07-28') {
+      die('unexpected negotiated protocol version', client.getNegotiatedProtocolVersion())
+    }
+    if (
+      discovery?.resultType !== 'complete' ||
+      !discovery.supportedVersions.includes('2026-07-28') ||
+      discovery._meta?.['io.modelcontextprotocol/serverInfo']?.name !== 'mcp-gsuite'
+    ) {
+      die('invalid server/discover result', discovery)
+    }
+
     const { tools } = await client.listTools()
     const names = tools.map((t) => t.name).sort()
     const expected = [...EXPECTED_TOOLS].sort()
@@ -96,7 +123,33 @@ const main = async (): Promise<void> => {
     const missingSchema = tools.filter((t) => !t.inputSchema || typeof t.inputSchema !== 'object').map((t) => t.name)
     if (missingSchema.length) die('tools missing inputSchema', missingSchema)
 
-    console.error(`✓ smoke passed: ${names.length} tools listed, no send_* tools, all schemas present`)
+    // A schema violation must come back inside the result envelope as a Tool
+    // Execution Error, not as a JSON-RPC protocol error: the model can only
+    // self-correct from the former. `messageId` is a string, so a number is
+    // rejected by validation before any Google credential is needed.
+    const malformed = await client.callTool({ name: 'gsuite_email_message_get', arguments: { messageId: 7 } })
+    if (!malformed.isError) die('malformed tool arguments were accepted', malformed)
+
+    // Deliberate compatibility fallback: a client that opens with the 2025-era
+    // handshake is still served, and sees exactly the same tool surface. This
+    // assertion is what stops `legacy: 'serve'` being dropped by accident.
+    const legacyClient = new Client({ name: 'mcp-gsuite-legacy-smoke', version: '0.0.0' }, { capabilities: {} })
+    await legacyClient.connect(createTransport())
+    try {
+      if (legacyClient.getProtocolEra() !== 'legacy') {
+        die('legacy initialize fallback did not remain available', legacyClient.getProtocolEra())
+      }
+      const legacyNames = (await legacyClient.listTools()).tools.map((t) => t.name).sort()
+      if (legacyNames.join(',') !== names.join(',')) {
+        die('legacy tool surface differs from modern tool surface', { legacyNames, names })
+      }
+    } finally {
+      await legacyClient.close()
+    }
+
+    console.error(
+      `✓ smoke passed: modern discovery, legacy fallback, ${names.length} tools listed, no send_* tools, all schemas present`
+    )
   } finally {
     await client.close()
   }

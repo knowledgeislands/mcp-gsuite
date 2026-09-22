@@ -5,7 +5,7 @@
 // the wrong name, or forgetting to call server.registerTool for one of the
 // brief's tools. This test mocks an McpServer and asserts the full set of
 // (name, config) pairs across all six register*Tools functions.
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import type { McpServer } from '@modelcontextprotocol/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Config } from './config/index.js'
 
