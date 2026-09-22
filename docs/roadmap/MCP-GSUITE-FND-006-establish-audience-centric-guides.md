@@ -4,13 +4,13 @@ title: Establish audience-centric guides
 area: FND
 theme: foundation-tooling
 horizon: now
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
 transferred_from: ki-website
-baseline_ref: null
+baseline_ref: e28c7eb80ae53e05926bb565aeea1c30cc42910b
 created_at: 2026-09-21T15:44:00Z
-updated_at: 2026-09-22T07:15:00Z
+updated_at: 2026-09-22T07:21:56Z
 ---
 
 ## Goal
@@ -29,7 +29,7 @@ Separately, `ki-guides` is being asked to require audience directories under `do
 
 ## Boundary
 
-Adopted into `Now` by explicit approval, so this is prioritised work rather than intake. It remains `status: draft`: `ki-plan` shapes it to `Ready` before any implementation, and this repository still owns its plan and sequencing.
+Adopted into `Now` by explicit approval, so this is prioritised work rather than intake. `ki-plan` shaped it to `Ready` before implementation began, and this repository still owns its plan and sequencing.
 
 KI Website derives and cites; it does not own this collection and must not be given approval rights over it. Nothing here requires a guide to be written for the website's benefit — if a guide would not serve this repository's own readers, it should not exist.
 
@@ -43,19 +43,19 @@ Two audiences read this repository today and no more. Someone running the server
 
 ## Steps
 
-- [ ] Declare `[skills.ki-guides]` in `.ki.toml`.
-- [ ] Create `docs/guides/README.md` as the collection index, routing by audience and nothing else.
-- [ ] Create `docs/guides/user/` and `docs/guides/developer/`, each with its own `README.md`.
-- [ ] Move the Google Cloud Console procedure out of `README.md` into `docs/guides/user/google-cloud-setup.md`.
-- [ ] Move installation, prerequisites, and MCP client configuration into `docs/guides/user/installation.md`.
-- [ ] Move the environment-variable reference and the access-level choice into `docs/guides/user/configuration.md`.
-- [ ] Move the authentication sequence and its scope recovery into `docs/guides/user/authentication.md`.
-- [ ] Move the worked example conversations and the label-name caveat into `docs/guides/user/everyday-use.md`.
-- [ ] Move the troubleshooting entries into `docs/guides/user/troubleshooting.md`, routing the build-time ones to the developer collection.
-- [ ] Move the dev loop and the repository layout into `docs/guides/developer/local-development.md`.
-- [ ] Move the tool-extension procedure into `docs/guides/developer/adding-a-tool.md`.
-- [ ] Leave `README.md` orienting: what the server is, what it can do, where its guides are, and its security posture.
-- [ ] Run the guides and authoring audits and repair what they report.
+- [x] Declare `[skills.ki-guides]` in `.ki.toml`.
+- [x] Create `docs/guides/README.md` as the collection index, routing by audience and nothing else.
+- [x] Create `docs/guides/user/` and `docs/guides/developer/`, each with its own `README.md`.
+- [x] Move the Google Cloud Console procedure out of `README.md` into `docs/guides/user/google-cloud-setup.md`.
+- [x] Move installation, prerequisites, and MCP client configuration into `docs/guides/user/installation.md`.
+- [x] Move the environment-variable reference and the access-level choice into `docs/guides/user/configuration.md`.
+- [x] Move the authentication sequence and its scope recovery into `docs/guides/user/authentication.md`.
+- [x] Move the worked example conversations and the label-name caveat into `docs/guides/user/everyday-use.md`.
+- [x] Move the troubleshooting entries into `docs/guides/user/troubleshooting.md`, routing the build-time ones to the developer collection.
+- [x] Move the dev loop and the repository layout into `docs/guides/developer/local-development.md`.
+- [x] Move the tool-extension procedure into `docs/guides/developer/adding-a-tool.md`.
+- [x] Leave `README.md` orienting: what the server is, what it can do, where its guides are, and its security posture.
+- [x] Run the guides and authoring audits and repair what they report.
 
 ## Files touched
 
@@ -85,7 +85,60 @@ This item is entirely guide impact. It creates the collection, its audience dire
 
 ### Roadmap
 
-No further roadmap change is expected. If writing the guides exposes behaviour that cannot honestly be explained — an unclear failure mode, a configuration step with no recovery — that is a separate item raised at the time.
+No further roadmap change is expected. Writing the guides did expose two defects that are not this item's to fix; both are recorded under Outstanding concerns for capture as their own items.
+
+## Review
+
+### Delivered
+
+The approved boundary held: an audience-centric guide collection under `docs/guides/`, the README's how-to material moved rather than copied, `[skills.ki-guides]` declared, and nothing written for the KI Website's benefit. Excluded, as planned: any change to the server's behaviour or tool surface, any Decision Record, and any `ki-specs` adoption.
+
+Immutable baseline: `e28c7eb80ae53e05926bb565aeea1c30cc42910b`.
+
+Two audiences were named and one was rejected. `user/` is someone running the server against their own Google account; `developer/` is someone changing its code. `operator/` was rejected because the server is a local stdio process started by the reader's own client against the reader's own account — operating it and using it are the same job done by the same person, and a directory named for a reader who does not exist is worse than no directory.
+
+### Summary of changes
+
+Eleven new files under `docs/guides/`: the collection index, a `user/` index with six guides (`google-cloud-setup.md`, `installation.md`, `configuration.md`, `authentication.md`, `everyday-use.md`, `troubleshooting.md`), and a `developer/` index with two (`local-development.md`, `adding-a-tool.md`).
+
+`README.md` lost 313 lines of instruction and kept its orientation: identity, features, a Documentation section routing to the guides in reading order, the tool inventory, and the security model. Quick Start, Example Conversations, Installation, Google Cloud Console Setup, Configuration, Authentication, Troubleshooting, Directory Structure, Development and Extending the Server are all gone from it — moved, not copied. Nothing links to a removed anchor; the only inbound reference, from `CLAUDE.md`, points at `#available-tools`, which remains.
+
+`.ki.toml` declares `[skills.ki-guides]` under governance and runtime, matching the placement in `tools-mgit` and `tools-git-almanac`.
+
+Two approved deviations, both inside `README.md` and both corrections of statements that were already false:
+
+- The tool inventory said "32 tools across six areas, all prefixed `gsuite_email_`" and the opening sentence said calendar and Drive/Sheets tools were still to come. `scripts/smoke.ts` has asserted forty-two tools since the initial commit. The headline now states the true surface, tables for the six calendar tools and the four Drive/Sheets tools were added from `src/tools/calendar/` and `src/tools/drive/`, and the level counts (18 read, 21 write, 3 destructive) were derived from the annotation presets. Leaving this uncorrected would have propagated into the user guides, which have to tell a reader what the server can do.
+- The npm version badge was left alone despite `@knowledgeislands/mcp-gsuite` returning 404 from the registry; the guides therefore document the source install only and invent no `npx` route.
+
+### Verification
+
+- `ki repo audit --skill ki-guides --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 1 skill`, exit 0.
+- `ki repo audit --skill ki-authoring --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 1 skill`, exit 0.
+- `ki repo audit --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 16 skills`, exit 0. Fifteen before this change; `ki-guides` is the sixteenth.
+- `rumdl check docs/guides README.md` — `Success: No issues found in 12 files`.
+- Every relative link in the new guides and the rewritten README resolves to a file that exists, checked mechanically.
+- The package gates were not run: no file under `src/`, `scripts/`, or any build configuration was touched, so nothing they cover changed.
+
+### Outstanding concerns
+
+Two defects were found while writing and deliberately not fixed here, because both are code or publication changes outside this item's boundary:
+
+- `src/main/auth-info/index.ts` tells the reader to start the auth server with `bun run server:auth:dev` or `server:auth:start`. Neither script exists; they were renamed to the `ki:` prefix. The guides document the working commands, but the tool's own message is wrong and a reader who follows it will fail. `CONTRIBUTING.md` similarly lists a `ki:lint:md` script that no longer exists.
+- The README's npm version badge points at a package that is not published, so it renders as a dead link. Removing it, or publishing, is a decision for the repository owner rather than a documentation fix.
+
+Neither blocks acceptance of this item.
+
+### Post-change review
+
+The goal is met on its own test: a reader who has never opened this repository can now create Google credentials, install and configure the server, authenticate, work with it, and recover from its documented failures without reading source, and each of those is one guide rather than a section of a 27 KB README.
+
+Scope held. Regression risk is confined to documentation — no code, build, or configuration behaviour changed, and the one configuration change adds a skill declaration whose checker passes. The residual risk is the usual one for guides: procedural truth. The Google Cloud steps, environment variables, scripts and failure modes were each checked against `src/`, `package.json`, `.env.example` and `scripts/smoke.ts` rather than copied forward on trust, and the two places where the README had drifted from the code are exactly what that checking found.
+
+Ready for acceptance review, subject to a human judging the guides' placement and prose rather than their mechanics.
+
+### Mini recap
+
+Delivered an eleven-file audience-centric guide collection, emptied the README of instruction, and declared `ki-guides`, which now gates the result. Verification: three `ki repo audit` runs and `rumdl`, all passing, with the full audit rising from fifteen to sixteen skills. Concerns: a stale script name in `gsuite_auth_start`'s own message, a stale script name in `CONTRIBUTING.md`, and an npm badge for an unpublished package — all recorded above, none blocking. Learning worth routing rather than promoting automatically: a hand-maintained inventory drifted from the code for the entire life of this repository without anyone noticing, which is an argument for `ki-specs` or generation here and a caution worth carrying to the other MCP repositories.
 
 ## Discussion
 

@@ -32,6 +32,8 @@ visibility = "public"
 # Governance and runtime
 # -----------------------------------------------------------------------------
 
+[skills.ki-guides]
+
 [skills.ki-engineering]
 
 [skills.ki-decision-records]
