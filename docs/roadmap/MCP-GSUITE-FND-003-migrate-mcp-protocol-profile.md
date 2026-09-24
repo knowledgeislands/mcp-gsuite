@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: f32e575f6312e4c618fd945af7070a129b51f02a
 created_at: 2026-09-02T01:12:46Z
-updated_at: 2026-09-22T07:04:30Z
+updated_at: 2026-09-24T09:18:00Z
 ---
 
 ## Goal
@@ -103,7 +103,7 @@ The resulting evidence is the live smoke boundary. It reports `modern discovery,
 
 Excluded, deliberately: no change to any file under `src/main/`, no change to any tool name, input schema, output schema, or annotation, and no `CHANGELOG.md` entry. The changelog carries a single `[Unreleased]` line and this repository has never released, so a `Changed` entry would describe a difference no consumer can observe.
 
-### Summary of changes
+### Change Summary
 
 `package.json` and `bun.lock` drop `@modelcontextprotocol/sdk` `^1.30.0` and gain `@modelcontextprotocol/server` `2.0.0` as a runtime dependency plus `@modelcontextprotocol/client` `2.0.0` as a development dependency. The dependency is the whole profile switch: nothing else claims a protocol revision.
 
