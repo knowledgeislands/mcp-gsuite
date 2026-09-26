@@ -4,13 +4,13 @@ title: Establish audience-centric guides
 area: FND
 theme: foundation-tooling
 horizon: now
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 transferred_from: ki-website
 baseline_ref: e28c7eb80ae53e05926bb565aeea1c30cc42910b
 created_at: 2026-09-21T15:44:00Z
-updated_at: 2026-09-26T17:34:45Z
+updated_at: 2026-09-26T18:10:52Z
 ---
 
 ## Goal
@@ -151,6 +151,10 @@ Ready for acceptance review, subject to a human judging the guides' placement an
 The follow-up review removed six links from guides to prose documents outside the collection, retained the needed instructions locally, and restored the guide boundary without accepting this work item.
 
 Delivered an eleven-file audience-centric guide collection, emptied the README of instruction, and declared `ki-guides`, which now gates the result. Initial verification passed and raised the full audit from fifteen to sixteen skills; the follow-up evidence above records the current audit-environment failure and template warnings. Concerns: a stale script name in `gsuite_auth_start`'s own message, a stale script name in `CONTRIBUTING.md`, and an npm badge for an unpublished package — all recorded above, none blocking. Learning worth routing rather than promoting automatically: a hand-maintained inventory drifted from the code for the entire life of this repository without anyone noticing, which is an argument for `ki-specs` or generation here and a caution worth carrying to the other MCP repositories.
+
+## Done
+
+Accepted 2026-09-26 by Kris Brown on the review packet above.
 
 ## Discussion
 

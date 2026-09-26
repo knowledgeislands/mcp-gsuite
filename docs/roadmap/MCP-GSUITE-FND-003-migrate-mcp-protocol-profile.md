@@ -4,12 +4,12 @@ area: FND
 title: Migrate MCP protocol profile
 theme: foundation-tooling
 horizon: now
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: f32e575f6312e4c618fd945af7070a129b51f02a
 created_at: 2026-09-02T01:12:46Z
-updated_at: 2026-09-24T09:18:00Z
+updated_at: 2026-09-26T18:10:52Z
 ---
 
 ## Goal
@@ -159,6 +159,10 @@ This item moved `mcp-gsuite` from the legacy MCP 2025-11-25 profile to the suppo
 Verification is the repository's full declared gate set plus a 15-skill `ki repo audit`, all passing. The single disclosed concern is an unreproduced test failure on the first post-swap run.
 
 Two things are worth routing as durable learning, without promoting them here. The first is that a `dependency_holds` entry outlives the dependency that justified it unless removing it is part of the migration that removes the package — worth stating wherever holds are specified. The second is that a repository instruction file can carry a protocol claim that no gate checks, so a profile migration has to grep its own documentation for the revision it is leaving; `CLAUDE.md` asserted `2025-11-25` and nothing would have failed had it been left.
+
+## Done
+
+Accepted 2026-09-26 by Kris Brown on the review packet above.
 
 ## Discussion
 
