@@ -96,12 +96,14 @@
   "homepage": "https://github.com/knowledgeislands/mcp-gsuite#readme",
   "keywords": [
     "anthropic",
+    "bun",
     "claude",
     "gmail",
     "google",
     "gsuite",
     "mcp",
-    "model-context-protocol"
+    "model-context-protocol",
+    "typescript"
   ],
   "license": "MIT",
   "lint-staged": {
