@@ -7,9 +7,6 @@
     "mcp-gsuite": "dist/mcp-server/index.js",
     "mcp-gsuite-auth": "dist/auth-server/index.js"
   },
-  "bugs": {
-    "url": "https://github.com/knowledgeislands/mcp-gsuite/issues"
-  },
   "dependencies": {
     "@modelcontextprotocol/server": "2.1.0",
     "googleapis": "^182.0.0",
