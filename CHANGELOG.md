@@ -4,4 +4,4 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-Initial mcp-gsuite, consolidating Google email/calendar/drive.
+- Consolidated Google email, calendar, and Drive access.
