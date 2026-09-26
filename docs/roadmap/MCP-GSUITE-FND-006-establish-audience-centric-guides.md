@@ -10,7 +10,7 @@ blocked_by: []
 transferred_from: ki-website
 baseline_ref: e28c7eb80ae53e05926bb565aeea1c30cc42910b
 created_at: 2026-09-21T15:44:00Z
-updated_at: 2026-09-24T09:14:00Z
+updated_at: 2026-09-26T17:34:45Z
 ---
 
 ## Goal
@@ -91,6 +91,8 @@ No further roadmap change is expected. Writing the guides did expose two defects
 
 ### Delivered
 
+A subsequent `GUIDE-4` review found that four guides still linked prose documents outside `docs/guides/`. The collection now names root contribution, governance, and inventory documents in prose while retaining the development and usage instructions inside the guides.
+
 The approved boundary held: an audience-centric guide collection under `docs/guides/`, the README's how-to material moved rather than copied, `[skills.ki-guides]` declared, and nothing written for the KI Website's benefit. Excluded, as planned: any change to the server's behaviour or tool surface, any Decision Record, and any `ki-specs` adoption.
 
 Immutable baseline: `e28c7eb80ae53e05926bb565aeea1c30cc42910b`.
@@ -98,6 +100,8 @@ Immutable baseline: `e28c7eb80ae53e05926bb565aeea1c30cc42910b`.
 Two audiences were named and one was rejected. `user/` is someone running the server against their own Google account; `developer/` is someone changing its code. `operator/` was rejected because the server is a local stdio process started by the reader's own client against the reader's own account — operating it and using it are the same job done by the same person, and a directory named for a reader who does not exist is worse than no directory.
 
 ### Change Summary
+
+The review correction changed `docs/guides/developer/README.md`, `adding-a-tool.md`, `local-development.md`, and `docs/guides/user/everyday-use.md`. It removed six escaping document links without changing the tool surface, OAuth behaviour, or runtime configuration.
 
 Eleven new files under `docs/guides/`: the collection index, a `user/` index with six guides (`google-cloud-setup.md`, `installation.md`, `configuration.md`, `authentication.md`, `everyday-use.md`, `troubleshooting.md`), and a `developer/` index with two (`local-development.md`, `adding-a-tool.md`).
 
@@ -112,6 +116,10 @@ Two approved deviations, both inside `README.md` and both corrections of stateme
 
 ### Verification
 
+- `ki repo audit --skill ki-guides --repo . --concise --progress never` - PASS after the review correction, including `GUIDE-4`.
+- `rumdl check` over the five touched Markdown files - PASS after formatting once.
+- `ki repo audit --skill ki-authoring --repo . --concise --progress never` - `FAIL=0 WARN=1`; the remaining `OWN-1` warning is the pre-existing drift in `.rumdl.toml`.
+- `ki repo audit --repo . --concise --progress never` - `PASS=13 WARN=2 FAIL=1`; no guide failure remains, while `TEST-5` cannot write Vitest's `node_modules/.vite-temp` file in the audit sandbox and `OWN-1` plus development-checkout `DIST-1` remain warnings.
 - `ki repo audit --skill ki-guides --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 1 skill`, exit 0.
 - `ki repo audit --skill ki-authoring --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 1 skill`, exit 0.
 - `ki repo audit --repo . --concise --progress never` — `summary: KI REPO AUDIT on mcp-gsuite PASS · 16 skills`, exit 0. Fifteen before this change; `ki-guides` is the sixteenth.
@@ -130,6 +138,8 @@ Neither blocks acceptance of this item.
 
 ### Post-change review
 
+The correction preserves the established audience split, practical procedures, and repository authority boundaries while making every guide independent of prose outside the collection.
+
 The goal is met on its own test: a reader who has never opened this repository can now create Google credentials, install and configure the server, authenticate, work with it, and recover from its documented failures without reading source, and each of those is one guide rather than a section of a 27 KB README.
 
 Scope held. Regression risk is confined to documentation — no code, build, or configuration behaviour changed, and the one configuration change adds a skill declaration whose checker passes. The residual risk is the usual one for guides: procedural truth. The Google Cloud steps, environment variables, scripts and failure modes were each checked against `src/`, `package.json`, `.env.example` and `scripts/smoke.ts` rather than copied forward on trust, and the two places where the README had drifted from the code are exactly what that checking found.
@@ -138,7 +148,9 @@ Ready for acceptance review, subject to a human judging the guides' placement an
 
 ### Mini recap
 
-Delivered an eleven-file audience-centric guide collection, emptied the README of instruction, and declared `ki-guides`, which now gates the result. Verification: three `ki repo audit` runs and `rumdl`, all passing, with the full audit rising from fifteen to sixteen skills. Concerns: a stale script name in `gsuite_auth_start`'s own message, a stale script name in `CONTRIBUTING.md`, and an npm badge for an unpublished package — all recorded above, none blocking. Learning worth routing rather than promoting automatically: a hand-maintained inventory drifted from the code for the entire life of this repository without anyone noticing, which is an argument for `ki-specs` or generation here and a caution worth carrying to the other MCP repositories.
+The follow-up review removed six links from guides to prose documents outside the collection, retained the needed instructions locally, and restored the guide boundary without accepting this work item.
+
+Delivered an eleven-file audience-centric guide collection, emptied the README of instruction, and declared `ki-guides`, which now gates the result. Initial verification passed and raised the full audit from fifteen to sixteen skills; the follow-up evidence above records the current audit-environment failure and template warnings. Concerns: a stale script name in `gsuite_auth_start`'s own message, a stale script name in `CONTRIBUTING.md`, and an npm badge for an unpublished package — all recorded above, none blocking. Learning worth routing rather than promoting automatically: a hand-maintained inventory drifted from the code for the entire life of this repository without anyone noticing, which is an argument for `ki-specs` or generation here and a caution worth carrying to the other MCP repositories.
 
 ## Discussion
 

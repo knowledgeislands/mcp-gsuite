@@ -26,7 +26,7 @@ There is no send tool, and adding one is not an ordinary change. The smoke test 
 
 7. **Update the expected tool list in both places.** `EXPECTED_TOOLS` in [`scripts/smoke.ts`](../../../scripts/smoke.ts) and the matching list in `src/tool-registration.test.ts` are independent copies, and both must agree with what the server registers.
 
-8. **Update [`README.md`](../../../README.md)** so the tool appears in its resource table with the right level, and add a footnote for any semantics a caller would otherwise have to read the source to discover.
+8. **Update `README.md`** so the tool appears in its resource table with the right level, and add a footnote for any semantics a caller would otherwise have to read the source to discover.
 
 ## Verify
 

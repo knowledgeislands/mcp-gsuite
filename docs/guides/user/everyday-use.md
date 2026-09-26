@@ -2,7 +2,7 @@
 
 Use this guide once the server is connected and authenticated. It covers the work the tool surface is actually shaped for, and the handful of behaviours that surprise people. You do not call these tools directly — you ask your MCP client for an outcome and it chooses them — so what follows is written as the ask, then what happens underneath.
 
-The complete tool list, with each tool's access level and semantics, is in the repository [`README.md`](../../../README.md).
+The running server's `tools/list` response is authoritative for the complete tool surface. `README.md` carries the readable inventory with each tool's access level and semantics.
 
 ## Triage by sender
 

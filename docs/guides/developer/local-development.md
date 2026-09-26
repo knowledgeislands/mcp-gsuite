@@ -70,7 +70,7 @@ src/
 └── utils/                  # MIME builder, paths, result envelopes, access level, audit log, annotations
 ```
 
-The division matters: a module under `src/tools/` validates and adapts an MCP envelope and nothing else, while the work happens in `src/main/`, where every entry point takes its configuration slice as its first argument. Nothing reads `process.env` at import time. [`CLAUDE.md`](../../../CLAUDE.md) states these invariants in full.
+The division matters: a module under `src/tools/` validates and adapts an MCP envelope and nothing else, while the work happens in `src/main/`, where every entry point takes its configuration slice as its first argument. Nothing reads `process.env` at import time. `CLAUDE.md` states these invariants in full.
 
 The build emits to `dist/`, which is gitignored; `dist/mcp-server/index.js` is the file a client launches.
 
