@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-08-10T00:14:15Z
+updated_at: 2026-09-27T23:01:02Z
 ---
 
 ## Goal
@@ -49,3 +49,9 @@ The server exposes no send tool, and the smoke test asserts that as a hard invar
 ### Where the gate lives
 
 `INTEGRATION=1` in the Context is a shape, not a decision. A gate inside a vitest file interacts with the coverage thresholds; a gate in a separate script keeps the default suite untouched but means the live path is never type-checked by the same run. Neither has been chosen.
+
+### Pickup checkpoint — 2026-09-28
+
+At local `main` `fd3e8785332022040c88f7482653be81dfdb8769`, historical commit `2597ac2b360b2dfecd1c0f3e05d5cd02805ffded` provided record and replay commands (`package.json:133`), the committed recording (`fixtures/recordings/gsuite-integration.ndjson`), and a client script whose only call is `gsuite_about` (`scripts/integration.ts:16`). This is partial infrastructure for the proposed test, not evidence that a gated live Google API test exists or that the recording path currently runs successfully.
+
+Remaining: choose whether to extend that path or add a separate test, establish the disposable account and permitted operations, implement an explicit live gate, and verify meaningful Google API behavior. This audit did not run record or replay: live execution requires external credentials and account authority, while replay copies into user mcporter state. The TypeScript gate passed; `bun run test` could not start because sandbox access denied Vitest's `node_modules/.vite-temp` write (`EPERM`); coverage and build were not run for this documentation-only change. Before implementation, reconcile destination `main`, linked tasks, and retained worktrees; only the primary worktree was visible locally, and remote task ownership was unavailable. Missing evidence does not release a claim or lift a hold. This checkpoint is pickup guidance, not execution block or resumption authority. Draft/Soon state remains unchanged; eventual closure requires review and explicit owner acceptance, with any Done record retained until separately selected for pruning.
