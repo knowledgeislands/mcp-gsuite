@@ -4,12 +4,12 @@ title: Review conformance audit
 area: FND
 theme: foundation-tooling
 horizon: next
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: d21705af18a5be79b04a0db1002e2a863cd6d63a
 created_at: 2026-09-04T08:54:02Z
-updated_at: 2026-10-01T19:27:46Z
+updated_at: 2026-10-01T20:13:58Z
 ---
 
 ## Goal
@@ -30,10 +30,10 @@ The retained item reports historical Decision Records adoption, repository-stand
 
 ## Steps
 
-- [ ] Inventory each historical concern separately; search repository history, retained decisions and local audit evidence for the original rule, finding ID, observed fact and acceptance criterion. Mark unrecoverable evidence explicitly rather than inventing it.
-- [ ] Run fresh focused `ki-repo`, `ki-decision-records`, `ki-git` and `ki-work-roadmap` audits and inspect the source supporting each relevant finding. Read GitHub metadata only if a concern requires it and authenticated read access is available; record unavailable remote evidence as unknown.
-- [ ] Write a concern-by-concern assessment in this record with source locations, current observation, remaining gap and proposed repair/defer/exception decision. Distinguish mechanical passes, judgment findings and historical unknowns.
-- [ ] Present the assessment for owner review. Capture any substantive remediation through the normal roadmap intake process; do not implement fixes or self-dispose historical concerns under this investigation.
+- [x] Inventory each historical concern separately; search repository history, retained decisions and local audit evidence for the original rule, finding ID, observed fact and acceptance criterion. Mark unrecoverable evidence explicitly rather than inventing it.
+- [x] Run fresh focused `ki-repo`, `ki-decision-records`, `ki-git` and `ki-work-roadmap` audits and inspect the source supporting each relevant finding. Read GitHub metadata only if a concern requires it and authenticated read access is available; record unavailable remote evidence as unknown.
+- [x] Write a concern-by-concern assessment in this record with source locations, current observation, remaining gap and proposed repair/defer/exception decision. Distinguish mechanical passes, judgment findings and historical unknowns.
+- [x] Present the assessment for owner review. Capture any substantive remediation through the normal roadmap intake process; do not implement fixes or self-dispose historical concerns under this investigation.
 
 ## Files touched
 
@@ -65,6 +65,32 @@ No operator guide change: deliver the assessment in the work record; later appro
 
 Keep this item as the execution authority; record delivery and review evidence here without accepting or pruning other work.
 
+## Review
+
+### Delivered
+
+Completed the approved evidence-reconciliation boundary for MCP-GSUITE-FND-004 at baseline `d21705af18a5be79b04a0db1002e2a863cd6d63a`. The result is a concern-by-concern assessment and owner recommendation in this record; historical implementation, acceptance, source fixes, remote settings changes, and pruning remain outside this delivery.
+
+### Change Summary
+
+Updated only `docs/roadmap/MCP-GSUITE-FND-004-review-conformance-audit.md` with pinned current evidence, historical limits, the recommendation, completed investigation steps, and this review packet. No deviation from the planned boundary.
+
+### Verification
+
+Focused `ki-repo`, `ki-decision-records`, `ki-git`, `ki-work-roadmap`, and `ki-authoring` audits passed. `bun run test -- src/utils/audit-log.test.ts` passed all 29 focused tests. GitHub metadata was read through the authenticated read-only API. No source or hosting write occurred.
+
+### Outstanding concerns
+
+The original audit-log fixture acceptance criterion is not retained; the observed temporary fixture and passing test support only the current behaviour. No reproducible remaining repair was found.
+
+### Post-change review
+
+The record now answers its review goal with sourced current observations and explicit limits. It does not claim that a mechanical pass accepts historical judgment or that an unrecoverable criterion was met. The delivery is ready for the owner's acceptance decision on this review packet.
+
+### Mini recap
+
+Reconciled retained conformance concerns against the current repository and proposed the narrow disposition above. Required review audits passed; any reviewed failing contract is identified in Outstanding concerns. Further policy changes or repairs must use their named owner and normal work selection.
+
 ## Discussion
 
 Review the evidence before deciding whether to repair, defer, or document an exception.
@@ -78,3 +104,15 @@ Remaining: recover or restate the exact historical findings, compare them with c
 ### Readiness review
 
 The approved planning boundary is an evidence reconciliation and recommendation. It does not pre-approve repairs, exceptions or terminal dispositions. Existing pickup evidence remains historical, not a current result.
+
+### Evidence reconciliation — 2026-10-01
+
+The delivery baseline is local `main` `d21705af18a5be79b04a0db1002e2a863cd6d63a`. The retained earlier pickup is historical evidence. Fresh focused audits ran at this baseline; `ki-git` contains judgment prompts that a reported PASS does not itself decide. The original estate-audit finding IDs and full acceptance criteria were not recoverable from this canonical record; each limit is stated below.
+
+- **Decision Records and repository shape.** Commit `358880b23fcd5367a449aabc21d3557fc303a48d` added the Decision Record and index. Current `ki-decision-records` and `ki-repo` audits pass. Recommend no repeat adoption or generic conformance repair.
+
+- **Audit-log fixture isolation.** `src/utils/audit-log.test.ts` uses a run-specific temporary path and cleanup. `bun run test -- src/utils/audit-log.test.ts` passed 29 tests in one file on 2026-10-01. This supports current fixture isolation; the original acceptance criterion is absent, so do not claim every historical judgment satisfied.
+
+- **Hosted metadata.** Read-only GitHub API shows public visibility, `main`, MIT licence and a description matching `.ki.toml`. No exact historic metadata discrepancy was retained. Recommend no remote edit on the available evidence.
+
+**Recommendation.** Recommend no new local repair from the observed current state. Reopen a narrowly scoped concern only if the owner supplies a missing historical criterion or a reproducible current failure.
