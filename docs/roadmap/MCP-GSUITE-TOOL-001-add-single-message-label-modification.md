@@ -4,12 +4,12 @@ area: TOOL
 title: Add single-message label modification
 theme: tool-surface
 horizon: next
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: 56529987b78b5acba9d28d85bf5afce09348b239
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T19:30:08Z
+updated_at: 2026-10-01T20:41:45Z
 ---
 
 ## Goal
@@ -30,10 +30,10 @@ Add one combined single-message label operation and its tests/documentation. Pre
 
 ## Steps
 
-- [ ] Export a single-message combined handler using the existing helper. Require `messageId` and at least one non-empty `addLabelIds` or `removeLabelIds` array; reject a label appearing in both arrays before making any provider call.
-- [ ] Register `gsuite_email_message_modify` with strict bounded schemas, `WRITE_IDEMPOTENT_REMOTE`, and the existing label-state output schema. Keep label, unlabel, and batch tools compatible; do not remove or refactor their public APIs.
-- [ ] Cover add-only, remove-only, combined, empty, overlapping-list and provider-error cases, including resulting labels and unchanged old-tool behavior.
-- [ ] Update `src/tool-registration.test.ts`, `scripts/smoke.ts` and the README catalogue for the new tool; retain the no-send invariant.
+- [x] Export a single-message combined handler using the existing helper. Require `messageId` and at least one non-empty `addLabelIds` or `removeLabelIds` array; reject a label appearing in both arrays before making any provider call.
+- [x] Register `gsuite_email_message_modify` with strict bounded schemas, `WRITE_IDEMPOTENT_REMOTE`, and the existing label-state output schema. Keep label, unlabel, and batch tools compatible; do not remove or refactor their public APIs.
+- [x] Cover add-only, remove-only, combined, empty, overlapping-list and provider-error cases, including resulting labels and unchanged old-tool behavior.
+- [x] Update `src/tool-registration.test.ts`, `scripts/smoke.ts` and the README catalogue for the new tool; retain the no-send invariant.
 
 ## Files touched
 
@@ -64,6 +64,32 @@ Document the one-call label swap and resulting-label response in README.
 ### Roadmap
 
 Keep this item as the execution authority; record delivery and review evidence here without accepting or pruning other work.
+
+## Review
+
+### Delivered
+
+Added `gsuite_email_message_modify` at baseline `56529987b78b5acba9d28d85bf5afce09348b239`. One call can add and remove labels on a single message and return Gmail's resulting label IDs.
+
+### Change Summary
+
+The handler reuses the existing single-message modify helper, rejects empty or overlapping label lists before any provider call, and maps provider errors through the normal result envelope. The strict tool schema bounds each list at 100 IDs and uses the existing label-state output schema and idempotent write annotation. Registration, smoke inventory, and README were updated; label, unlabel, and batch APIs remain intact.
+
+### Verification
+
+`bunx tsc --noEmit`, `bun run test`, `bun run test:coverage`, `bun run build`, and `bun run ki:test:smoke` passed. The full suite passed 493 tests with 100% statement, branch, function, and line coverage. Smoke passed modern and legacy discovery with 47 tools and no send tool. Focused `ki-work-roadmap` and `ki-authoring` audits passed. The `ki-repo-mcp` audit has no failures and retains two unrelated pre-existing registration-order warnings in filters and labels; the new message registration is alphabetically ordered.
+
+### Outstanding concerns
+
+Gmail's returned label set is provider state at the time of the modify response; callers should use the returned IDs rather than infer state from the requested lists. The existing two unrelated registration-order warnings remain for their own work boundary.
+
+### Post-change review
+
+Schema tests cover strictness, bounded lists, required non-empty input, and overlap rejection. Handler tests cover add-only, remove-only, combined, invalid, and provider-error paths with mocked Gmail calls; existing label/unlabel and batch tests remain green. Ready for owner acceptance of this exact candidate.
+
+### Mini recap
+
+The additive single-message tool is delivered and verified without a live Gmail call, scope change, or send capability. The item remains Awaiting review until explicit acceptance.
 
 ## Discussion
 

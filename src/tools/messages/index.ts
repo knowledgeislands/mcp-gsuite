@@ -9,6 +9,7 @@ import {
   messageBatchModify,
   messageMarkRead,
   messageMarkUnread,
+  messageModify,
   messageTrash,
   searchMessages,
   unlabelMessage
@@ -66,7 +67,7 @@ const rawMessageOutput = z.object({
   sizeBytes: z.number()
 })
 
-// label / unlabel / mark_read / mark_unread / archive / trash all echo this.
+// label / unlabel / modify / mark_read / mark_unread / archive / trash all echo this.
 const messageLabelStateOutput = z.object({
   messageId: z.string(),
   labelIds: z.array(z.string())
@@ -151,6 +152,32 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
       annotations: WRITE_IDEMPOTENT_REMOTE
     },
     (args) => messageMarkUnread(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_message_modify',
+    {
+      description:
+        'Add and/or remove labels on one message in one Gmail call. Returns the resulting label ids. At least one array must be non-empty, and a label cannot appear in both.',
+      inputSchema: z
+        .object({
+          messageId: idSchema,
+          addLabelIds: z.array(idSchema).max(100).optional(),
+          removeLabelIds: z.array(idSchema).max(100).optional()
+        })
+        .strict()
+        .refine(
+          ({ addLabelIds, removeLabelIds }) => Boolean(addLabelIds?.length || removeLabelIds?.length),
+          'At least one label array must be non-empty.'
+        )
+        .refine(
+          ({ addLabelIds, removeLabelIds }) => !addLabelIds?.some((id) => removeLabelIds?.includes(id)),
+          'A label cannot be added and removed in the same call.'
+        ),
+      outputSchema: messageLabelStateOutput,
+      annotations: WRITE_IDEMPOTENT_REMOTE
+    },
+    (args) => messageModify(cfg, args)
   )
 
   server.registerTool(

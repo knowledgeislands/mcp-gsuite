@@ -34,6 +34,7 @@ const EXPECTED_TOOLS = [
   'gsuite_email_message_archive',
   'gsuite_email_messages_batch_modify',
   'gsuite_email_message_label',
+  'gsuite_email_message_modify',
   'gsuite_email_message_mark_read',
   'gsuite_email_message_mark_unread',
   'gsuite_email_message_trash',

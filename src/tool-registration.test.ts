@@ -7,6 +7,7 @@
 // (name, config) pairs across all six register*Tools functions.
 import type { McpServer } from '@modelcontextprotocol/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { z } from 'zod'
 import type { Config } from './config/index.js'
 
 // Schemas are registered as `z.object({...}).strict()`, so the field map lives
@@ -154,13 +155,14 @@ describe('registerMessageTools', () => {
     registerMessageTools(server, cfg)
   })
 
-  it('registers the ten message tools (five core + four sugar + batch_modify)', () => {
+  it('registers eleven message tools, including single-message modify', () => {
     expect(calls.map((c) => c.name).sort()).toEqual([
       'gsuite_email_message_archive',
       'gsuite_email_message_get',
       'gsuite_email_message_label',
       'gsuite_email_message_mark_read',
       'gsuite_email_message_mark_unread',
+      'gsuite_email_message_modify',
       'gsuite_email_message_raw',
       'gsuite_email_message_trash',
       'gsuite_email_message_unlabel',
@@ -180,6 +182,26 @@ describe('registerMessageTools', () => {
     const c = calls.find((c) => c.name === 'gsuite_email_message_label')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('messageId')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
+  })
+
+  it("'gsuite_email_message_modify' requires bounded add/remove label arrays", () => {
+    const c = calls.find((c) => c.name === 'gsuite_email_message_modify')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('messageId')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('addLabelIds')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('removeLabelIds')
+    const schema = c?.config.inputSchema as z.ZodType
+    expect(schema.safeParse({ messageId: 'm1', addLabelIds: ['X'] }).success).toBe(true)
+    expect(schema.safeParse({ messageId: 'm1', removeLabelIds: ['X'] }).success).toBe(true)
+    expect(schema.safeParse({ messageId: 'm1', addLabelIds: ['X'], removeLabelIds: ['Y'] }).success).toBe(true)
+    for (const invalid of [
+      { messageId: 'm1' },
+      { messageId: 'm1', addLabelIds: [] },
+      { messageId: 'm1', addLabelIds: ['X'], removeLabelIds: ['X'] },
+      { messageId: 'm1', addLabelIds: ['X'], extra: true },
+      { messageId: 'm1', addLabelIds: Array.from({ length: 101 }, () => 'X') }
+    ]) {
+      expect(schema.safeParse(invalid).success).toBe(false)
+    }
   })
 
   it.each([
@@ -325,7 +347,7 @@ describe('registerDraftTools', () => {
 })
 
 describe('combined registration (matches the brief)', () => {
-  it('the six register*Tools functions together expose exactly the 32 tools, with no send_* tool', () => {
+  it('the register*Tools functions expose exactly the 37 tools, with no send_* tool', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
@@ -359,6 +381,7 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_message_label',
       'gsuite_email_message_mark_read',
       'gsuite_email_message_mark_unread',
+      'gsuite_email_message_modify',
       'gsuite_email_message_raw',
       'gsuite_email_message_trash',
       'gsuite_email_message_unlabel',

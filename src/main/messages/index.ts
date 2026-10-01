@@ -177,6 +177,31 @@ const modifyMessage = async (
   return { messageId: res.data.id ?? messageId, labelIds: res.data.labelIds ?? [] }
 }
 
+export const messageModify = async (
+  cfg: Config,
+  { messageId, addLabelIds, removeLabelIds }: { messageId: string; addLabelIds?: string[]; removeLabelIds?: string[] }
+) => {
+  if (!addLabelIds?.length && !removeLabelIds?.length) {
+    return errorResult(
+      'modifying message',
+      new Error('At least one of `addLabelIds` or `removeLabelIds` must be non-empty.')
+    )
+  }
+  if (addLabelIds?.some((id) => removeLabelIds?.includes(id))) {
+    return errorResult('modifying message', new Error('A label cannot appear in both addLabelIds and removeLabelIds.'))
+  }
+  try {
+    return jsonResult(
+      await modifyMessage(cfg, messageId, {
+        ...(addLabelIds?.length ? { addLabelIds } : {}),
+        ...(removeLabelIds?.length ? { removeLabelIds } : {})
+      })
+    )
+  } catch (err) {
+    return errorResult('modifying message', err)
+  }
+}
+
 export const messageMarkRead = async (cfg: Config, { messageId }: { messageId: string }) => {
   try {
     return jsonResult(await modifyMessage(cfg, messageId, { removeLabelIds: ['UNREAD'] }))

@@ -75,12 +75,15 @@ Filter creation supports sender, recipient, subject and Gmail query criteria, wi
 | `gsuite_email_message_get` | `read` | Full message: headers, body, labels, attachments.[^html-strip][^msg-format] |
 | `gsuite_email_message_raw` | `read` | Write the raw RFC 2822 message to `outputPath` (e.g. `.eml`).[^raw-no-body] |
 | `gsuite_email_message_label` | `write` | Add label ids to a message. |
+| `gsuite_email_message_modify` | `write` | Add and remove labels on one message; return its resulting label ids. |
 | `gsuite_email_message_unlabel` | `write` | Remove label ids from a message. |
 | `gsuite_email_message_mark_read` | `write` | Remove the `UNREAD` label.[^sugar] |
 | `gsuite_email_message_mark_unread` | `write` | Add the `UNREAD` label.[^sugar] |
 | `gsuite_email_message_archive` | `write` | Remove the `INBOX` label.[^sugar] |
 | `gsuite_email_message_trash` | `write` | Move to Trash via `messages.trash`.[^trash] |
 | `gsuite_email_messages_batch_modify` | `write` | Add/remove labels on up to 1000 messages in one call.[^batch-modify] |
+
+To swap labels on one message, call `gsuite_email_message_modify` with `messageId`, `addLabelIds: ["new-label-id"]`, and `removeLabelIds: ["old-label-id"]`. It returns the resulting `labelIds`; the batch tool instead echoes the requested operation because Gmail does not return each message's new state.
 
 ### attachment
 
