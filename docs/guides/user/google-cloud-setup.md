@@ -51,6 +51,7 @@ Publishing avoids the seven-day refresh-token expiry that "Testing" mode imposes
 1. **OAuth consent screen → Data Access** → **Add or remove scopes**.
 2. Tick each scope the server requests by default:
    - `https://www.googleapis.com/auth/gmail.modify`
+   - `https://www.googleapis.com/auth/gmail.settings.basic`
    - `https://www.googleapis.com/auth/calendar`
    - `https://www.googleapis.com/auth/drive.readonly`
    - `https://www.googleapis.com/auth/spreadsheets`

@@ -3,6 +3,7 @@ import { registerAuthTools } from './auth/index.js'
 import { registerCalendarTools } from './calendar/index.js'
 import { registerDraftTools } from './drafts/index.js'
 import { registerDriveTools } from './drive/index.js'
+import { registerFilterTools } from './filters/index.js'
 import { registerLabelTools } from './labels/index.js'
 import { registerMessageTools } from './messages/index.js'
 import { registerThreadTools } from './threads/index.js'
@@ -13,6 +14,7 @@ export {
   registerCalendarTools,
   registerDraftTools,
   registerDriveTools,
+  registerFilterTools,
   registerLabelTools,
   registerMessageTools,
   registerThreadTools

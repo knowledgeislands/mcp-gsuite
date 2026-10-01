@@ -37,6 +37,7 @@ vi.mock('./main/auth/index.js', () => ({
 
 const { registerAuthTools } = await import('./tools/auth/index.js')
 const { registerLabelTools } = await import('./tools/labels/index.js')
+const { registerFilterTools } = await import('./tools/filters/index.js')
 const { registerMessageTools } = await import('./tools/messages/index.js')
 const { registerAttachmentTools } = await import('./tools/attachments/index.js')
 const { registerThreadTools } = await import('./tools/threads/index.js')
@@ -120,6 +121,21 @@ describe('registerLabelTools', () => {
   it("'gsuite_email_label_delete' requires labelId", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_label_delete')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelId')
+  })
+})
+describe('registerFilterTools', () => {
+  it('registers previewable filter management without forwarding', () => {
+    const { server, calls } = makeMockServer()
+    registerFilterTools(server, cfg)
+    expect(calls.map((c) => c.name).sort()).toEqual([
+      'gsuite_email_filter_create',
+      'gsuite_email_filter_delete',
+      'gsuite_email_filters_list'
+    ])
+    expect(shapeOf(calls.find((c) => c.name === 'gsuite_email_filter_create')?.config.inputSchema)).not.toHaveProperty(
+      'forward'
+    )
+    for (const c of calls) expect(c.config.annotations).toBeDefined()
   })
 })
 
@@ -307,6 +323,7 @@ describe('combined registration (matches the brief)', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
+    registerFilterTools(server, cfg)
     registerMessageTools(server, cfg)
     registerAttachmentTools(server, cfg)
     registerThreadTools(server, cfg)
@@ -323,6 +340,9 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_draft_get',
       'gsuite_email_draft_update',
       'gsuite_email_drafts_list',
+      'gsuite_email_filter_create',
+      'gsuite_email_filter_delete',
+      'gsuite_email_filters_list',
       'gsuite_email_label_create',
       'gsuite_email_label_delete',
       'gsuite_email_label_update',

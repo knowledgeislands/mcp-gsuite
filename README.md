@@ -35,7 +35,7 @@ Practical instructions live in [`docs/guides/`](./docs/guides/README.md), groupe
 
 ## Available Tools
 
-42 tools across email, calendar, Drive and Sheets, plus the server's own `gsuite_about` and `gsuite_auth_*` meta tools. Each tool's access level (`read`, `write`, or `destructive`) is derived from its MCP annotations (`readOnlyHint` / `destructiveHint`), not its name, so the access-level gate (`MCP_GSUITE_ACCESS_LEVEL`) decides at boot which to register: the default `read` exposes the 18 read-only tools, `write` adds 21 non-destructive mutations, and `destructive` adds the final 3. Default OAuth scopes: `GSUITE_DEFAULT_SCOPES` in [`src/config/index.ts`](./src/config/index.ts) — the single source of truth for consent and refresh across email, calendar, and Drive/Sheets.
+45 tools across email, calendar, Drive and Sheets, plus the server's own `gsuite_about` and `gsuite_auth_*` meta tools. Each tool's access level (`read`, `write`, or `destructive`) is derived from its MCP annotations (`readOnlyHint` / `destructiveHint`), not its name, so the access-level gate (`MCP_GSUITE_ACCESS_LEVEL`) decides at boot which to register: the default `read` exposes 19 read-only tools, `write` adds 22 non-destructive mutations, and `destructive` adds the final 4. Default OAuth scopes: `GSUITE_DEFAULT_SCOPES` in [`src/config/index.ts`](./src/config/index.ts) — the single source of truth for consent and refresh across email, calendar, Drive/Sheets, and Gmail settings.
 
 The running server's `tools/list` response is the authority on what exists; the tables below are a readable copy of it, and `bun run ki:test:smoke` is what keeps the two honest.
 
@@ -55,6 +55,16 @@ The running server's `tools/list` response is the authority on what exists; the 
 | `gsuite_email_label_create` | `write`       | Create a user label.                                        |
 | `gsuite_email_label_update` | `write`       | Rename a user label.[^system-labels]                        |
 | `gsuite_email_label_delete` | `destructive` | Delete a user label.[^system-labels] [^label-delete-effect] |
+
+### filter
+
+| Tool                         | Level         | Purpose                                                   |
+| ---------------------------- | ------------- | --------------------------------------------------------- |
+| `gsuite_email_filters_list`  | `read`        | List existing Gmail filters and their criteria/actions.  |
+| `gsuite_email_filter_create` | `write`       | Preview or create a future-mail filter; preview by default. |
+| `gsuite_email_filter_delete` | `destructive` | Preview or delete a filter; preview by default.          |
+
+Filter creation supports sender, recipient, subject and Gmail query criteria, with one user label, Skip Inbox and Mark Read actions. It deliberately excludes forwarding and automatic deletion. Google requires the `gmail.settings.basic` OAuth scope for these tools; adding it to an existing grant requires updating the consent screen and signing in again. Filters affect future mail, so use message tools for a reviewed backfill.
 
 ### message
 

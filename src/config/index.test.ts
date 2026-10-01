@@ -19,6 +19,7 @@ describe('parseScopes (via auth.scopes)', () => {
     expect(loadConfig(baseEnv()).auth.scopes).toEqual(GSUITE_DEFAULT_SCOPES)
     expect(GSUITE_DEFAULT_SCOPES).toEqual([
       'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/gmail.settings.basic',
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/drive.readonly',
       'https://www.googleapis.com/auth/spreadsheets'

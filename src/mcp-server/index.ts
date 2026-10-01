@@ -8,6 +8,7 @@ import {
   registerCalendarTools,
   registerDraftTools,
   registerDriveTools,
+  registerFilterTools,
   registerLabelTools,
   registerMessageTools,
   registerThreadTools
@@ -43,6 +44,7 @@ const createServer = (): McpServer => {
 
   registerAuthTools(server, config)
   registerLabelTools(server, config)
+  registerFilterTools(server, config)
   registerMessageTools(server, config)
   registerAttachmentTools(server, config)
   registerThreadTools(server, config)
