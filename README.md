@@ -85,6 +85,15 @@ Filter creation supports sender, recipient, subject and Gmail query criteria, wi
 
 To swap labels on one message, call `gsuite_email_message_modify` with `messageId`, `addLabelIds: ["new-label-id"]`, and `removeLabelIds: ["old-label-id"]`. It returns the resulting `labelIds`; the batch tool instead echoes the requested operation because Gmail does not return each message's new state.
 
+### history
+
+| Tool | Level | Purpose |
+| --- | --- | --- |
+| `gsuite_email_history_checkpoint` | `read` | Get an exact mailbox history ID before a full search. |
+| `gsuite_email_history_list` | `read` | List typed changes after a checkpoint, with page-token continuation. |
+
+For an initial acquisition, read a checkpoint before searching the mailbox, complete the search, then call history list from the saved ID and drain every `nextPageToken` page. Save the final `historyId` only after the last page. On a history 404, acquire a fresh checkpoint before repeating the full search; the server never resets or stores your cursor.
+
 ### attachment
 
 | Tool | Level | Purpose |

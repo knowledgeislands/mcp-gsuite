@@ -12,6 +12,12 @@ The client searches with `gsuite_email_messages_search` using the Gmail query `f
 
 Search results are paginated: a response carries `nextPageToken` when more remain, and the client passes it back as `pageToken`. If a sweep looks suspiciously small, it may simply be the first page.
 
+## Resume mailbox acquisition
+
+Read `gsuite_email_history_checkpoint` before a complete mailbox search, retaining its exact decimal `historyId` outside the server. Complete the search, then call `gsuite_email_history_list` with that `startHistoryId`. The response separates added/deleted messages from added/removed labels. If it has `nextPageToken`, pass that token with the same start ID and continue until no token remains; only then save the final returned `historyId` as the next checkpoint. This catches changes that happened while the full search was running.
+
+For later runs, list history from the saved checkpoint and drain all pages again. If Gmail reports a 404 for an expired or invalid ID, get a fresh checkpoint before a new complete search, then replay history from that checkpoint. The server does not persist cursors, choose a replacement ID, or claim a partial page is a complete sync.
+
 ## Draft a contextual reply
 
 > "Find the meeting invite from Alice yesterday and draft a reply confirming I'll be there at 2pm."

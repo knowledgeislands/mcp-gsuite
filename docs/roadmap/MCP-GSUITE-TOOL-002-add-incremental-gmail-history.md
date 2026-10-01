@@ -4,12 +4,12 @@ area: TOOL
 title: Add incremental Gmail history
 theme: tool-surface
 horizon: next
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: 2af65bf6a13943e2dc3a5ce79eba23732ea9caef
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T19:30:08Z
+updated_at: 2026-10-01T21:03:10Z
 ---
 
 ## Goal
@@ -30,11 +30,11 @@ No history tool or caller-visible mailbox checkpoint exists. Existing message pr
 
 ## Steps
 
-- [ ] Create `src/main/history/index.ts` and a matching tool group. Add `gsuite_email_history_checkpoint` over `users.getProfile`, returning only mailbox `historyId`, and `gsuite_email_history_list` over `users.history.list`.
-- [ ] Use decimal-string history IDs throughout, with bounded `maxResults` and `pageToken`. Return provider-shaped history records with explicit added/deleted-message and added/removed-label arrays, top-level `historyId` and optional `nextPageToken`; never coerce IDs to numbers or flatten away event kind.
-- [ ] On history-list 404, return an actionable resynchronization error. Document acquiring a checkpoint before a complete search and replaying changes from it, draining all pages before saving the final checkpoint. Keep cursor storage caller-owned.
-- [ ] Register both tools as `READ_ONLY_REMOTE`, with matching output schemas, and wire the new group through `src/tools/index.ts`. Add tests for checkpoint, each event type, empty results, large string IDs, pagination, expired cursor and other errors.
-- [ ] Update registration and smoke inventories plus README examples for initial sync, resumed sync and expired-checkpoint recovery.
+- [x] Create `src/main/history/index.ts` and a matching tool group. Add `gsuite_email_history_checkpoint` over `users.getProfile`, returning only mailbox `historyId`, and `gsuite_email_history_list` over `users.history.list`.
+- [x] Use decimal-string history IDs throughout, with bounded `maxResults` and `pageToken`. Return provider-shaped history records with explicit added/deleted-message and added/removed-label arrays, top-level `historyId` and optional `nextPageToken`; never coerce IDs to numbers or flatten away event kind.
+- [x] On history-list 404, return an actionable resynchronization error. Document acquiring a checkpoint before a complete search and replaying changes from it, draining all pages before saving the final checkpoint. Keep cursor storage caller-owned.
+- [x] Register both tools as `READ_ONLY_REMOTE`, with matching output schemas, and wire the new group through `src/tools/index.ts`. Add tests for checkpoint, each event type, empty results, large string IDs, pagination, expired cursor and other errors.
+- [x] Update registration and smoke inventories plus README examples for initial sync, resumed sync and expired-checkpoint recovery.
 
 ## Files touched
 
@@ -65,6 +65,32 @@ Document mailbox checkpoint acquisition, pagination and full-search recovery; av
 ### Roadmap
 
 Keep this item as the execution authority; record delivery and review evidence here without accepting or pruning other work.
+
+## Review
+
+### Delivered
+
+Added read-only Gmail mailbox history checkpoint and incremental-list tools at baseline `2af65bf6a13943e2dc3a5ce79eba23732ea9caef`. Callers can preserve an exact decimal history ID, inspect typed changes, drain continuation pages, and detect an expired checkpoint.
+
+### Change Summary
+
+The checkpoint tool returns only `users.getProfile`'s mailbox `historyId`; the list tool calls `users.history.list` with a bounded optional page size and token. Output preserves separate added/deleted-message and added/removed-label arrays, a top-level history ID, and optional continuation token. A provider 404 returns full-search recovery guidance. Tool registration, smoke inventory, README, and the user guide were updated. No cursor storage, notification subscription, OAuth scope, or mutation was added.
+
+### Verification
+
+`bunx tsc --noEmit`, `bun run test`, `bun run test:coverage`, `bun run build`, and `bun run ki:test:smoke` passed with 100% coverage on all four metrics. Mocked tests cover checkpoint, four event kinds, empty pages, exact IDs beyond JavaScript's safe integer range, input and output pagination, 404 recovery, and other failures. Focused `ki-work-roadmap`, `ki-guides`, and `ki-authoring` audits passed. The `ki-repo-mcp` audit has no failures and retains two unrelated registration-order warnings in filters and labels. No live mailbox call was made.
+
+### Outstanding concerns
+
+Gmail may expire a valid cursor; the server cannot recover incrementally from a 404 and deliberately leaves the full-search restart to the caller. The caller must retain the start checkpoint while draining pages and save the final returned `historyId` only after the last page.
+
+### Post-change review
+
+History IDs remain strings throughout the schemas and handler; the response keeps event kinds separate rather than inferring change type from a generic message list. The tool group is read-only and the server persists no checkpoint. Ready for owner acceptance of this candidate.
+
+### Mini recap
+
+The two history tools and recovery guide are delivered and verified with mocks. The item remains Awaiting review until explicit acceptance; no live Gmail operation or remote Git push occurred.
 
 ## Discussion
 

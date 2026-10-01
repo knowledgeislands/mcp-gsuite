@@ -39,6 +39,7 @@ vi.mock('./main/auth/index.js', () => ({
 const { registerAuthTools } = await import('./tools/auth/index.js')
 const { registerLabelTools } = await import('./tools/labels/index.js')
 const { registerFilterTools } = await import('./tools/filters/index.js')
+const { registerHistoryTools } = await import('./tools/history/index.js')
 const { registerMessageTools } = await import('./tools/messages/index.js')
 const { registerAttachmentTools } = await import('./tools/attachments/index.js')
 const { registerThreadTools } = await import('./tools/threads/index.js')
@@ -346,12 +347,39 @@ describe('registerDraftTools', () => {
   })
 })
 
+describe('registerHistoryTools', () => {
+  it('registers a read-only checkpoint and bounded paginated history list', () => {
+    const { server, calls } = makeMockServer()
+    registerHistoryTools(server, cfg)
+    expect(calls.map((c) => c.name).sort()).toEqual(['gsuite_email_history_checkpoint', 'gsuite_email_history_list'])
+    const checkpoint = calls.find((c) => c.name === 'gsuite_email_history_checkpoint')
+    const list = calls.find((c) => c.name === 'gsuite_email_history_list')
+    expect(shapeOf(list?.config.inputSchema)).toHaveProperty('startHistoryId')
+    expect(shapeOf(list?.config.inputSchema)).toHaveProperty('maxResults')
+    expect(shapeOf(list?.config.inputSchema)).toHaveProperty('pageToken')
+    expect(checkpoint?.config.annotations).toMatchObject({ readOnlyHint: true })
+    expect(list?.config.annotations).toMatchObject({ readOnlyHint: true })
+    const schema = list?.config.inputSchema as z.ZodType
+    expect(
+      schema.safeParse({ startHistoryId: '900719925474099312345', maxResults: 500, pageToken: 'next' }).success
+    ).toBe(true)
+    for (const invalid of [
+      { startHistoryId: '1.5' },
+      { startHistoryId: '1', maxResults: 501 },
+      { startHistoryId: '1', pageToken: '' },
+      { startHistoryId: '1', unexpected: true }
+    ])
+      expect(schema.safeParse(invalid).success).toBe(false)
+  })
+})
+
 describe('combined registration (matches the brief)', () => {
-  it('the register*Tools functions expose exactly the 37 tools, with no send_* tool', () => {
+  it('the register*Tools functions expose exactly the 39 tools, with no send_* tool', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
     registerFilterTools(server, cfg)
+    registerHistoryTools(server, cfg)
     registerMessageTools(server, cfg)
     registerAttachmentTools(server, cfg)
     registerThreadTools(server, cfg)
@@ -371,6 +399,8 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_filter_create',
       'gsuite_email_filter_delete',
       'gsuite_email_filters_list',
+      'gsuite_email_history_checkpoint',
+      'gsuite_email_history_list',
       'gsuite_email_label_create',
       'gsuite_email_label_delete',
       'gsuite_email_label_get',
