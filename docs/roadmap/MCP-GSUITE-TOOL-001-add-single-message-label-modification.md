@@ -4,17 +4,17 @@ area: TOOL
 title: Add single-message label modification
 theme: tool-surface
 horizon: next
-status: draft
+status: ready
 blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-08-18T13:19:42Z
+updated_at: 2026-10-01T19:30:08Z
 ---
 
 ## Goal
 
-Achieve the stated outcome: Add single-message label modification.
+Callers can add and remove labels on one Gmail message in a single operation and receive its resulting label state.
 
 ## Context
 
@@ -22,64 +22,48 @@ Add `message_modify` as a convenience for combined add/remove labels on one mess
 
 ## Boundary
 
-Keep the work limited to the stated surface.
+Add one combined single-message label operation and its tests/documentation. Preserve existing tools and Gmail consent scopes; no mail sending or unrelated refactor.
 
 ## Current state
 
-`src/main/messages/index.ts` exposes `labelMessage` and `unlabelMessage`. Each issues one `gmail.users.messages.modify` call setting only one side of the request body — `addLabelIds` or `removeLabelIds` — and returns `{messageId, labelIds}` from the API response.
-
-The same module already has a private `modifyMessage` helper taking `{addLabelIds?, removeLabelIds?}`, but it is used only by the three sugar handlers `messageMarkRead`, `messageMarkUnread`, and `messageArchive`, and is neither exported nor registered as a tool.
-
-`messageBatchModify` is the only handler that sets both sides in one request. It takes an array of ids, rejects a call with neither list populated, and echoes the request back because Gmail returns 204 No Content — so it cannot report the message's resulting label set.
-
-A caller swapping labels on a single message therefore either makes two round trips through `gsuite_email_message_label` and `gsuite_email_message_unlabel`, or calls `gsuite_email_messages_batch_modify` with a one-element array and loses the resulting label state from the response.
+`src/main/messages/index.ts` already has a private combined `modifyMessage` helper; the registered label and unlabel handlers each change only one list. Batch modification accepts both lists but cannot return the resulting labels. Neither `src/tools/messages/index.ts` nor the registration/smoke inventories contains a single-message combined tool.
 
 ## Steps
 
-- [ ] Export a combined handler from `src/main/messages/index.ts` taking `{messageId, addLabelIds?, removeLabelIds?}`, reusing the existing private `modifyMessage` helper, rejecting a call with neither list populated the way `messageBatchModify` does, and returning the existing `{messageId, labelIds}` shape via `jsonResult` / `errorResult`.
-- [ ] Register the tool in `src/tools/messages/index.ts` with the `WRITE_IDEMPOTENT_REMOTE` annotation preset and the existing `messageLabelStateOutput` output schema, alongside the `_label` / `_unlabel` registrations.
-- [ ] Extend `src/main/messages/index.test.ts` with cases for both lists supplied, add-only, remove-only, neither supplied, and the API-error path, so the repository's 100% coverage thresholds still hold.
-- [ ] Add the new tool name to the expectations in `src/tool-registration.test.ts` and to `EXPECTED_TOOLS` in `scripts/smoke.ts`, which are the two places the tool surface is asserted.
-- [ ] Add a row to the Available Tools table in `README.md`, noting that batch modification remains the general operation for multiple messages.
+- [ ] Export a single-message combined handler using the existing helper. Require `messageId` and at least one non-empty `addLabelIds` or `removeLabelIds` array; reject a label appearing in both arrays before making any provider call.
+- [ ] Register `gsuite_email_message_modify` with strict bounded schemas, `WRITE_IDEMPOTENT_REMOTE`, and the existing label-state output schema. Keep label, unlabel, and batch tools compatible; do not remove or refactor their public APIs.
+- [ ] Cover add-only, remove-only, combined, empty, overlapping-list and provider-error cases, including resulting labels and unchanged old-tool behavior.
+- [ ] Update `src/tool-registration.test.ts`, `scripts/smoke.ts` and the README catalogue for the new tool; retain the no-send invariant.
 
 ## Files touched
 
-- `src/main/messages/index.ts` and `src/main/messages/index.test.ts`
-- `src/tools/messages/index.ts` (registration and output schema wiring)
-- `src/tool-registration.test.ts` and `scripts/smoke.ts` (tool-surface assertions)
-- `README.md` Available Tools table
+`src/main/messages/index.ts`, its tests, `src/tools/messages/index.ts`, `src/tool-registration.test.ts`, `scripts/smoke.ts`, and `README.md`.
 
 ## Verify
 
-1. `bun run test`
-2. `bun run test:coverage`
-3. `bun run ki:test:smoke`
-4. `ki repo audit --repo .`
-5. The registration test and the smoke test both list the new tool name, and the smoke test's "no `send_*` tools" invariant still passes.
+Run `bunx tsc --noEmit`, `bun run test`, `bun run test:coverage`, `bun run build`, `bun run ki:test:smoke`, then focused `ki repo audit --skill ki-repo-mcp --repo .` and `ki repo audit --skill ki-work-roadmap --repo .` sequentially. Use isolated fixtures and mocked provider calls; no live account operation is part of verification.
 
 ## Dependencies / blocks
 
-This item declares no blocking relationships, and nothing in the current tool surface has to change before it starts.
-
-It does share `src/main/messages/index.ts`, `src/tool-registration.test.ts`, and `scripts/smoke.ts` with [MCP-GSUITE-TOOL-002](MCP-GSUITE-TOOL-002-add-incremental-gmail-history.md), which is also at the `next` horizon. Whichever lands second updates the two tool-surface lists on top of the first rather than in parallel with it.
+No build-order blocker. Serialize edits to shared tool registration and smoke inventories with sibling mail items; landing order is a coordination preference, not a dependency.
 
 ## Documentation impact
 
 ### Decision Records
 
-None.
+No new architectural choice is required; follow the existing injected configuration and access-gating decisions.
 
 ### Specifications
 
-None.
+Update tool schemas and regression assertions as the executable contract; this repository has no separate declared specification surface.
 
 ### Guides
 
-Update the README tool catalogue with single-message label modification.
+Document the one-call label swap and resulting-label response in README.
 
 ### Roadmap
 
-No additional roadmap impact.
+Keep this item as the execution authority; record delivery and review evidence here without accepting or pruning other work.
 
 ## Discussion
 
@@ -87,10 +71,14 @@ No additional roadmap impact.
 
 `message_modify` in Context is shorthand. The registered name has to follow the server's `<app>_<resource>_<action>` scheme, which puts it at `gsuite_email_message_modify`, next to `gsuite_email_message_label` and `gsuite_email_message_unlabel`.
 
-### Whether the surface should grow at all
+### Why add a single-message tool
 
-The functional gap is small: `gsuite_email_messages_batch_modify` already performs a combined add/remove and accepts a single-element array. The argument for a distinct tool is that it returns the message's resulting label set, which the batch tool cannot, and that it matches the single-message shape of every neighbouring tool. The argument against is one more name on a surface the smoke test already has to enumerate. This should be settled before the item moves to `ready`.
+The new single-message tool returns the resulting label set, which the existing batch tool cannot. That response and the consistent single-message input justify the additional registered name; the plan therefore adds the tool and its smoke-inventory entry.
 
-### Whether `_label` and `_unlabel` should be retired or rewired
+### Existing label tools
 
-Once a combined handler exists, `labelMessage` and `unlabelMessage` become special cases of it. Folding them into thin wrappers keeps one API call site; leaving them alone keeps the diff smaller and avoids touching tools that callers already use. No decision has been taken.
+Retain the existing label and unlabel tools and their handlers. Refactoring them into wrappers is unnecessary to deliver the combined operation and would broaden the compatibility surface of this change.
+
+### Readiness review
+
+The planning decision is additive: the new tool earns its surface by returning the resulting labels. Existing label/unlabel tools remain public and are not refactored in this item. This resolves the earlier surface-growth and retirement questions.

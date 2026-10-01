@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-08-10T00:14:15Z
+updated_at: 2026-10-01T19:30:08Z
 ---
 
 ## Goal
@@ -26,4 +26,6 @@ Keep the work limited to the stated surface.
 
 ## Discussion
 
-No discussion recorded yet; this item is unshaped by design at the `future` horizon.
+### Readiness review
+
+The present roadmap review does not choose a new sending policy. Preserve draft-only behavior and identify the requested client workflow before proposing an opt-in send surface.
