@@ -114,6 +114,8 @@ Filter creation supports sender, recipient, subject and Gmail query criteria, wi
 
 This server deliberately exposes draft creation but no sending tool. The user reviews drafts in Gmail and clicks Send — Claude never directly delivers mail. The OAuth scope technically permits sending; the MCP surface does not.
 
+For a table in a draft, put semantic HTML table markup in `bodyHtml` and a readable plain-text version in `bodyText`. For example, `bodyHtml: "<table><tr><th>Item</th><th>Qty</th></tr><tr><td>Alpha</td><td>2</td></tr></table>"` can accompany `bodyText: "Item | Qty\nAlpha | 2"`. If fixed spacing is essential in HTML, escape the content and wrap it in `<pre>` instead. The server preserves the supplied body; review the HTML rendering in Gmail before sending because the plain-text alternative does not repair malformed HTML.
+
 ### calendar
 
 | Tool | Level | Purpose |

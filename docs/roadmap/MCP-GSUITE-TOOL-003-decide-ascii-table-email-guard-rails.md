@@ -4,12 +4,12 @@ area: TOOL
 title: Decide email table guards
 theme: tool-surface
 horizon: next
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: 1b32e4e806260d0911634062ba80add863e9c8e1
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T19:27:46Z
+updated_at: 2026-10-01T20:36:07Z
 ---
 
 ## Goal
@@ -30,9 +30,9 @@ Draft creation and update accept HTML strings, and `buildRfc2822` preserves call
 
 ## Steps
 
-- [ ] Choose guidance as the outcome: use actual HTML tables or escaped preformatted HTML in `bodyHtml`, and use `bodyText` for a plain-text fallback; explain that the chosen HTML part still must render correctly.
-- [ ] Add concise guidance to create/update body descriptions and the README composition examples. Preserve the existing schemas and MIME transformation behavior.
-- [ ] Check examples against both draft shapes and confirm the existing MIME and registration tests still pass; record the guidance decision in this item.
+- [x] Choose guidance as the outcome: use actual HTML tables or escaped preformatted HTML in `bodyHtml`, and use `bodyText` for a plain-text fallback; explain that the chosen HTML part still must render correctly.
+- [x] Add concise guidance to create/update body descriptions and the README composition examples. Preserve the existing schemas and MIME transformation behavior.
+- [x] Check examples against both draft shapes and confirm the existing MIME and registration tests still pass; record the guidance decision in this item.
 
 ## Files touched
 
@@ -63,6 +63,32 @@ Add an example for readable HTML tables plus plain-text alternatives.
 ### Roadmap
 
 Keep this item as the execution authority; record delivery and review evidence here without accepting or pruning other work.
+
+## Review
+
+### Delivered
+
+Added draft-composition guidance at baseline `1b32e4e806260d0911634062ba80add863e9c8e1`. Callers are directed to use real HTML tables or escaped preformatted HTML, pair `bodyHtml` with `bodyText` when a fallback helps, and review the resulting HTML in Gmail.
+
+### Change Summary
+
+Updated create and update body-field descriptions and added a compact README example. No schema validators, MIME builder, tool registration, or sending behavior changed. The decision is guidance rather than heuristic rejection or conversion.
+
+### Verification
+
+`bunx tsc --noEmit`, `bun run test`, `bun run test:coverage`, `bun run build`, and `bun run ki:test:smoke` passed. The existing MIME and registration fixtures remained green; the code diff changes descriptions only. Focused `ki-authoring` and `ki-work-roadmap` audits passed.
+
+### Outstanding concerns
+
+HTML rendering depends on the mail client and caller content. The plain-text alternative does not repair malformed HTML; Gmail draft review remains the check before sending.
+
+### Post-change review
+
+The guidance avoids rejecting valid preformatted bodies and preserves both draft body fields. The example uses the supported create/update shape, and the server still only saves drafts. Ready for owner acceptance of this exact candidate.
+
+### Mini recap
+
+The narrow guidance decision and its verification are recorded here. No external mail account or live draft was accessed, and the item remains Awaiting review until explicit acceptance.
 
 ## Discussion
 

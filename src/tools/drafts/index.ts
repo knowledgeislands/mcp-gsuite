@@ -105,11 +105,13 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
             .describe('If omitted and `replyToMessageId` is set, defaults to "Re: <original subject>".'),
           bodyText: bodyTextSchema
             .optional()
-            .describe('Plain-text body. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'),
+            .describe(
+              'Plain-text body and fallback for clients that do not render HTML. Line endings are normalised to CRLF. Optional if `bodyHtml` is provided.'
+            ),
           bodyHtml: bodyTextSchema
             .optional()
             .describe(
-              'HTML body. When provided alongside `bodyText`, the message is emitted as `multipart/alternative` (text/plain + text/html) so plain-text clients still render.'
+              'HTML body. For tables, use HTML table markup or escaped content inside `<pre>`, not unescaped ASCII spacing; review how the HTML part renders in Gmail. Pair with `bodyText` for a plain-text fallback (`multipart/alternative`).'
             ),
           attachments: attachmentField.describe(
             'Each entry is either a filesystem path (filename = basename, mimeType inferred from extension) or `{path, filename?, mimeType?}` to override either field.'
@@ -173,8 +175,14 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
           cc: optionalRecipientField,
           bcc: optionalRecipientField,
           subject: shortTextSchema.optional(),
-          bodyText: bodyTextSchema.optional(),
-          bodyHtml: bodyTextSchema.optional(),
+          bodyText: bodyTextSchema
+            .optional()
+            .describe('Plain-text body and fallback for clients that do not render HTML.'),
+          bodyHtml: bodyTextSchema
+            .optional()
+            .describe(
+              'HTML body. Use HTML table markup or escaped content inside `<pre>` for tables; review rendering in Gmail. Pair with `bodyText` for a plain-text fallback.'
+            ),
           attachments: attachmentField,
           replyToMessageId: idSchema.optional(),
           replyAll: z.boolean().optional()
