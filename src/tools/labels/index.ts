@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/server'
 import { z } from 'zod'
 import type { Config } from '../../config/index.js'
-import { createLabel, deleteLabel, listLabels, updateLabel } from '../../main/labels/index.js'
+import { createLabel, deleteLabel, getLabel, listLabels, updateLabel } from '../../main/labels/index.js'
 import { DESTRUCTIVE_REMOTE, READ_ONLY_REMOTE, WRITE_IDEMPOTENT_REMOTE, WRITE_REMOTE } from '../../utils/annotations.js'
 import { idSchema, shortTextSchema } from '../../utils/schemas.js'
 
@@ -35,6 +35,23 @@ const deleteLabelOutput = z.object({
 })
 
 export const registerLabelTools = (server: McpServer, cfg: Config): void => {
+  server.registerTool(
+    'gsuite_email_label_get',
+    {
+      description: 'Get one Gmail label and its exact message and conversation counts.',
+      inputSchema: z.object({ labelId: idSchema }).strict(),
+      outputSchema: z.object({
+        id: z.string(),
+        name: z.string(),
+        messagesTotal: z.number(),
+        messagesUnread: z.number(),
+        threadsTotal: z.number(),
+        threadsUnread: z.number()
+      }),
+      annotations: READ_ONLY_REMOTE
+    },
+    (args) => getLabel(cfg, args)
+  )
   server.registerTool(
     'gsuite_email_label_create',
     {

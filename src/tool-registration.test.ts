@@ -98,10 +98,11 @@ describe('registerLabelTools', () => {
     registerLabelTools(server, cfg)
   })
 
-  it('registers the four label tools', () => {
+  it('registers the five label tools', () => {
     expect(calls.map((c) => c.name).sort()).toEqual([
       'gsuite_email_label_create',
       'gsuite_email_label_delete',
+      'gsuite_email_label_get',
       'gsuite_email_label_update',
       'gsuite_email_labels_list'
     ])
@@ -110,6 +111,11 @@ describe('registerLabelTools', () => {
   it("'gsuite_email_label_create' requires a `name` param", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_label_create')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('name')
+  })
+
+  it("'gsuite_email_label_get' requires labelId", () => {
+    const c = calls.find((c) => c.name === 'gsuite_email_label_get')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelId')
   })
 
   it("'gsuite_email_label_update' requires labelId + name", () => {
@@ -345,6 +351,7 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_filters_list',
       'gsuite_email_label_create',
       'gsuite_email_label_delete',
+      'gsuite_email_label_get',
       'gsuite_email_label_update',
       'gsuite_email_labels_list',
       'gsuite_email_message_archive',

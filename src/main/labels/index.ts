@@ -20,6 +20,22 @@ export const listLabels = async (cfg: Config) => {
   }
 }
 
+export const getLabel = async (cfg: Config, { labelId }: { labelId: string }) => {
+  try {
+    const res = await gmailService(cfg.auth).users.labels.get({ userId: 'me', id: labelId })
+    return jsonResult({
+      id: res.data.id ?? labelId,
+      name: res.data.name ?? '',
+      messagesTotal: res.data.messagesTotal ?? 0,
+      messagesUnread: res.data.messagesUnread ?? 0,
+      threadsTotal: res.data.threadsTotal ?? 0,
+      threadsUnread: res.data.threadsUnread ?? 0
+    })
+  } catch (err) {
+    return errorResult('getting label', err)
+  }
+}
+
 export const createLabel = async (cfg: Config, { name }: { name: string }) => {
   try {
     const gmail = gmailService(cfg.auth)

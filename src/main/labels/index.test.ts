@@ -6,7 +6,7 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const auth = await import('../google-client/index.js')
-const { createLabel, deleteLabel, listLabels, updateLabel } = await import('./index.js')
+const { createLabel, deleteLabel, getLabel, listLabels, updateLabel } = await import('./index.js')
 
 const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 
@@ -15,6 +15,7 @@ const cfg = { auth: {} } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
 const handleListLabels = () => listLabels(cfg)
+const handleGetLabel = (labelId: string) => getLabel(cfg, { labelId })
 const handleCreateLabel = (args: { name: string }) => createLabel(cfg, args)
 const handleUpdateLabel = (args: { labelId: string; name: string }) => updateLabel(cfg, args)
 const handleDeleteLabel = (args: { labelId: string; dry_run: boolean }) => deleteLabel(cfg, args)
@@ -103,6 +104,43 @@ describe('handleListLabels', () => {
     const r = await handleListLabels()
     expect(r).toHaveProperty('isError', true)
     expect(r.content[0].text).toMatch(/No tokens found/)
+  })
+})
+
+describe('handleGetLabel', () => {
+  it('returns exact message and conversation counts', async () => {
+    const gmail = makeGmail()
+    ;(gmail.users.labels.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'INBOX', name: 'INBOX', messagesTotal: 120, messagesUnread: 75, threadsTotal: 91, threadsUnread: 58 }
+    })
+    gmailServiceMock.mockReturnValue(gmail)
+    const r = await handleGetLabel('INBOX')
+    expect(JSON.parse(r.content[0].text)).toEqual({
+      id: 'INBOX',
+      name: 'INBOX',
+      messagesTotal: 120,
+      messagesUnread: 75,
+      threadsTotal: 91,
+      threadsUnread: 58
+    })
+    expect(gmail.users.labels.get).toHaveBeenCalledWith({ userId: 'me', id: 'INBOX' })
+  })
+
+  it('handles omitted Gmail count fields and API errors', async () => {
+    const gmail = makeGmail()
+    ;(gmail.users.labels.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ data: {} })
+    gmailServiceMock.mockReturnValue(gmail)
+    const r = await handleGetLabel('Label_1')
+    expect(JSON.parse(r.content[0].text)).toEqual({
+      id: 'Label_1',
+      name: '',
+      messagesTotal: 0,
+      messagesUnread: 0,
+      threadsTotal: 0,
+      threadsUnread: 0
+    })
+    ;(gmail.users.labels.get as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('unavailable'))
+    expect(await handleGetLabel('Label_1')).toHaveProperty('isError', true)
   })
 })
 

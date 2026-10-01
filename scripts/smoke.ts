@@ -29,6 +29,7 @@ const EXPECTED_TOOLS = [
   'gsuite_email_filters_list',
   'gsuite_email_label_create',
   'gsuite_email_label_delete',
+  'gsuite_email_label_get',
   'gsuite_email_label_update',
   'gsuite_email_message_archive',
   'gsuite_email_messages_batch_modify',

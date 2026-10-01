@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Generated on 2026-10-01T05:21:31.129Z by @knowledgeislands/mcp-gsuite@0.9.0
+// Generated on 2026-10-01T05:31:35.440Z by @knowledgeislands/mcp-gsuite@0.9.0
 // Server: kit-mcp-gsuite
 // Source: /Users/krisbrown/.mcporter/mcporter.json
 // Transport: STDIO /Users/krisbrown/.local/share/mise/shims/node /Users/krisbrown/workspaces/kit/knowledgeislands/mcp-gsuite/dist/mcp-server/index.js
@@ -26,6 +26,11 @@ export interface KitMcpGsuiteTools {
    * expiry.
    */
   gsuite_auth_status(params?: Record<string, never>): Promise<CallResult>;
+
+  /**
+   * Get one Gmail label and its exact message and conversation counts.
+   */
+  gsuite_email_label_get(params: { labelId: string }): Promise<CallResult>;
 
   /**
    * Create a new user label.
@@ -385,6 +390,10 @@ export async function createKitMcpGsuiteClient(options: CreateClientOptions = {}
 
     async gsuite_auth_status(params) {
       return tools.gsuite_auth_status(params === undefined ? {} : params);
+    },
+
+    async gsuite_email_label_get(params) {
+      return tools.gsuite_email_label_get(params === undefined ? {} : params);
     },
 
     async gsuite_email_label_create(params) {
