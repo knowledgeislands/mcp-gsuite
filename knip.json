@@ -6,7 +6,8 @@
     "src/config/index.ts!",
     "src/main/*/index.ts!",
     "src/main/email/parse.ts!",
-    "scripts/integration.ts"
+    "scripts/integration.ts",
+    "scripts/smoke.ts"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.ts"],
   "ignore": ["src/generated/**", ".claude/skills/**", ".agents/skills/**"],
