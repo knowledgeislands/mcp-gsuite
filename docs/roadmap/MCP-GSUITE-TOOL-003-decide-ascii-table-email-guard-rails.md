@@ -4,12 +4,12 @@ area: TOOL
 title: Decide email table guards
 theme: tool-surface
 horizon: next
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: 1b32e4e806260d0911634062ba80add863e9c8e1
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T20:36:07Z
+updated_at: 2026-10-02T02:20:58Z
 ---
 
 ## Goal
@@ -89,6 +89,10 @@ The guidance avoids rejecting valid preformatted bodies and preserves both draft
 ### Mini recap
 
 The narrow guidance decision and its verification are recorded here. No external mail account or live draft was accessed, and the item remains Awaiting review until explicit acceptance.
+
+## Done
+
+Accepted 2026-10-02 by Kris Brown on the review packet above.
 
 ## Discussion
 

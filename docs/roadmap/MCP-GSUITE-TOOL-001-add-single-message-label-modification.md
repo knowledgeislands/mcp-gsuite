@@ -4,12 +4,12 @@ area: TOOL
 title: Add single-message label modification
 theme: tool-surface
 horizon: next
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: 56529987b78b5acba9d28d85bf5afce09348b239
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T20:41:45Z
+updated_at: 2026-10-02T02:20:58Z
 ---
 
 ## Goal
@@ -90,6 +90,10 @@ Schema tests cover strictness, bounded lists, required non-empty input, and over
 ### Mini recap
 
 The additive single-message tool is delivered and verified without a live Gmail call, scope change, or send capability. The item remains Awaiting review until explicit acceptance.
+
+## Done
+
+Accepted 2026-10-02 by Kris Brown on the review packet above.
 
 ## Discussion
 

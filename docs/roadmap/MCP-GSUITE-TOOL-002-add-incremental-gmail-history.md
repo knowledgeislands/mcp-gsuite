@@ -4,12 +4,12 @@ area: TOOL
 title: Add incremental Gmail history
 theme: tool-surface
 horizon: next
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: 2af65bf6a13943e2dc3a5ce79eba23732ea9caef
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T21:03:10Z
+updated_at: 2026-10-02T02:20:58Z
 ---
 
 ## Goal
@@ -91,6 +91,10 @@ History IDs remain strings throughout the schemas and handler; the response keep
 ### Mini recap
 
 The two history tools and recovery guide are delivered and verified with mocks. The item remains Awaiting review until explicit acceptance; no live Gmail operation or remote Git push occurred.
+
+## Done
+
+Accepted 2026-10-02 by Kris Brown on the review packet above.
 
 ## Discussion
 
