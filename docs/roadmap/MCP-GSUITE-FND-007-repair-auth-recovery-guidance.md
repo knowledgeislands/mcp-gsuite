@@ -4,12 +4,12 @@ area: FND
 title: Repair authentication recovery guidance
 theme: foundation-tooling
 horizon: next
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: 7c0346c8bf1b6a6b91b0e0df1ff99816b3fb608c
 created_at: 2026-10-04T10:40:45Z
-updated_at: 2026-10-04T12:09:54Z
+updated_at: 2026-10-04T12:15:18Z
 ---
 
 ## Goal
@@ -106,6 +106,10 @@ The 401 hint is appended on every Google API path through `errMessage`, so one c
 ### Mini recap
 
 A read-only caller that hits a 401 now learns the operator steps to re-authenticate, the sign-in tool names commands that exist, and the guides no longer carry tool counts that drift.
+
+## Done
+
+Accepted 2026-10-04 on the review packet above, under the owner's delegated estate-push authority following an independent Fable review, which returned ACCEPT: the hint reads correctly at every access level, the auth-start text names scripts that exist, the guides match the registered annotations, the tests are fixture-only, and typecheck and 507 tests at 100% coverage pass. Its one follow-up, `AGENTS.md` security invariant 8 still quoting the superseded hint, is corrected in this acceptance commit.
 
 ## Discussion
 
