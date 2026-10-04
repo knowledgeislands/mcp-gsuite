@@ -1,6 +1,6 @@
 # mcp-gsuite
 
-[![CI](https://github.com/knowledgeislands/mcp-gsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/knowledgeislands/mcp-gsuite/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@knowledgeislands/mcp-gsuite.svg)](https://www.npmjs.com/package/@knowledgeislands/mcp-gsuite) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![CI](https://github.com/knowledgeislands/mcp-gsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/knowledgeislands/mcp-gsuite/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 An MCP (Model Context Protocol) server that connects Claude with Google Workspace. Gmail is the deepest surface — search, read, label, draft — alongside Calendar events, Drive file listing, and Sheets read and write, all on one shared client, scope set, and access gate.
 
