@@ -15,17 +15,6 @@ const filterSchema = z
 
 export const registerFilterTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
-    'gsuite_email_filters_list',
-    {
-      description: 'List existing Gmail filters, including their criteria and actions.',
-      inputSchema: z.object({}).strict(),
-      outputSchema: z.object({ filters: z.array(filterSchema) }),
-      annotations: READ_ONLY_REMOTE
-    },
-    () => listFilters(cfg)
-  )
-
-  server.registerTool(
     'gsuite_email_filter_create',
     {
       description:
@@ -71,5 +60,16 @@ export const registerFilterTools = (server: McpServer, cfg: Config): void => {
       annotations: DESTRUCTIVE_REMOTE
     },
     (args) => deleteFilter(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_filters_list',
+    {
+      description: 'List existing Gmail filters, including their criteria and actions.',
+      inputSchema: z.object({}).strict(),
+      outputSchema: z.object({ filters: z.array(filterSchema) }),
+      annotations: READ_ONLY_REMOTE
+    },
+    () => listFilters(cfg)
   )
 }

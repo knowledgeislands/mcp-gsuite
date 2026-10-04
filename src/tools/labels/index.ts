@@ -36,23 +36,6 @@ const deleteLabelOutput = z.object({
 
 export const registerLabelTools = (server: McpServer, cfg: Config): void => {
   server.registerTool(
-    'gsuite_email_label_get',
-    {
-      description: 'Get one Gmail label and its exact message and conversation counts.',
-      inputSchema: z.object({ labelId: idSchema }).strict(),
-      outputSchema: z.object({
-        id: z.string(),
-        name: z.string(),
-        messagesTotal: z.number(),
-        messagesUnread: z.number(),
-        threadsTotal: z.number(),
-        threadsUnread: z.number()
-      }),
-      annotations: READ_ONLY_REMOTE
-    },
-    (args) => getLabel(cfg, args)
-  )
-  server.registerTool(
     'gsuite_email_label_create',
     {
       description: 'Create a new user label.',
@@ -85,6 +68,24 @@ export const registerLabelTools = (server: McpServer, cfg: Config): void => {
       annotations: DESTRUCTIVE_REMOTE
     },
     (args) => deleteLabel(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_label_get',
+    {
+      description: 'Get one Gmail label and its exact message and conversation counts.',
+      inputSchema: z.object({ labelId: idSchema }).strict(),
+      outputSchema: z.object({
+        id: z.string(),
+        name: z.string(),
+        messagesTotal: z.number(),
+        messagesUnread: z.number(),
+        threadsTotal: z.number(),
+        threadsUnread: z.number()
+      }),
+      annotations: READ_ONLY_REMOTE
+    },
+    (args) => getLabel(cfg, args)
   )
 
   server.registerTool(
