@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-01T19:27:46Z
+updated_at: 2026-10-04T10:57:33Z
 ---
 
 ## Goal
@@ -35,6 +35,12 @@ The known dependencies are a disposable Google account with consent granted acro
 The decisions still needed are which operations a live run may exercise, where credentials live locally, whether CI ever runs the gated path or only the recorded replay, and how a gated suite coexists with the 100% coverage thresholds if it is placed inside the vitest glob rather than beside it.
 
 This item is ready for promotion once a disposable test account exists and the permitted operation set and credential handling have been decided; without a real account to point at, the work cannot be finished no matter how well it is planned.
+
+## Current evidence and decisions
+
+The existing recording script still invokes only `gsuite_about`; its header declares `@ts-nocheck` because generated mcporter client registration is unavailable. `ki:test:record` contacts external systems and copies a recording into fixtures; `ki:test:replay` first copies into user mcporter state. Neither command should be treated as an isolated default verification gate or run without its required authority.
+
+Before readiness, identify the disposable Google account and credential location, choose the meaningful operation set, approve any draft create/delete cleanup, and decide whether to extend record/replay or introduce a separately typed live script. Specify an explicit live opt-in and fail-closed missing-credential behavior, keeping default CI offline and existing coverage thresholds truthful. A read-only first slice reduces account mutation but still needs a real test identity and live-call authority. No evidence establishes those dependencies, so the Soon/Draft state is retained rather than presenting this as an executable test plan. Auth-recovery messaging and stale startup commands are independently owned by MCP-GSUITE-FND-007.
 
 ## Discussion
 
