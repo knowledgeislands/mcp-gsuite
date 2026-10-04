@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-04T10:57:33Z
+updated_at: 2026-10-04T18:01:50Z
 ---
 
 ## Goal
@@ -65,3 +65,9 @@ Remaining: choose whether to extend that path or add a separate test, establish 
 ### Readiness review
 
 Prefer extending the existing record/replay script once a test identity and permitted operations are supplied. The current scripts also copy into user mcporter state, so do not count ordinary replay as an isolated default test.
+
+### Question for Kris (2026-10-04)
+
+Which disposable Google account and local credential location should the gated live test use, and may it perform a draft create-and-delete round trip or only reads?
+
+Classified as an owner decision by the Fable reviewer under delegated autonomy (2026-10-04): The work needs a real test identity, consent and live API calls against a real mailbox, so it cannot be implemented or verified locally without them.
