@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Config } from '../../config/index.js'
 
@@ -58,6 +59,17 @@ describe('handleAuthenticate', () => {
     const r = await handleAuthenticate()
     expect(r.content[0].text).toMatch(/\/auth/)
     expect(r.content[0].text).toMatch(/localhost/)
+  })
+
+  it('names only auth-server scripts that package.json defines', async () => {
+    const r = await handleAuthenticate()
+    const text: string = r.content[0].text
+    const pkg = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8')) as {
+      scripts: Record<string, string>
+    }
+    const named = [...text.matchAll(/bun run ([\w:-]+)/g)].map((m) => m[1])
+    expect(named).toEqual(['ki:server:auth:dev', 'ki:server:auth:start'])
+    for (const script of named) expect(pkg.scripts).toHaveProperty([script])
   })
 
   it('mentions the token store path so the user knows where tokens land', async () => {

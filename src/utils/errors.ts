@@ -8,9 +8,14 @@ interface GaxiosShape {
   }
 }
 
-// Appended to error messages when Gmail returns 401, so callers see the
-// remedy in-line rather than a bare HTTP code.
-const AUTH_HINT = 'Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+// Appended to error messages when Google returns 401, so callers see the
+// remedy in-line rather than a bare HTTP code. `gsuite_auth_start` is a write
+// tool and is not registered at the default read level, so the hint carries the
+// operator's access-level step rather than naming a tool the caller may lack.
+export const AUTH_HINT =
+  'Re-authenticate with the `gsuite_auth_start` tool. It is a write-level tool: if your client does not list it, ' +
+  "set MCP_GSUITE_ACCESS_LEVEL=write in the client's configuration for this server, restart the client, " +
+  'run the tool, then set the level back to read if you prefer; the token stays valid.'
 
 const withAuthHint = (status: number | undefined, msg: string): string =>
   status === 401 ? `${msg} — ${AUTH_HINT}` : msg

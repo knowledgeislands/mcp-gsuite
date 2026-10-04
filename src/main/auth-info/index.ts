@@ -24,7 +24,7 @@ export const authenticate = async (cfg: Config) => {
   // file after consent completes.
   resetAuthClient()
   return textResult(
-    `Open this URL in a browser to authorize mcp-gsuite:\n\n${cfg.auth.authServerUrl}/auth\n\nIf the auth server isn't running, start it with \`bun run server:auth:dev\` (or \`bun run server:auth:start\` in production). ` +
+    `Open this URL in a browser to authorize mcp-gsuite:\n\n${cfg.auth.authServerUrl}/auth\n\nIf the auth server isn't running, start it from the repository root with \`bun run ki:server:auth:dev\` (or \`bun run ki:server:auth:start\`, which builds and runs the compiled server). ` +
       `After consent, tokens will be written to ${cfg.auth.tokenStorePath}.`
   )
 }

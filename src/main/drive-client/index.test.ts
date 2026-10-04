@@ -116,7 +116,7 @@ describe('listFiles', () => {
     const r = await listFiles(cfg, { folderId: 'root' })
     expect(r).toHaveProperty('isError', true)
     expect(r.content[0].text).toBe(
-      'Error listing Drive files: HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
+      "Error listing Drive files: HTTP 401: Invalid Credentials — Re-authenticate with the `gsuite_auth_start` tool. It is a write-level tool: if your client does not list it, set MCP_GSUITE_ACCESS_LEVEL=write in the client's configuration for this server, restart the client, run the tool, then set the level back to read if you prefer; the token stays valid."
     )
   })
 

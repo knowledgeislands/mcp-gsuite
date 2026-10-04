@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { errMessage } from './errors.js'
+import { AUTH_HINT, errMessage } from './errors.js'
 
 describe('errMessage', () => {
   it('returns "<value>" for primitive non-error inputs', () => {
@@ -59,16 +59,22 @@ describe('errMessage', () => {
 
     it('appends the `gsuite_auth_start` hint on HTTP 401 with an API message', () => {
       const err = { response: { status: 401, data: { error: { message: 'Invalid Credentials' } } } }
-      expect(errMessage(err)).toBe(
-        'HTTP 401: Invalid Credentials — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
-      )
+      expect(errMessage(err)).toBe(`HTTP 401: Invalid Credentials — ${AUTH_HINT}`)
     })
 
     it('appends the `gsuite_auth_start` hint on HTTP 401 with only a top-level message', () => {
       const err = { message: 'token expired', response: { status: 401 } }
-      expect(errMessage(err)).toBe(
-        'HTTP 401: token expired — Run the `gsuite_auth_start` tool to refresh the OAuth token.'
-      )
+      expect(errMessage(err)).toBe(`HTTP 401: token expired — ${AUTH_HINT}`)
+    })
+
+    it('gives recovery steps reachable from the default read access level', () => {
+      // gsuite_auth_start is a write tool, so the hint must carry the operator's
+      // access-level change and restart rather than only naming the tool.
+      expect(AUTH_HINT).toContain('`gsuite_auth_start`')
+      expect(AUTH_HINT).toContain('MCP_GSUITE_ACCESS_LEVEL=write')
+      expect(AUTH_HINT).toMatch(/restart the client/)
+      expect(AUTH_HINT).toMatch(/back to read/)
+      expect(AUTH_HINT).not.toMatch(/oauth-tokens|token_path|TOKEN_PATH/i)
     })
 
     it('does not append the auth hint on non-401 statuses', () => {

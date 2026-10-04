@@ -37,6 +37,8 @@ vi.mock('./main/auth/index.js', () => ({
 }))
 
 const { registerAuthTools } = await import('./tools/auth/index.js')
+const { makeAccessGatedRegister } = await import('./utils/access-level.js')
+const { WRITE_REMOTE } = await import('./utils/annotations.js')
 const { registerLabelTools } = await import('./tools/labels/index.js')
 const { registerFilterTools } = await import('./tools/filters/index.js')
 const { registerHistoryTools } = await import('./tools/history/index.js')
@@ -88,6 +90,35 @@ describe('registerAuthTools', () => {
       expect(c.config.description?.length).toBeGreaterThan(0)
       expect(c.config.annotations).toBeDefined()
     }
+  })
+})
+
+describe('gsuite_auth_start through the access gate', () => {
+  // The 401 hint and guides depend on this: sign-in is a write tool, absent at
+  // the default read level and present once the operator raises the level.
+  // Registration only; no handler runs, so no consent starts and no token is read.
+  const registeredAt = (level: 'read' | 'write') => {
+    const { server, calls } = makeMockServer()
+    server.registerTool = makeAccessGatedRegister(server, level, {
+      mode: 'off',
+      path: '/nonexistent/audit.jsonl',
+      maxBytes: 1,
+      keep: 1
+    })
+    registerAuthTools(server, cfg)
+    return calls
+  }
+
+  it('is not registered at the default read level', () => {
+    const names = registeredAt('read').map((c) => c.name)
+    expect(names).not.toContain('gsuite_auth_start')
+    expect(names).toContain('gsuite_auth_status')
+  })
+
+  it('is registered at write with unchanged non-destructive write annotations', () => {
+    const authStart = registeredAt('write').find((c) => c.name === 'gsuite_auth_start')
+    expect(authStart?.config.annotations).toEqual(WRITE_REMOTE)
+    expect(authStart?.config.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false })
   })
 })
 

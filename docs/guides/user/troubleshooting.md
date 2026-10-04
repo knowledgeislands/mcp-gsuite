@@ -17,7 +17,7 @@ Then restart the client. The `args` path must be absolute and must point at the 
 
 ## The tool I want is missing
 
-Check `MCP_GSUITE_ACCESS_LEVEL` before anything else. The default is `read`, which registers only the 18 read-only tools; every mutating tool — including `gsuite_auth_start` — is absent until you raise it to `write`, and the three delete tools until `destructive`. See [Configure the server](configuration.md).
+Check `MCP_GSUITE_ACCESS_LEVEL` before anything else. The default is `read`, which registers only the read-only tools; every mutating tool — including `gsuite_auth_start` — is absent until you raise it to `write`, and the delete tools until `destructive`. See [Configure the server](configuration.md).
 
 A missing tool is the gate working, not a fault.
 
@@ -71,7 +71,7 @@ A revoked refresh token cannot be repaired. Delete the token file and sign in ag
 rm ~/.local/state/ki/mcp-gsuite/oauth-tokens.json
 ```
 
-Then start the auth server and call `gsuite_auth_start`. The same procedure switches the server to a different Google account.
+Then start the auth server and call `gsuite_auth_start`. If the tool is not listed, raise `MCP_GSUITE_ACCESS_LEVEL` to `write` and restart the client first; you can return to `read` once signed in. The same procedure switches the server to a different Google account.
 
 ## A search returns nothing when it should return something
 

@@ -35,7 +35,7 @@ Practical instructions live in [`docs/guides/`](./docs/guides/README.md), groupe
 
 ## Available Tools
 
-46 tools across email, calendar, Drive and Sheets, plus the server's own `gsuite_about` and `gsuite_auth_*` meta tools. Each tool's access level (`read`, `write`, or `destructive`) is derived from its MCP annotations (`readOnlyHint` / `destructiveHint`), not its name, so the access-level gate (`MCP_GSUITE_ACCESS_LEVEL`) decides at boot which to register: the default `read` exposes 20 read-only tools, `write` adds 22 non-destructive mutations, and `destructive` adds the final 4. Default OAuth scopes: `GSUITE_DEFAULT_SCOPES` in [`src/config/index.ts`](./src/config/index.ts) — the single source of truth for consent and refresh across email, calendar, Drive/Sheets, and Gmail settings.
+Tools across email, calendar, Drive and Sheets, plus the server's own `gsuite_about` and `gsuite_auth_*` meta tools. Each tool's access level (`read`, `write`, or `destructive`) is derived from its MCP annotations (`readOnlyHint` / `destructiveHint`), not its name, so the access-level gate (`MCP_GSUITE_ACCESS_LEVEL`) decides at boot which to register: the default `read` exposes the read-only tools, `write` adds the non-destructive mutations, and `destructive` adds the permanent deletions. Default OAuth scopes: `GSUITE_DEFAULT_SCOPES` in [`src/config/index.ts`](./src/config/index.ts) — the single source of truth for consent and refresh across email, calendar, Drive/Sheets, and Gmail settings.
 
 The running server's `tools/list` response is the authority on what exists; the tables below are a readable copy of it, and `bun run ki:test:smoke` is what keeps the two honest.
 
