@@ -3,13 +3,13 @@ id: MCP-GSUITE-FND-007
 area: FND
 title: Repair authentication recovery guidance
 theme: foundation-tooling
-horizon: triage
-status: draft
+horizon: next
+status: ready
 blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-10-04T10:40:45Z
-updated_at: 2026-10-04T10:40:45Z
+updated_at: 2026-10-04T12:06:45Z
 ---
 
 ## Goal
@@ -26,6 +26,47 @@ Make authentication recovery instructions reachable from the default read access
 
 Keep this intake limited to authentication recovery messaging, its documented operator procedure, stale startup commands, and inaccurate access-tier prose. Preserve `gsuite_auth_start` as a write tool because its consent flow persists tokens; do not weaken annotations or bypass the access gate. Do not change OAuth scopes, token persistence, sending policy, or tool behavior. No live Google account or token-store operations are authorised by this record. Package badges, generated catalogues, and legacy protocol policy are separate concerns.
 
+## Current state
+
+`src/utils/errors.ts` appends "Run the `gsuite_auth_start` tool to refresh the OAuth token." to every HTTP 401 message, although that tool is not registered at the default `read` level. `src/main/auth-info/index.ts` tells the operator to start the auth server with `bun run server:auth:dev` or `bun run server:auth:start`, which do not exist; `package.json` defines `ki:server:auth:dev` and `ki:server:auth:start`. `docs/guides/user/configuration.md` and `docs/guides/user/troubleshooting.md` state 18 read, 21 write and three destructive tools, and `README.md` states 46 tools split 20/22/4, while the registered inventory is 22 read, 23 write and 4 destructive.
+
+## Steps
+
+- [ ] Rewrite the 401 hint so it is actionable from any access level: name `gsuite_auth_start`, state that it is a `write` tool, and give the operator-controlled sequence of raising `MCP_GSUITE_ACCESS_LEVEL` to `write` in the client configuration, restarting the client, running the tool, and optionally returning to `read`. Do not include token paths or values.
+- [ ] Correct the auth-start instructions to the real package scripts (`bun run ki:server:auth:dev`, `bun run ki:server:auth:start`).
+- [ ] Replace brittle tier counts in the README and user guides with tier descriptions, so prose cannot drift from registrations again; leave catalogue generation and badges alone.
+- [ ] Add tests: the 401 hint text; the auth-start instructions naming only script keys present in `package.json`; `gsuite_auth_start` absent when registered through the access gate at `read` and present at `write`, with its annotations unchanged. No handler that starts consent or touches tokens is invoked.
+
+## Files touched
+
+`src/utils/errors.ts`, `src/utils/errors.test.ts`, `src/main/auth-info/index.ts` and its co-located test, `src/tool-registration.test.ts` (or a focused access-gate test), `README.md`, `docs/guides/user/configuration.md`, `docs/guides/user/troubleshooting.md`.
+
+## Verify
+
+Focused tests above pass. `bun run test`, `bun run test:coverage` (100% thresholds), `bunx tsc --noEmit`, `bun run build`, `bunx biome check .`, `bunx knip`, `bun run ki:test:smoke` and `ki repo audit --repo .` pass with no FAIL. `grep` finds no `server:auth:` command without the `ki:` prefix and no numeric tier counts in the README or user guides. No live Google account, consent flow or token store is used.
+
+## Dependencies / blocks
+
+None. The change is local to messaging, tests and documentation.
+
+## Documentation impact
+
+### Decision Records
+
+None; the access-level policy is unchanged.
+
+### Specifications
+
+None.
+
+### Guides
+
+`docs/guides/user/configuration.md` and `docs/guides/user/troubleshooting.md` lose their tool counts; the authentication guide already describes the recovery sequence and needs no change.
+
+### Roadmap
+
+This record only.
+
 ## Discussion
 
 ### Recovery from the read tier
@@ -39,3 +80,7 @@ Use the actual package script keys as the command authority. Any correction shou
 ### Receiver-owned intake
 
 This unadopted Triage draft records verified evidence from `KI-ARCADIA-ECO-004`; GSuite retains selection, readiness, delivery, review, and acceptance authority. It has no implementation baseline and authorises no execution. The independent identifier reservation landed in `055269ff1295786569d0821d13e8fc7cef2d876e` before this record was created.
+
+### Adoption
+
+Adopted from Triage into `next` and shaped to Ready on 2026-10-04 under the owner's delegated estate-push authority. Decision on tier evidence: the prose drops numeric counts rather than adding a docs-versus-fixture check, because counts are the part that keeps drifting and the tier descriptions carry the operator meaning.
