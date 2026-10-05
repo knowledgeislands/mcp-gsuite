@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: 01dc0e74102c174133e0ac9dc408822e337a960a
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T07:40:24Z
+updated_at: 2026-10-05T07:47:43Z
 ---
 
 ## Goal
@@ -93,11 +93,11 @@ Added strict write-gated gsuite_email_draft_forward and library handler. Explici
 
 ### Change Summary
 
-Delivered the planned item-specific files and documentation. Earlier Draft readiness discussion is historical; current approved scope is in Steps and the batch. No scopes, send policy, token boundaries, or live provider state changed.
+Delivered the planned item-specific files and documentation. Independent review found attachment/body confusion and permissive body decoding in the first candidate; corrected `src/main/drafts/forward.ts` and expanded fidelity regressions in `forward.test.ts`. The body selector excludes filename/attachment-disposition text parts, fetches externally stored body bytes, validates size/canonical base64url/UTF-8, and rejects unsupported nested attachment containers. Earlier Draft readiness discussion is historical; current approved scope is in Steps and the batch. No scopes, send policy, token boundaries, or live provider state changed.
 
 ### Verification
 
-Typecheck, 24 test files / 525 tests, coverage at 100% on all metrics (720 branches), build, modern/legacy stdio smoke with 50 tools and no send, focused engineering/MCP/roadmap audits passed against the proposed combined delivery. No Google account, token, or live API operation was performed. Source review covered access annotations, fixture fidelity/bounds failures, and documented policy/evaluation evidence. Aggregate gates are rechecked by the coordinator before acceptance.
+Typecheck, 24 test files / 533 tests, coverage at 100% on all metrics (725 branches), build, modern/legacy stdio smoke with 50 tools and no send, focused engineering/MCP/roadmap audits passed against the proposed combined delivery. No Google account, token, or live API operation was performed. Source review covered access annotations, fixture fidelity/bounds failures, and documented policy/evaluation evidence. Aggregate gates are rechecked by the coordinator before acceptance.
 
 ### Outstanding concerns
 
@@ -105,7 +105,7 @@ No unresolved concern within the admitted boundary. External live integration is
 
 ### Post-change review
 
-Goal and approved scope are satisfied by the item-specific delivery. Default outbound remains human-reviewed drafts; no new sending or settings permission was inferred. The exact resulting commit requires independent coordinator review before acceptance.
+Goal and approved scope are satisfied by the item-specific delivery. Default outbound remains human-reviewed drafts; no new sending or settings permission was inferred. The corrected candidate requires fresh independent review before acceptance; approval of the earlier candidate does not cover the changed source.
 
 ### Mini recap
 
@@ -116,3 +116,7 @@ Delivered the bounded outcome, verified offline and recorded limits honestly. Du
 ### Readiness review
 
 Plan as draft-only when selected. Establish whether to forward all or selected attachments, how inline/CID parts are handled, and how current MIME/path guards apply before treating it as Ready.
+
+### Independent-review corrections
+
+At first candidate `dc0c55f9eb637f2b3abc89ca3612ccc7dd79ce7c`, review reproduced a text attachment being quoted instead of the HTML original, malformed original-body bytes silently becoming empty text, and externally stored text body being misclassified as an attachment. All three now have regressions. Named/disposition text attachments remain attachments; externally stored genuine body is fetched and quoted. Canonical base64url, metadata size and UTF-8 validation must succeed before draft creation. The correction baseline is the reviewed candidate, while the original immutable item execution baseline above is retained.

@@ -32,32 +32,33 @@ export const forwardDraft = async (cfg: Config, input: z.infer<typeof forwardInp
     const { data: original } = await gmail.users.messages.get({ userId: 'me', id: args.messageId, format: 'full' })
     if (!original.payload) throw new Error('Original message has no MIME payload')
     const parts: gmail_v1.Schema$MessagePart[] = []
+    const bodyParts: gmail_v1.Schema$MessagePart[] = []
     const visit = (part: gmail_v1.Schema$MessagePart): void => {
       if (part.parts?.length) {
-        if (part.filename || part.body?.attachmentId)
+        if (
+          part.filename ||
+          part.body?.attachmentId ||
+          /^\s*attachment\b/i.test(headerValue(part.headers, 'Content-Disposition'))
+        )
           throw new Error('Nested attachment containers require an unparsed source; cannot preserve bytes')
         for (const child of part.parts) visit(child)
       } else if (
-        part.filename ||
-        part.body?.attachmentId ||
-        (part.mimeType !== 'text/plain' && part.mimeType !== 'text/html')
+        !part.filename &&
+        !/^\s*attachment\b/i.test(headerValue(part.headers, 'Content-Disposition')) &&
+        (part.mimeType === 'text/plain' || part.mimeType === 'text/html')
       ) {
+        bodyParts.push(part)
+      } else {
         parts.push(part)
       }
     }
+
     visit(original.payload)
     if (parts.length > 50) throw new Error('Forward exceeds 50 attachments')
-    let total = 0
-    const attachments: PreparedAttachment[] = []
-    for (const part of parts) {
+    const decodePart = async (part: gmail_v1.Schema$MessagePart, remaining: number): Promise<Buffer> => {
       const declared = part.body?.size
-      if (
-        typeof declared !== 'number' ||
-        !Number.isSafeInteger(declared) ||
-        declared < 0 ||
-        total + declared > MAX_BYTES
-      ) {
-        throw new Error('Attachment size is missing, invalid, or exceeds the 10 MiB total limit')
+      if (typeof declared !== 'number' || !Number.isSafeInteger(declared) || declared < 0 || declared > remaining) {
+        throw new Error('MIME part size is missing, invalid, or exceeds the 10 MiB limit')
       }
       let encoded = part.body?.data
       if (part.body?.attachmentId) {
@@ -71,17 +72,34 @@ export const forwardDraft = async (cfg: Config, input: z.infer<typeof forwardInp
       if (
         typeof encoded !== 'string' ||
         !/^[A-Za-z0-9_-]*={0,2}$/.test(encoded) ||
-        encoded.length > Math.ceil((MAX_BYTES - total) / 3) * 4
+        encoded.length > Math.ceil(remaining / 3) * 4
       ) {
-        throw new Error('Attachment bytes are missing, malformed, or exceed the total limit')
+        throw new Error('MIME part bytes are missing, malformed, or exceed the limit')
       }
       const bytes = Buffer.from(encoded, 'base64url')
       if (
         bytes.toString('base64url') !== encoded.replace(/=+$/, '') ||
         bytes.length !== declared ||
-        total + bytes.length > MAX_BYTES
-      )
-        throw new Error('Attachment size does not match its bytes')
+        bytes.length > remaining
+      ) {
+        throw new Error('MIME part size does not match its bytes')
+      }
+      return bytes
+    }
+    const selectedBody =
+      bodyParts.find((part) => part.mimeType === 'text/plain') ??
+      bodyParts.find((part) => part.mimeType === 'text/html')
+    let originalText = ''
+    if (selectedBody) {
+      const bytes = await decodePart(selectedBody, MAX_BYTES)
+      new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+      // Only the attachment-aware selected leaf reaches the shared HTML-to-text converter.
+      originalText = extractBody({ mimeType: selectedBody.mimeType, body: { data: bytes.toString('base64url') } })
+    }
+    let total = 0
+    const attachments: PreparedAttachment[] = []
+    for (const part of parts) {
+      const bytes = await decodePart(part, MAX_BYTES - total)
       total += bytes.length
       const filename = part.filename || `inline-${attachments.length + 1}`
       const mimeType = part.mimeType || 'application/octet-stream'
@@ -94,7 +112,7 @@ export const forwardDraft = async (cfg: Config, input: z.infer<typeof forwardInp
       '---------- Forwarded message ----------',
       ...['From', 'Date', 'Subject', 'To'].map((name) => `${name}: ${headerValue(headers, name)}`),
       '',
-      extractBody(original.payload)
+      originalText
     ].join('\n')
     if (Buffer.byteLength(bodyText) > MAX_BYTES) throw new Error('Forwarded body exceeds 10 MiB')
     const raw = buildRfc2822({
