@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T08:13:22Z
+updated_at: 2026-10-05T08:21:39Z
 ---
 
 ## Goal
@@ -27,6 +27,10 @@ No provider execution, account selection, token inspection or consent is authori
 ## Shaping
 
 The FND-008 local infrastructure delivery supplies [the typed runner](../../src/main/integration-readonly/index.ts) and [the gated execution guide](../guides/developer/gated-read-only-integration.md), with a separate typed command, explicit opt-in, expected disposable email, dedicated token-file path, injected trusted configuration, existing real handlers and Google SDK transport tests. This resolves local implementation choices without inventing real-account authority or live success.
+
+## Local delivery evidence
+
+Source delivery commit `a07466c6c32380663ec2fa377f715b1704580ec0` ships the typed read-only harness and developer guide. Its offline verification passed 601 tests, all four 100% coverage metrics, TypeScript, build, Biome, Knip, modern/legacy 50-tool smoke and focused repository audits. Synthetic final-fetch transports verify actual Google SDK request construction and dedicated token-refresh persistence. No real account, credentials, consent or provider result was supplied or tested. This is local infrastructure evidence only.
 
 ## Waiting-for condition
 

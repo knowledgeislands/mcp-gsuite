@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: ea67f798a7c6e44f7b01ba6cdef87e8ca8617268
 created_at: 2026-10-05T08:07:43Z
-updated_at: 2026-10-05T08:20:45Z
+updated_at: 2026-10-05T08:22:38Z
 ---
 
 ## Goal
@@ -73,7 +73,7 @@ Ship this child to Awaiting review and retain the parent as Waiting-for / Draft 
 
 ### Delivered
 
-Delivered the approved local read-only integration infrastructure from immutable planning baseline `ea67f798a7c6e44f7b01ba6cdef87e8ca8617268`. The root coordinator approved the exact scope after reviewing the committed plan. The source delivery commit is recorded in the bound batch ledger and returned for independent review. No account was selected, no real credential was inspected and no provider or legacy record/replay command was run.
+Delivered the approved local read-only integration infrastructure from immutable planning baseline `ea67f798a7c6e44f7b01ba6cdef87e8ca8617268`. The root coordinator approved the exact scope after reviewing the committed plan. Source delivery commit `a07466c6c32380663ec2fa377f715b1704580ec0` is returned for independent review. The bound batch retains its run marker; the root will record the terminal result only after independently reviewed acceptance is committed. No account was selected, no real credential was inspected and no provider or legacy record/replay command was run.
 
 ### Change Summary
 
