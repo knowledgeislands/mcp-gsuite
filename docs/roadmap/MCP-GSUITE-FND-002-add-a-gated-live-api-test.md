@@ -1,7 +1,7 @@
 ---
 id: MCP-GSUITE-FND-002
 area: FND
-title: Add gated API test
+title: Gated live verification
 theme: foundation-tooling
 horizon: waiting-for
 status: draft
@@ -9,69 +9,39 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T07:36:17Z
+updated_at: 2026-10-05T08:07:43Z
 ---
 
 ## Goal
 
-Achieve the stated outcome: Add a gated live API test.
+Verify the Google Workspace library against an explicitly designated disposable Google account, with consent and real-provider evidence for the permitted read-only operations.
 
 ## Context
 
-Add an `INTEGRATION=1` test against a real test account to complement mocked Google API coverage.
+Default tests mock Google API boundaries and CI stays offline. The stdio smoke test verifies both protocol profiles and tool registration, not a Google account. The existing `scripts/integration.ts` is a legacy untyped mcporter path that invokes only `gsuite_about`; its record/replay commands copy recordings through user mcporter state and are not an isolated verification gate.
 
 ## Boundary
 
-Keep the work limited to the stated surface.
+No provider execution, account selection, token inspection or consent is authorised by the local delivery window. The first live slice is read-only: Gmail profile identity, Gmail labels, a bounded Calendar event listing and bounded Drive root metadata. Draft creation and cleanup, send, archive, delete and other mutations are excluded.
 
 ## Shaping
 
-Every Google API call in the current test suite is mocked at the module boundary — each `src/main/*/index.test.ts` stubs `../google-client/index.js` — so no test in `vitest.config.ts`'s `src/**/*.test.ts` include glob ever reaches Google. CI (`.github/workflows/ci.yml`) runs `bun run test`, `bun run test:coverage`, and `bun run ki:test:smoke`, and all three pass without credentials; the smoke test boots the built server over stdio purely to assert the tool surface.
+[The gated harness child](MCP-GSUITE-FND-008-gated-read-only-integration-harness.md) is independently executable local infrastructure under the current outcome authority. Its approved plan supplies a separate typed command, explicit opt-in, expected disposable email, dedicated token-file path, injected trusted configuration, existing real handlers and Google SDK transport tests. This resolves local implementation choices without inventing real-account authority or live success.
 
-The repository already has a partial answer to this item that the item's Context does not mention: `scripts/integration.ts` drives the server through the mcporter typed client, with `ki:test:record` capturing a live session into `fixtures/recordings/gsuite-integration.ndjson` and `ki:test:replay` replaying it. The recorded script currently calls only `gsuite_about`, and its `@ts-nocheck` header notes that no mcporter instance is registered for this server yet. The first shaping decision is therefore whether this item extends that path or introduces a second mechanism; extending it is the cheaper route and avoids two competing definitions of "integration test".
+## Waiting-for condition
 
-The known dependencies are a disposable Google account with consent granted across `GSUITE_DEFAULT_SCOPES`, a token store the gated run can read, and — if the mcporter route is taken — a registered instance so `ki:generate:client` can regenerate the typed client.
-
-The decisions still needed are which operations a live run may exercise, where credentials live locally, whether CI ever runs the gated path or only the recorded replay, and how a gated suite coexists with the 100% coverage thresholds if it is placed inside the vitest glob rather than beside it.
-
-This item is ready for promotion once a disposable test account exists and the permitted operation set and credential handling have been decided; without a real account to point at, the work cannot be finished no matter how well it is planned.
-
-## Current evidence and decisions
-
-The existing recording script still invokes only `gsuite_about`; its header declares `@ts-nocheck` because generated mcporter client registration is unavailable. `ki:test:record` contacts external systems and copies a recording into fixtures; `ki:test:replay` first copies into user mcporter state. Neither command should be treated as an isolated default verification gate or run without its required authority.
-
-Before readiness, identify the disposable Google account and credential location, choose the meaningful operation set, approve any draft create/delete cleanup, and decide whether to extend record/replay or introduce a separately typed live script. Specify an explicit live opt-in and fail-closed missing-credential behavior, keeping default CI offline and existing coverage thresholds truthful. A read-only first slice reduces account mutation but still needs a real test identity and live-call authority. No evidence establishes those dependencies, so the Soon/Draft state is retained rather than presenting this as an executable test plan. Auth-recovery messaging and stale startup commands are independently owned by MCP-GSUITE-FND-007.
+The principal must designate the disposable Google account email and dedicated credential source, confirm consent for the documented read-only run, and permit provider execution. Once those are supplied, run the shipped harness against that exact account and retain redacted evidence of identity verification and successful provider reads, including any missing scopes or provider errors. Synthetic fixtures cannot discharge this goal. Remain Waiting-for / Draft until those conditions are met.
 
 ## Discussion
 
-### Whether the existing replay path already discharges this
+### Local infrastructure can proceed
 
-`ki:test:record` and `ki:test:replay` already exercise the real API and preserve the result as a committed fixture. What they do not yet provide is meaningful coverage — one `gsuite_about` call — or a gate distinguishing "replay the fixture" from "hit the live account". It is genuinely open whether this item is a new test or an expansion of the existing script plus a documented gate.
+An earlier assessment described all implementation as blocked by missing account details. That was too broad: guards, typed wiring, transport tests and operator guidance are locally deliverable in the child. Only real identity, credentials, consent and provider verification remain externally gated.
 
-### Blast radius of a live run
+### Existing recording evidence
 
-The server exposes no send tool, and the smoke test asserts that as a hard invariant, so a live run cannot email anyone. The residual risk is that label, archive, and trash operations mutate a real mailbox. That argues for a disposable account and, at minimum for a first pass, an operation set limited to reads plus a draft create-and-delete round trip that cleans up after itself.
+Historical commit `2597ac2b360b2dfecd1c0f3e05d5cd02805ffded` added record/replay commands and a fixture for the metadata-only script. No live command or recording has been run in this delivery window. Neither metadata replay nor a synthetic transport success establishes real API verification.
 
-### Where the gate lives
+### Provider and credential boundary
 
-`INTEGRATION=1` in the Context is a shape, not a decision. A gate inside a vitest file interacts with the coverage thresholds; a gate in a separate script keeps the default suite untouched but means the live path is never type-checked by the same run. Neither has been chosen.
-
-### Pickup checkpoint — 2026-09-28
-
-At local `main` `fd3e8785332022040c88f7482653be81dfdb8769`, historical commit `2597ac2b360b2dfecd1c0f3e05d5cd02805ffded` provided record and replay commands (`package.json:133`), the committed recording (`fixtures/recordings/gsuite-integration.ndjson`), and a client script whose only call is `gsuite_about` (`scripts/integration.ts:16`). This is partial infrastructure for the proposed test, not evidence that a gated live Google API test exists or that the recording path currently runs successfully.
-
-Remaining: choose whether to extend that path or add a separate test, establish the disposable account and permitted operations, implement an explicit live gate, and verify meaningful Google API behavior. This audit did not run record or replay: live execution requires external credentials and account authority, while replay copies into user mcporter state. The TypeScript gate passed; `bun run test` could not start because sandbox access denied Vitest's `node_modules/.vite-temp` write (`EPERM`); coverage and build were not run for this documentation-only change. Before implementation, reconcile destination `main`, linked tasks, and retained worktrees; only the primary worktree was visible locally, and remote task ownership was unavailable. Missing evidence does not release a claim or lift a hold. This checkpoint is pickup guidance, not execution block or resumption authority. Draft/Soon state remains unchanged; eventual closure requires review and explicit owner acceptance, with any Done record retained until separately selected for pruning.
-
-### Readiness review
-
-Prefer extending the existing record/replay script once a test identity and permitted operations are supplied. The current scripts also copy into user mcporter state, so do not count ordinary replay as an isolated default test.
-
-### Question for Kris (2026-10-04)
-
-Which disposable Google account and local credential location should the gated live test use, and may it perform a draft create-and-delete round trip or only reads?
-
-Classified as an owner decision by the Fable reviewer under delegated autonomy (2026-10-04): The work needs a real test identity, consent and live API calls against a real mailbox, so it cannot be implemented or verified locally without them.
-
-### Outcome-window exclusion — 2026-10-05
-
-Waiting for an explicitly identified disposable Google test identity, credential source, and permitted live operation set. No live-call authority or test-account evidence was supplied; offline fixtures cannot discharge the stated live API goal. Remains Draft and excluded from this delivery window.
+The harness will verify Gmail profile email before subsequent reads. OAuth refresh may atomically rewrite its dedicated local token store at mode 0600 using the existing auth implementation; no tokens or mailbox payloads may be recorded or reported. The command does not initiate consent or reuse the ordinary token-store default.
