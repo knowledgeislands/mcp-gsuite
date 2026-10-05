@@ -4,12 +4,12 @@ area: TOOL
 title: Review sending policy
 theme: tool-surface
 horizon: now
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: 87d94c75242f511c75a4824bef4454302e282286
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T07:40:11Z
+updated_at: 2026-10-05T07:52:30Z
 ---
 
 ## Goal
@@ -95,6 +95,10 @@ Goal and approved scope are satisfied by the item-specific delivery. Default out
 ### Mini recap
 
 Delivered the bounded outcome, verified offline and recorded limits honestly. Durable policy/evaluation conclusions live in the developer guide and forwarding semantics in user guidance; no other learning promotion is proposed.
+
+## Done
+
+Accepted under the named done-target MCP-GSUITE-BATCH-001 outcome authority and the principal’s standing acceptance instruction. Independent reviewer `review_housekeeping` approved the policy/settings deliveries and the corrected forwarding candidate `04c5c15863ee9cdfe804b9b1a23ab78ac77e7a7d`; 65 focused tests and the three original defect reproductions passed. Coordinator rechecked TypeScript, all 533 tests, MCP/engineering and roadmap audits on that exact combined candidate. The packet’s documented limits remain; live Google-account testing is separately Waiting for a disposable identity. No send permission or live operation was introduced.
 
 ## Discussion
 
