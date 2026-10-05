@@ -4,12 +4,12 @@ area: FND
 title: Gated read-only harness
 theme: foundation-tooling
 horizon: now
-status: awaiting-review
+status: done
 blocks: []
 blocked_by: []
 baseline_ref: ea67f798a7c6e44f7b01ba6cdef87e8ca8617268
 created_at: 2026-10-05T08:07:43Z
-updated_at: 2026-10-05T08:22:38Z
+updated_at: 2026-10-05T08:31:00Z
 ---
 
 ## Goal
@@ -94,6 +94,10 @@ The child goal is fulfilled locally: the runner is typed, fail-closed, identity-
 ### Mini recap
 
 Shipped one conservative harness with comprehensive offline safety and real SDK transport proof. Repository gates pass, and remaining provider authority/evidence stays in the existing parent rather than being claimed complete. The developer guide owns the reusable execution procedure; no additional knowledge promotion or roadmap capture is needed.
+
+## Done
+
+Accepted under named done-target MCP-GSUITE-BATCH-002 outcome authority and the principal’s standing acceptance instruction. Root independently reviewed exact candidate `921f33e2b1d49a467339c3760bb57b52544ce1b8` against the approved local-infrastructure boundary, reran 104 integration/auth/client tests and TypeScript, and separately reproduced malformed-token refusal, normalized ordinary-token refusal, identity-first stopping and disabled-gate refusal using disposable fixtures with zero provider calls. The complete packet and full author gates satisfy the child. Parent FND-002 remains Waiting for designated real credentials, consent and an authorised live verification run; this acceptance does not claim live Google success.
 
 ## Discussion
 
