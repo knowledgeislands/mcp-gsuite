@@ -10,3 +10,5 @@ These guides are for anyone changing this repository. They assume you can alread
 `CONTRIBUTING.md` holds contribution mechanics — cloning, the Conventional Commits convention, and the checklist to satisfy before opening a pull request. These guides do not repeat it.
 
 `AGENTS.md` and `CLAUDE.md` hold the invariants a change must not break: injectable configuration with no module-level environment reads, thin tool modules over implementations in `src/main/`, and the OAuth and data-safety rules. Read them before touching `src/`. Where a guide and those files disagree, they win.
+
+- [Outbound and Gmail settings review](outbound-and-settings-review.md) — evidence, current policy, and reopening criteria.

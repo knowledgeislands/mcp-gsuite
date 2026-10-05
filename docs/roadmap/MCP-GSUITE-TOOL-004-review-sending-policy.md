@@ -4,12 +4,12 @@ area: TOOL
 title: Review sending policy
 theme: tool-surface
 horizon: now
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: 87d94c75242f511c75a4824bef4454302e282286
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T07:36:17Z
+updated_at: 2026-10-05T07:40:11Z
 ---
 
 ## Goal
@@ -36,9 +36,9 @@ Source baseline is inspected before implementation. The current user instruction
 
 ## Steps
 
-- [ ] Deliver the bounded outcome: Write a durable review recommending retention of the existing draft-only policy. Assess explicit-send alternatives, recipient confirmation, retries/duplicate delivery, opt-in gates, and absent workflow evidence. No sending implementation or new policy permission.
-- [ ] Review safety, existing behavior, and documentation consistency; verify fixture-backed contracts.
-- [ ] Run sequential typecheck, tests, coverage, build, smoke and focused audits; produce the required Review packet.
+- [x] Deliver the bounded outcome: Write a durable review recommending retention of the existing draft-only policy. Assess explicit-send alternatives, recipient confirmation, retries/duplicate delivery, opt-in gates, and absent workflow evidence. No sending implementation or new policy permission.
+- [x] Review safety, existing behavior, and documentation consistency; verify fixture-backed contracts.
+- [x] Run sequential typecheck, tests, coverage, build, smoke and focused audits; produce the required Review packet.
 
 ## Files touched
 
@@ -69,6 +69,32 @@ Publish exact forwarding semantics and durable evaluation evidence in the approp
 ### Roadmap
 
 This exact item is selected and Ready under current outcome authority; delivery stops at Awaiting review for independent coordinator acceptance.
+
+## Review
+
+### Delivered
+
+Reviewed explicit-send alternatives and retained existing draft-only policy; no send tool or new permission introduced. Durable report records absent workflow evidence and explicit reopening criteria. Immutable execution baseline: `87d94c75242f511c75a4824bef4454302e282286`. Current outcome authority and the exact batch admit this bounded delivery; independent coordinator review owns closure.
+
+### Change Summary
+
+Delivered the planned item-specific files and documentation. Earlier Draft readiness discussion is historical; current approved scope is in Steps and the batch. No scopes, send policy, token boundaries, or live provider state changed.
+
+### Verification
+
+Typecheck, 24 test files / 525 tests, coverage at 100% on all metrics (720 branches), build, modern/legacy stdio smoke with 50 tools and no send, focused engineering/MCP/roadmap audits passed against the proposed combined delivery. No Google account, token, or live API operation was performed. Source review covered access annotations, fixture fidelity/bounds failures, and documented policy/evaluation evidence. Aggregate gates are rechecked by the coordinator before acceptance.
+
+### Outstanding concerns
+
+No unresolved concern within the admitted boundary. External live integration is independently retained as MCP-GSUITE-FND-002, Draft/Waiting-for; offline verification does not claim live provider success. Forwarding's explicit HTML/CID and unsupported nested-container limits are documented behavior rather than deferred hidden fidelity work.
+
+### Post-change review
+
+Goal and approved scope are satisfied by the item-specific delivery. Default outbound remains human-reviewed drafts; no new sending or settings permission was inferred. The exact resulting commit requires independent coordinator review before acceptance.
+
+### Mini recap
+
+Delivered the bounded outcome, verified offline and recorded limits honestly. Durable policy/evaluation conclusions live in the developer guide and forwarding semantics in user guidance; no other learning promotion is proposed.
 
 ## Discussion
 
