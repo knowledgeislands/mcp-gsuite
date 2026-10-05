@@ -3,13 +3,14 @@ id: MCP-GSUITE-FND-002
 area: FND
 title: Gated live verification
 theme: foundation-tooling
-horizon: waiting-for
-status: draft
+horizon: triage
+status: done
+intake_disposition: rejected
 blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T08:21:39Z
+updated_at: 2026-10-05T11:03:31Z
 ---
 
 ## Goal
@@ -32,9 +33,17 @@ The FND-008 local infrastructure delivery supplies [the typed runner](../../src/
 
 Source delivery commit `a07466c6c32380663ec2fa377f715b1704580ec0` ships the typed read-only harness and developer guide. Its offline verification passed 601 tests, all four 100% coverage metrics, TypeScript, build, Biome, Knip, modern/legacy 50-tool smoke and focused repository audits. Synthetic final-fetch transports verify actual Google SDK request construction and dedicated token-refresh persistence. No real account, credentials, consent or provider result was supplied or tested. This is local infrastructure evidence only.
 
-## Waiting-for condition
+## Historical waiting condition
 
-The principal must designate the disposable Google account email and dedicated credential source, confirm consent for the documented read-only run, and permit provider execution. Once those are supplied, run the shipped harness against that exact account and retain redacted evidence of identity verification and successful provider reads, including any missing scopes or provider errors. Synthetic fixtures cannot discharge this goal. Remain Waiting-for / Draft until those conditions are met.
+Before withdrawal, live verification required an explicitly designated disposable account, dedicated credentials, consent and authorised provider execution. The shipped offline harness did not discharge that real-account goal.
+
+## Intake disposition
+
+**Rejected.** When asked whether a disposable account was available for this read-only verification, the principal explicitly answered “3 no and I don't plan to”. The adopted prospective live run is therefore withdrawn rather than left indefinitely Waiting for an account the owner does not intend to supply. This terminal intake disposition records that decline; it does not report a performed or successful live test. The completed FND-008 infrastructure remains available as an optional, explicitly gated developer harness.
+
+## Done
+
+Recorded the owner's declined live-verification outcome as `horizon: triage`, `status: done`, `intake_disposition: rejected`, with `baseline_ref: null`. The principal's standing instruction authorises pruning eligible committed Done records; this closure commit must precede its separate prune-only commit. Updated the developer guide to state that no live verification is planned and that any future run needs fresh designation and authority. No account, token, consent or provider call was made.
 
 ## Discussion
 

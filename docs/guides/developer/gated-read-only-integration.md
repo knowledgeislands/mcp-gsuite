@@ -36,7 +36,7 @@ No send, draft creation, archive, mailbox mutation, Calendar mutation, Drive wri
 
 Success returns a JSON success flag, identity-verification flag and counts for labels, Calendar events and Drive files. A count describes only the fetched page, not the whole account. Failure returns a JSON failure flag and a fixed category: `disabled`, `configuration`, `credentials`, `identity` or `provider`. Exit status is zero only on complete success. Tokens, account email, file paths, labels, event descriptions, file names and raw provider errors are never emitted; a provider failure may mean consent, scopes or Google availability need separate investigation.
 
-Keep only the redacted result and an account/consent/run-authority reference as real-provider evidence. Successful synthetic tests establish guard behavior and SDK GET request construction, including page bounds and refresh persistence; they do not establish consent, scopes, network compatibility or provider responses for a real account. Real-provider verification remains pending until the designated account is supplied and this exact read-only run is authorised and verified.
+Keep only the redacted result and an account/consent/run-authority reference as real-provider evidence. Successful synthetic tests establish guard behavior and SDK GET request construction, including page bounds and refresh persistence; they do not establish consent, scopes, network compatibility or provider responses for a real account. The principal declined provisioning a disposable account and real-provider verification on 2026-10-05; no live verification is planned. The retained optional harness may be used only after fresh account designation and explicit execution authority.
 
 ## Legacy record and replay
 
