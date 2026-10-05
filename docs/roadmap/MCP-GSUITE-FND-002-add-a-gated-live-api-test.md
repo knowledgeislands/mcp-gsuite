@@ -3,13 +3,13 @@ id: MCP-GSUITE-FND-002
 area: FND
 title: Add gated API test
 theme: foundation-tooling
-horizon: soon
+horizon: waiting-for
 status: draft
 blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-04T18:01:50Z
+updated_at: 2026-10-05T07:36:17Z
 ---
 
 ## Goal
@@ -71,3 +71,7 @@ Prefer extending the existing record/replay script once a test identity and perm
 Which disposable Google account and local credential location should the gated live test use, and may it perform a draft create-and-delete round trip or only reads?
 
 Classified as an owner decision by the Fable reviewer under delegated autonomy (2026-10-04): The work needs a real test identity, consent and live API calls against a real mailbox, so it cannot be implemented or verified locally without them.
+
+### Outcome-window exclusion — 2026-10-05
+
+Waiting for an explicitly identified disposable Google test identity, credential source, and permitted live operation set. No live-call authority or test-account evidence was supplied; offline fixtures cannot discharge the stated live API goal. Remains Draft and excluded from this delivery window.
