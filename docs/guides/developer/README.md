@@ -12,3 +12,5 @@ These guides are for anyone changing this repository. They assume you can alread
 `AGENTS.md` and `CLAUDE.md` hold the invariants a change must not break: injectable configuration with no module-level environment reads, thin tool modules over implementations in `src/main/`, and the OAuth and data-safety rules. Read them before touching `src/`. Where a guide and those files disagree, they win.
 
 - [Outbound and Gmail settings review](outbound-and-settings-review.md) — evidence, current policy, and reopening criteria.
+
+- [Gated read-only integration](gated-read-only-integration.md) — explicit disposable-account checks, offline evidence and the real-provider boundary.

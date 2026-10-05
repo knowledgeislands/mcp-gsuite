@@ -9,7 +9,7 @@ blocks: []
 blocked_by: []
 baseline_ref: null
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T08:07:43Z
+updated_at: 2026-10-05T08:13:22Z
 ---
 
 ## Goal
@@ -26,7 +26,7 @@ No provider execution, account selection, token inspection or consent is authori
 
 ## Shaping
 
-[The gated harness child](MCP-GSUITE-FND-008-gated-read-only-integration-harness.md) is independently executable local infrastructure under the current outcome authority. Its approved plan supplies a separate typed command, explicit opt-in, expected disposable email, dedicated token-file path, injected trusted configuration, existing real handlers and Google SDK transport tests. This resolves local implementation choices without inventing real-account authority or live success.
+The FND-008 local infrastructure delivery supplies [the typed runner](../../src/main/integration-readonly/index.ts) and [the gated execution guide](../guides/developer/gated-read-only-integration.md), with a separate typed command, explicit opt-in, expected disposable email, dedicated token-file path, injected trusted configuration, existing real handlers and Google SDK transport tests. This resolves local implementation choices without inventing real-account authority or live success.
 
 ## Waiting-for condition
 
@@ -44,4 +44,4 @@ Historical commit `2597ac2b360b2dfecd1c0f3e05d5cd02805ffded` added record/replay
 
 ### Provider and credential boundary
 
-The harness will verify Gmail profile email before subsequent reads. OAuth refresh may atomically rewrite its dedicated local token store at mode 0600 using the existing auth implementation; no tokens or mailbox payloads may be recorded or reported. The command does not initiate consent or reuse the ordinary token-store default.
+The harness verifies Gmail profile email before subsequent reads. OAuth refresh may atomically rewrite its dedicated local token store at mode 0600 using the existing auth implementation; no tokens or mailbox payloads may be recorded or reported. The command does not initiate consent or reuse the ordinary token-store default.
