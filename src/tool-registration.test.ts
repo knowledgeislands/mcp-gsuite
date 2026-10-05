@@ -341,10 +341,11 @@ describe('registerDraftTools', () => {
     registerDraftTools(server, cfg)
   })
 
-  it('registers the five draft tools', () => {
+  it('registers the six draft tools', () => {
     expect(calls.map((c) => c.name).sort()).toEqual([
       'gsuite_email_draft_create',
       'gsuite_email_draft_delete',
+      'gsuite_email_draft_forward',
       'gsuite_email_draft_get',
       'gsuite_email_draft_update',
       'gsuite_email_drafts_list'
@@ -405,7 +406,7 @@ describe('registerHistoryTools', () => {
 })
 
 describe('combined registration (matches the brief)', () => {
-  it('the register*Tools functions expose exactly the 39 tools, with no send_* tool', () => {
+  it('the register*Tools functions expose exactly the 40 tools, with no send_* tool', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
@@ -424,6 +425,7 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_attachment_metadata',
       'gsuite_email_draft_create',
       'gsuite_email_draft_delete',
+      'gsuite_email_draft_forward',
       'gsuite_email_draft_get',
       'gsuite_email_draft_update',
       'gsuite_email_drafts_list',

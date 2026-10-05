@@ -116,6 +116,8 @@ For an initial acquisition, read a checkpoint before searching the mailbox, comp
 
 ### draft
 
+`gsuite_email_draft_forward` creates a draft with explicit recipients, quoted text and all original attachment bytes; inline parts become ordinary attachments. Maximum 50 attachments / 10 MiB; HTML/CID visual fidelity is not preserved. Never sends.
+
 | Tool | Level | Purpose |
 | --- | --- | --- |
 | `gsuite_email_draft_create` | `write` | Create a Gmail draft (saved, never sent).[^draft-shape] |

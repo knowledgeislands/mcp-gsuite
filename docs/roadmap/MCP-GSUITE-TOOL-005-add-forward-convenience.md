@@ -4,12 +4,12 @@ area: TOOL
 title: Add forward convenience
 theme: tool-surface
 horizon: now
-status: ready
+status: awaiting-review
 blocks: []
 blocked_by: []
-baseline_ref: null
+baseline_ref: 01dc0e74102c174133e0ac9dc408822e337a960a
 created_at: 2026-07-29T00:37:05Z
-updated_at: 2026-10-05T07:36:17Z
+updated_at: 2026-10-05T07:40:24Z
 ---
 
 ## Goal
@@ -34,12 +34,12 @@ Choose between a plain-text first delivery with explicitly selected regular atta
 
 ### Proposed delivery steps
 
-- [ ] Confirm forwarding fidelity, attachment selection/defaults, decoded-byte bounds, and explicit caller-supplied recipients; preserve draft-only behavior.
-- [ ] Shape a strict input schema and bounded result, with a clear rule for forward subjects, quoted original headers/body, and unsupported content.
-- [ ] Add the forwarding handler under `src/main/drafts/`, reusing existing MIME and error helpers; never stage source attachments on disk merely to reuse path-based draft inputs.
-- [ ] Register a write-annotated draft convenience through the existing gate and update registration/smoke inventory.
-- [ ] Verify recipient/header injection, nested MIME, attachment selection and bounds, missing provider data, unsupported inline content, and no send calls using isolated fixtures.
-- [ ] Update README and user guidance; run typecheck, tests, coverage, build, smoke, and focused engineering/MCP/roadmap audits before delivery review.
+- [x] Confirm forwarding fidelity, attachment selection/defaults, decoded-byte bounds, and explicit caller-supplied recipients; preserve draft-only behavior.
+- [x] Shape a strict input schema and bounded result, with a clear rule for forward subjects, quoted original headers/body, and unsupported content.
+- [x] Add the forwarding handler under `src/main/drafts/`, reusing existing MIME and error helpers; never stage source attachments on disk merely to reuse path-based draft inputs.
+- [x] Register a write-annotated draft convenience through the existing gate and update registration/smoke inventory.
+- [x] Verify recipient/header injection, nested MIME, attachment selection and bounds, missing provider data, unsupported inline content, and no send calls using isolated fixtures.
+- [x] Update README and user guidance; run typecheck, tests, coverage, build, smoke, and focused engineering/MCP/roadmap audits before delivery review.
 
 ### Expected files and documentation
 
@@ -51,9 +51,9 @@ Source baseline is inspected before implementation. The current user instruction
 
 ## Steps
 
-- [ ] Deliver the bounded outcome: Add gsuite_email_draft_forward with explicit recipients, quoted original plain-text body (HTML converted to text when no plain part exists), all original attachment bytes including inline parts as ordinary attachments, maximum 50 attachments and 10 MiB total decoded bytes, and documented loss of HTML/CID visual fidelity. Never send or write temporary attachment files. Reject unsupported/malformed parts instead of silently dropping attachment data.
-- [ ] Review safety, existing behavior, and documentation consistency; verify fixture-backed contracts.
-- [ ] Run sequential typecheck, tests, coverage, build, smoke and focused audits; produce the required Review packet.
+- [x] Deliver the bounded outcome: Add gsuite_email_draft_forward with explicit recipients, quoted original plain-text body (HTML converted to text when no plain part exists), all original attachment bytes including inline parts as ordinary attachments, maximum 50 attachments and 10 MiB total decoded bytes, and documented loss of HTML/CID visual fidelity. Never send or write temporary attachment files. Reject unsupported/malformed parts instead of silently dropping attachment data.
+- [x] Review safety, existing behavior, and documentation consistency; verify fixture-backed contracts.
+- [x] Run sequential typecheck, tests, coverage, build, smoke and focused audits; produce the required Review packet.
 
 ## Files touched
 
@@ -84,6 +84,32 @@ Publish exact forwarding semantics and durable evaluation evidence in the approp
 ### Roadmap
 
 This exact item is selected and Ready under current outcome authority; delivery stops at Awaiting review for independent coordinator acceptance.
+
+## Review
+
+### Delivered
+
+Added strict write-gated gsuite_email_draft_forward and library handler. Explicit recipients, quoted plain-text original, HTML text fallback, preserved attachment bytes including inline parts as ordinary attachments, at most 50 attachments and 10 MiB decoded total. Unsupported nested attachment containers and missing/inconsistent bytes fail explicitly rather than dropping data. No send or local filesystem staging. Immutable execution baseline: `01dc0e74102c174133e0ac9dc408822e337a960a`. Current outcome authority and the exact batch admit this bounded delivery; independent coordinator review owns closure.
+
+### Change Summary
+
+Delivered the planned item-specific files and documentation. Earlier Draft readiness discussion is historical; current approved scope is in Steps and the batch. No scopes, send policy, token boundaries, or live provider state changed.
+
+### Verification
+
+Typecheck, 24 test files / 525 tests, coverage at 100% on all metrics (720 branches), build, modern/legacy stdio smoke with 50 tools and no send, focused engineering/MCP/roadmap audits passed against the proposed combined delivery. No Google account, token, or live API operation was performed. Source review covered access annotations, fixture fidelity/bounds failures, and documented policy/evaluation evidence. Aggregate gates are rechecked by the coordinator before acceptance.
+
+### Outstanding concerns
+
+No unresolved concern within the admitted boundary. External live integration is independently retained as MCP-GSUITE-FND-002, Draft/Waiting-for; offline verification does not claim live provider success. Forwarding's explicit HTML/CID and unsupported nested-container limits are documented behavior rather than deferred hidden fidelity work.
+
+### Post-change review
+
+Goal and approved scope are satisfied by the item-specific delivery. Default outbound remains human-reviewed drafts; no new sending or settings permission was inferred. The exact resulting commit requires independent coordinator review before acceptance.
+
+### Mini recap
+
+Delivered the bounded outcome, verified offline and recorded limits honestly. Durable policy/evaluation conclusions live in the developer guide and forwarding semantics in user guidance; no other learning promotion is proposed.
 
 ## Discussion
 

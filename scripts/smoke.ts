@@ -22,6 +22,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio'
 const EXPECTED_TOOLS = [
   'gsuite_auth_start',
   'gsuite_email_draft_create',
+      'gsuite_email_draft_forward',
   'gsuite_email_draft_delete',
   'gsuite_email_draft_update',
   'gsuite_email_filter_create',

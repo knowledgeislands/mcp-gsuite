@@ -1,7 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/server'
 import { z } from 'zod'
 import type { Config } from '../../config/index.js'
-import { createDraft, deleteDraft, getDraft, listDrafts, updateDraft } from '../../main/drafts/index.js'
+import {
+  createDraft,
+  deleteDraft,
+  forwardDraft,
+  forwardInputSchema,
+  getDraft,
+  listDrafts,
+  updateDraft
+} from '../../main/drafts/index.js'
 import { DESTRUCTIVE_REMOTE, READ_ONLY_REMOTE, WRITE_IDEMPOTENT_REMOTE, WRITE_REMOTE } from '../../utils/annotations.js'
 import { bodyTextSchema, idSchema, querySchema, shortTextSchema } from '../../utils/schemas.js'
 
@@ -151,6 +159,23 @@ export const registerDraftTools = (server: McpServer, cfg: Config): void => {
       annotations: DESTRUCTIVE_REMOTE
     },
     (args) => deleteDraft(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_draft_forward',
+    {
+      description:
+        'Create a forward draft with explicit recipients, quoted plain text and all original attachments (inline parts become ordinary attachments). Never sends. Maximum 50 attachments and 10 MiB decoded attachment bytes; HTML/CID visual layout is not preserved.',
+      inputSchema: forwardInputSchema,
+      outputSchema: z.object({
+        draftId: z.string().optional(),
+        attachmentCount: z.number(),
+        attachmentBytes: z.number(),
+        fidelity: z.string()
+      }),
+      annotations: WRITE_REMOTE
+    },
+    (args) => forwardDraft(cfg, args)
   )
 
   server.registerTool(

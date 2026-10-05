@@ -78,3 +78,9 @@ Drive access is read-only by scope: the default scope set requests `drive.readon
 ## Recovery
 
 If a call fails rather than returning an empty result, [Troubleshooting](troubleshooting.md) covers the common causes. An empty result is usually a query problem — reach for the label caveat above first.
+
+## Forward a message for review
+
+Call `gsuite_email_draft_forward` with a source `messageId` and an explicit `to` list. It creates a new draft, quoting the original headers and plain-text body; HTML-only messages are converted to text. All original attachment bytes are retained, including inline parts as ordinary attachments. HTML layout and CID inline-image placement are not preserved; review the resulting draft in Gmail before sending.
+
+The tool accepts at most 50 attachments and 10 MiB total decoded attachment bytes, and rejects missing, malformed or inconsistent attachment metadata rather than silently dropping content. It writes no temporary files and never sends mail. Existing draft-create/reply behavior is unchanged; no client migration is required.

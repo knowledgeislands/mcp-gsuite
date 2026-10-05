@@ -313,3 +313,5 @@ export const deleteDraft = async (cfg: Config, { draftId, dry_run }: { draftId: 
     return errorResult('deleting draft', err)
   }
 }
+
+export { forwardDraft, forwardInputSchema } from './forward.js'
