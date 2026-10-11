@@ -1,5 +1,7 @@
 # Outbound and Gmail settings review
 
+This review keeps the server draft-only and leaves Gmail settings, resources and Send-As unchanged, and it records what evidence would justify reopening each decision.
+
 ## Sending policy review
 
 The supported outbound workflow composes a draft, then the user reviews it in Gmail and sends it there. Existing reply/reply-all and forwarding conveniences support that workflow. No recorded client requirement establishes that this human review step is inadequate. The current tool surface and smoke invariant deliberately exclude sending at every tier; Google OAuth scopes permitting send do not grant agent permission to send.

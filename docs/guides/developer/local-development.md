@@ -1,6 +1,6 @@
 # Local development
 
-Use this guide to run the server from source and to verify a change before handing it off.
+With this guide you can run the Google Workspace MCP server and its OAuth helper from source, then verify a change through the same gates CI applies before handing it off.
 
 ## Before you begin
 
