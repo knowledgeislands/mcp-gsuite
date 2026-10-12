@@ -1,5 +1,5 @@
 // Generated on 2026-10-01T05:31:35.440Z by @knowledgeislands/mcp-gsuite@0.9.0
-// Server: kit-mcp-gsuite
+// Server: kb-mcp-gsuite
 // Source: /Users/krisbrown/.mcporter/mcporter.json
 // Transport: STDIO /Users/krisbrown/.local/share/mise/shims/node /Users/krisbrown/workspaces/kit/knowledgeislands/mcp-gsuite/dist/mcp-server/index.js
 

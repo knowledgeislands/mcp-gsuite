@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Generated on 2026-10-01T05:31:35.440Z by @knowledgeislands/mcp-gsuite@0.9.0
-// Server: kit-mcp-gsuite
+// Server: kb-mcp-gsuite
 // Source: /Users/krisbrown/.mcporter/mcporter.json
 // Transport: STDIO /Users/krisbrown/.local/share/mise/shims/node /Users/krisbrown/workspaces/kit/knowledgeislands/mcp-gsuite/dist/mcp-server/index.js
 
@@ -377,7 +377,7 @@ export async function createKitMcpGsuiteClient(options: CreateClientOptions = {}
     rootDir: options.rootDir,
   }));
   const ownsRuntime = !options.runtime;
-  const proxy = createServerProxy(runtime, "kit-mcp-gsuite");
+  const proxy = createServerProxy(runtime, "kb-mcp-gsuite");
   const tools = proxy as typeof proxy & { [K in keyof KitMcpGsuiteTools]: (params: unknown) => Promise<CallResult> };
   const client: KitMcpGsuiteClient = {
     async gsuite_about(params) {
@@ -550,7 +550,7 @@ export async function createKitMcpGsuiteClient(options: CreateClientOptions = {}
 
     async close() {
       if (ownsRuntime) {
-        await runtime.close("kit-mcp-gsuite").catch(() => {});
+        await runtime.close("kb-mcp-gsuite").catch(() => {});
       }
     },
   };
