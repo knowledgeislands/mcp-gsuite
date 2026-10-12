@@ -15,9 +15,9 @@ repo_type = "project"
 primary_shape = "ki-repo-mcp"
 repository = "https://github.com/knowledgeislands/mcp-gsuite"
 title = "mcp-gsuite"
-capital = "https://github.com/knowledgeislands/ki-arcadia-principal"
+capital = "https://github.com/knowledgeislands/ki-principal"
 description = "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API."
-repo_code = "MCP-GSUITE"
+repo_code = "KI-MCP-GSUITE"
 supported_runtimes = [
   "claude-code",
   "claude-desktop",
