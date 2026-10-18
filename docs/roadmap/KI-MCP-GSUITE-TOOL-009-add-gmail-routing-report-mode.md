@@ -9,7 +9,7 @@ blocks: []
 blocked_by: [KI-MCP-GSUITE-TOOL-008]
 baseline_ref: null
 created_at: 2026-10-18T00:25:46Z
-updated_at: 2026-10-18T00:25:46Z
+updated_at: 2026-10-18T00:53:18Z
 ---
 
 ## Goal
@@ -29,13 +29,13 @@ The owner decided on 18 October 2026:
 
 Report mode only: no label change, trash, star or read-state write, and no `mode: apply`. Read the rule note fresh on each call from its configured path; this server never decides where that note lives. The configuration itself, routing roots, rules and tracking paths, is set in the machine configuration under separate work.
 
-Where the rule note lives is still open (the PERSONAL-RULES question), as is where the canonical engine lives (ENGINE-HOME). This record presumes neither: it needs only a configured rules path and the core as [KI-MCP-GSUITE-TOOL-008](KI-MCP-GSUITE-TOOL-008-consume-the-routing-core.md) delivers it.
+Both placement questions are answered (18 October 2026). The canonical engine stays in `mcp-m365` and arrives here vendored, as [KI-MCP-GSUITE-TOOL-008](KI-MCP-GSUITE-TOOL-008-consume-the-routing-core.md) delivers it (ENGINE-HOME). The first rule note replaces the inherited `Email Routing Rules` note in the personal knowledge base (PERSONAL-RULES). This record still never hard-codes that path: it reads whatever rules path the machine configuration sets.
 
 ## Shaping
 
 - **Approach:** a label map (name to id), the single-routing-label invariant, Gmail search for listing, Sent and thread lookups, `text/calendar` `METHOD` detection into `calendarMethod`, and the two report-mode tools under the existing `read` access level.
 - **Dependencies:** KI-MCP-GSUITE-TOOL-008; the routing configuration on the server; a rule note at the configured path.
-- **Open decisions:** PERSONAL-RULES, for the note's path only; the tag prefix the categories block declares.
+- **Open decisions:** the tag prefix the categories block declares.
 - **Promotion to Next:** TOOL-008 delivered and a rule note available to lint against.
 
 ## Discussion

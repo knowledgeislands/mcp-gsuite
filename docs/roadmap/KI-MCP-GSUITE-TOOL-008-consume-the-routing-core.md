@@ -9,7 +9,7 @@ blocks: [KI-MCP-GSUITE-TOOL-009]
 blocked_by: []
 baseline_ref: null
 created_at: 2026-10-18T00:25:46Z
-updated_at: 2026-10-18T00:25:46Z
+updated_at: 2026-10-18T00:53:18Z
 ---
 
 ## Goal
@@ -24,20 +24,24 @@ The [Gmail routing design](/Users/krisbrown/workspaces/humans-not-robots/hnr-pri
 
 Take the core and prove it unchanged; no Gmail behaviour, no tools and no mailbox access. The core's rule semantics stay owned by the rule-language specification, which this server conforms to as an email-handling implementation.
 
-How the core arrives is still open (the ENGINE-HOME question). The design recommends a vendored, byte-identical copy with a manifest of source revision and SHA-256 digests in the `ki-repo-mcp` shared-code format, which this repository already uses for its access-gate code. The alternatives are a pinned Git reference to a separate repository, or a published package, which needs the owner's approval. This record does not presume the answer: its deliverable is the consumer side of whichever the owner chooses.
+The core arrives by vendoring (ENGINE-HOME, answered 18 October 2026): a byte-identical copy of `mcp-m365`'s provider-free core directory, with the manifest of source revision and SHA-256 digests that [KI-MCP-M365-TOOL-020](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md) publishes, in the `ki-repo-mcp` shared-code format this repository already uses for its access-gate code. This record's deliverable is the consumer side: the vendored copy, its manifest, and a drift check in the gates. Fixes go to the canonical copy in `mcp-m365` and are re-vendored, never edited here. No pinned Git reference or package dependency is added.
 
 ## Shaping
 
-- **Approach:** after ENGINE-HOME, either vendor the core with its manifest and drift check, or add the pinned dependency and a revision check.
+- **Approach:** vendor the core from a named `mcp-m365` revision with its manifest, and add the drift check that compares the copy against the manifest and the manifest against that revision.
 - **Dependencies:** KI-MCP-M365-TOOL-018 and KI-MCP-M365-TOOL-020 delivered.
-- **Open decisions:** ENGINE-HOME.
-- **Promotion to Next:** ENGINE-HOME answered and the core available at a named revision.
+- **Open decisions:** none.
+- **Promotion to Next:** the core and its manifest available at a named `mcp-m365` revision.
 
 ## Discussion
 
 ### Verification
 
 The drift check passes on a fresh copy and fails when one byte of the copy or the manifest changes; the core's own tests run here unchanged against its fixtures.
+
+### Engine home
+
+The owner answered ENGINE-HOME with option a) on 18 October 2026 (Decision 21 in the email-routing thread's [decisions](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_THREADS/email-routing/decisions.md)): canonical engine in `mcp-m365` in a provider-free directory behind a provider port, vendored here with a SHA-256 manifest and a drift check. A separate repository waits until a third provider appears.
 
 ### Intake authority
 
