@@ -3,13 +3,16 @@ id: KI-MCP-GSUITE-TOOL-009
 area: TOOL
 title: Add Gmail routing report-mode
 kind: deliver
-horizon: soon
+horizon: hold
+hold:
+  reason: waiting-for
+  condition: until a Project opens to own email routing (LANE-OWNERS, Kris, 19 October)
 status: draft
 blocks: []
 blocked_by: [KI-MCP-GSUITE-TOOL-008]
 baseline_ref: null
 created_at: 2026-10-18T00:25:46Z
-updated_at: 2026-10-18T00:53:18Z
+updated_at: 2026-10-19T22:46:57Z
 ---
 
 ## Goal
@@ -37,6 +40,10 @@ Both placement questions are answered (18 October 2026). The canonical engine st
 - **Dependencies:** KI-MCP-GSUITE-TOOL-008; the routing configuration on the server; a rule note at the configured path.
 - **Open decisions:** the tag prefix the categories block declares.
 - **Promotion to Next:** TOOL-008 delivered and a rule note available to lint against.
+
+## Hold
+
+Held until a Project opens to own email routing (LANE-OWNERS, Kris, 19 October). Kris answered LANE-OWNERS a) on 19 October 2026: the email-routing draft records in mcp-m365 and mcp-gsuite wait in one hold until a Project opens to own them. The record was at `horizon: soon` before the hold; release chooses a horizon afresh once that Project exists.
 
 ## Discussion
 

@@ -3,13 +3,16 @@ id: KI-MCP-GSUITE-TOOL-008
 area: TOOL
 title: Consume the routing core
 kind: deliver
-horizon: soon
+horizon: hold
+hold:
+  reason: waiting-for
+  condition: until a Project opens to own email routing (LANE-OWNERS, Kris, 19 October)
 status: draft
 blocks: [KI-MCP-GSUITE-TOOL-009]
 blocked_by: []
 baseline_ref: null
 created_at: 2026-10-18T00:25:46Z
-updated_at: 2026-10-18T00:53:18Z
+updated_at: 2026-10-19T22:46:57Z
 ---
 
 ## Goal
@@ -32,6 +35,10 @@ The core arrives by vendoring (ENGINE-HOME, answered 18 October 2026): a byte-id
 - **Dependencies:** KI-MCP-M365-TOOL-018 and KI-MCP-M365-TOOL-020 delivered.
 - **Open decisions:** none.
 - **Promotion to Next:** the core and its manifest available at a named `mcp-m365` revision.
+
+## Hold
+
+Held until a Project opens to own email routing (LANE-OWNERS, Kris, 19 October). Kris answered LANE-OWNERS a) on 19 October 2026: the email-routing draft records in mcp-m365 and mcp-gsuite wait in one hold until a Project opens to own them. The record was at `horizon: soon` before the hold; release chooses a horizon afresh once that Project exists.
 
 ## Discussion
 
