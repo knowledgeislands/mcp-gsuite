@@ -18,7 +18,7 @@ This server holds an exact, checked revision of the shared mailbox-neutral routi
 
 ## Context
 
-The [Gmail routing design](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_THREADS/email-routing/2026-10-17-gmail-routing-design.md) reuses the routing engine `mcp-m365` runs, about 80% of which is already provider-free, rather than writing a second engine. `mcp-m365` gathers that core behind a provider port in [KI-MCP-M365-TOOL-018](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-018-extract-the-routing-core.md) and makes it available to other servers in [KI-MCP-M365-TOOL-020](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md). This is the design's task 4, in phase 1.
+The [Gmail routing design](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_WORK/hnr.email-routing/design/2026-10-17-gmail-routing-design.md) reuses the routing engine `mcp-m365` runs, about 80% of which is already provider-free, rather than writing a second engine. `mcp-m365` gathers that core behind a provider port in [KI-MCP-M365-TOOL-018](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-018-extract-the-routing-core.md) and makes it available to other servers in [KI-MCP-M365-TOOL-020](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md). This is the design's task 4, in phase 1.
 
 ## Boundary
 
@@ -41,7 +41,7 @@ The drift check passes on a fresh copy and fails when one byte of the copy or th
 
 ### Engine home
 
-The owner answered ENGINE-HOME with option a) on 18 October 2026 (Decision 21 in the email-routing thread's [decisions](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_THREADS/email-routing/decisions.md)): canonical engine in `mcp-m365` in a provider-free directory behind a provider port, vendored here with a SHA-256 manifest and a drift check. A separate repository waits until a third provider appears.
+The owner answered ENGINE-HOME with option a) on 18 October 2026 (Decision 21 in the email-routing thread's [decisions](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_WORK/hnr.email-routing/decisions.md)): canonical engine in `mcp-m365` in a provider-free directory behind a provider port, vendored here with a SHA-256 manifest and a drift check. A separate repository waits until a third provider appears.
 
 ### Intake authority
 
