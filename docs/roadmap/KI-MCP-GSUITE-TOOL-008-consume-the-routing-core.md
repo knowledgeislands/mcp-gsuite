@@ -12,7 +12,7 @@ blocks: [KI-MCP-GSUITE-TOOL-009]
 blocked_by: []
 baseline_ref: null
 created_at: 2026-10-18T00:25:46Z
-updated_at: 2026-10-19T23:24:19Z
+updated_at: 2026-10-20T05:51:40Z
 ---
 
 ## Goal
@@ -21,13 +21,13 @@ This server holds an exact, checked revision of the shared mailbox-neutral routi
 
 ## Context
 
-The [Gmail routing design](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_WORK/hnr.email-routing/design/2026-10-17-gmail-routing-design.md) reuses the routing engine `mcp-m365` runs, about 80% of which is already provider-free, rather than writing a second engine. `mcp-m365` gathers that core behind a provider port in [KI-MCP-M365-TOOL-018](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-018-extract-the-routing-core.md) and makes it available to other servers in [KI-MCP-M365-TOOL-020](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md). This is the design's task 4, in phase 1.
+The [Gmail routing design](/Users/krisbrown/workspaces/humans-not-robots/hnr-principal/+/_WORK/hnr.email-routing/design/2026-10-17-gmail-routing-design.md) reuses the routing engine `mcp-m365` runs, about 80% of which is already provider-free, rather than writing a second engine. `mcp-m365` gathers that core behind a provider port in [KI-MCP-M365-TOOL-018](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-018-extract-the-routing-core.md) and makes it available to other servers in the same record, which absorbed [KI-MCP-M365-TOOL-020 (pruned)](https://github.com/knowledgeislands/mcp-m365/blob/f06d3ddb/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md) on 20 October 2026. This is the design's task 4, in phase 1.
 
 ## Boundary
 
 Take the core and prove it unchanged; no Gmail behaviour, no tools and no mailbox access. The core's rule semantics stay owned by the rule-language specification, which this server conforms to as an email-handling implementation.
 
-The core arrives by vendoring (ENGINE-HOME, answered 18 October 2026): a byte-identical copy of `mcp-m365`'s provider-free core directory, with the manifest of source revision and SHA-256 digests that [KI-MCP-M365-TOOL-020](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md) publishes, in the `ki-repo-mcp` shared-code format this repository already uses for its access-gate code. This record's deliverable is the consumer side: the vendored copy, its manifest, and a drift check in the gates. Fixes go to the canonical copy in `mcp-m365` and are re-vendored, never edited here. No pinned Git reference or package dependency is added.
+The core arrives by vendoring (ENGINE-HOME, answered 18 October 2026): a byte-identical copy of `mcp-m365`'s provider-free core directory, with the manifest of source revision and SHA-256 digests that [KI-MCP-M365-TOOL-018](/Users/krisbrown/workspaces/knowledge-islands/mcp-m365/docs/roadmap/KI-MCP-M365-TOOL-018-extract-the-routing-core.md) publishes, having absorbed [KI-MCP-M365-TOOL-020 (pruned)](https://github.com/knowledgeislands/mcp-m365/blob/f06d3ddb/docs/roadmap/KI-MCP-M365-TOOL-020-distribute-the-routing-core.md), in the `ki-repo-mcp` shared-code format this repository already uses for its access-gate code. This record's deliverable is the consumer side: the vendored copy, its manifest, and a drift check in the gates. Fixes go to the canonical copy in `mcp-m365` and are re-vendored, never edited here. No pinned Git reference or package dependency is added.
 
 ## Shaping
 
