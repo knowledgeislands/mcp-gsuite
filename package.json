@@ -133,7 +133,7 @@
     "ki:test:record": "mcporter record gsuite-integration --server kb-mcp-gsuite -- bun scripts/integration.ts && cp ~/.mcporter/recordings/gsuite-integration.ndjson fixtures/recordings/gsuite-integration.ndjson",
     "ki:test:replay": "cp fixtures/recordings/gsuite-integration.ndjson ~/.mcporter/recordings/gsuite-integration.ndjson && mcporter replay gsuite-integration -- bun scripts/integration.ts",
     "ki:test:smoke": "bun run build && bun scripts/smoke.ts",
-    "prepare": "git config core.hooksPath .githooks && bun install --frozen-lockfile --cwd tooling/boundaries",
+    "prepare": "git config core.hooksPath .githooks && bun install --frozen-lockfile --cwd tooling/depcruise",
     "self:test:integration:readonly": "bun --no-env-file scripts/integration-readonly.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
