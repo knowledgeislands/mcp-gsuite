@@ -15,6 +15,8 @@ created_at: 2026-10-18T00:25:46Z
 updated_at: 2026-10-19T23:24:19Z
 ---
 
+> **Idea, not on the roadmap.** Let the owner lint a Gmail rule note against the live labels and see where the shared rules would file each Inbox message without changing the mailbox; follows consuming the routing core. Moved out of `docs/roadmap/` on 27 October 2026 under the roadmap sweep, with its record kept in full here so that it can return when Kris brings it back; it was `KI-MCP-GSUITE-TOOL-009`.
+
 ## Goal
 
 The owner can lint a Gmail rule note against the live label list and see, without any mailbox change, where the shared routing rules would file each Inbox message.
