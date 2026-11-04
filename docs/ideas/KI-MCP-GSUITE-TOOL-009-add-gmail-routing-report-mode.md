@@ -66,3 +66,7 @@ Adapter fixture tests for the label invariant, `ambiguous-location`, `unsupporte
 ### Intake authority
 
 Captured on 18 October 2026 under the owner's CAPTURE-RECORDS answer, "Phases 0-1 only", with the GMAIL-ACCOUNT and NATIVE-FILTERS answers folded in. The horizon is the capturing agent's placement, not the owner's. Capture grants no priority, Ready transition, implementation, acceptance or publication authority.
+
+### Machine configuration follow-on
+
+When this returns, the personal routing paths (`MCP_GSUITE_TRIAGE_ROOTS`, `MCP_GSUITE_TRIAGE_RULES_PATH`, `MCP_GSUITE_TRIAGE_TRACKING_PATH` and, if attachments are saved, `MCP_GSUITE_ATTACHMENT_ROOTS`) go on the `kb-mcp-gsuite` entry in the chezmoi dotfiles' `.chezmoidata/mcp-servers.yaml`. That was PERSONAL-DOTFILES-UE-097, cancelled on 4 November 2026 while this is an idea; capture it there again with this record.
