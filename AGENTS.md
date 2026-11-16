@@ -51,7 +51,7 @@ This dependency direction is enforced, not just described: [.dependency-cruiser.
 
 ### Naming convention
 
-Tool names follow `<app>_<resource>_<action>` (snake_case) with `<app>` = `gmail`. Plural resource for collection ops, singular for single-item ops. The auth tools (`gsuite_about`, `gsuite_auth_start`, `gsuite_auth_status`) are server-level metadata and drop the resource segment.
+Tool names follow `<app>_<resource>_<action>` (snake_case) with `<app>` = `gsuite`. Plural resource for collection ops, singular for single-item ops. The auth tools (`gsuite_about`, `gsuite_auth_start`, `gsuite_auth_status`) are server-level metadata and drop the resource segment.
 
 ### Access-level gate — driven by annotations, not names
 
