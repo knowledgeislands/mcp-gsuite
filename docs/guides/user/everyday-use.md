@@ -49,9 +49,9 @@ If a filter returns zero results and you are sure it should not, suspect the lab
 
 ## Handle attachments
 
-Ask for an attachment and the client picks between two tools. `gsuite_email_attachment_metadata` returns the filename, MIME type and size without downloading any bytes — the right first move for anything that might be large. `gsuite_email_attachment_get` downloads it, writing to disk when given an `outputPath` and returning the bytes inline otherwise.
+Ask for an attachment and the client picks between three tools. `gsuite_email_attachment_metadata` returns the filename, MIME type and size without downloading any bytes — the right first move for anything that might be large. `gsuite_email_attachment_get` downloads it and returns the bytes inline. `gsuite_email_attachment_save` writes it to a new file at `outputPath` instead; it needs the `write` access level, because it writes to disk, and it refuses to overwrite a file that is already there.
 
-Inline responses are capped at 256 KiB by default, because the encoded form travels through the MCP response envelope. Above that, the download has to go to disk. Written files are confined beneath `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`); a path that escapes that root, lexically or through a symlink, is rejected.
+Inline responses are capped at 256 KiB by default, because the encoded form travels through the MCP response envelope. Above that, the download has to go to disk with `gsuite_email_attachment_save`. Written files are confined beneath `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`); a path that escapes that root, lexically or through a symlink, is rejected.
 
 For a whole message as a file, `gsuite_email_message_raw` writes RFC 2822 source to a new `.eml` path without the body ever passing through the response. It needs the `write` access level, because it writes to disk, and it refuses to overwrite a file that is already there.
 

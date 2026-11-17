@@ -445,6 +445,23 @@ describe('handleGetRawMessage', () => {
     expect(fs.readFileSync(outputPath, 'utf8')).toBe('already here')
   })
 
+  it('reports other write failures as an error result', async () => {
+    const lockedDir = path.join(tmpDir, 'locked')
+    fs.mkdirSync(lockedDir)
+    fs.chmodSync(lockedDir, 0o500)
+    const gmail = makeGmail()
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', raw: b64('x') } })
+    gmailServiceMock.mockReturnValue(gmail)
+
+    try {
+      const r = await handleGetRawMessage({ messageId: 'm1', outputPath: path.join(lockedDir, 'm.eml') })
+      expect(r).toHaveProperty('isError', true)
+      expect(r.content[0].text).toMatch(/EACCES/)
+    } finally {
+      fs.chmodSync(lockedDir, 0o700)
+    }
+  })
+
   it('returns an error result when the API omits the raw field', async () => {
     const gmail = makeGmail()
     ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1' } })

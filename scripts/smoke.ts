@@ -51,6 +51,7 @@ const EXPECTED_TOOLS = [
   'gsuite_about',
   'gsuite_email_attachment_get',
   'gsuite_email_attachment_metadata',
+  'gsuite_email_attachment_save',
   'gsuite_auth_status',
   'gsuite_email_draft_get',
   'gsuite_email_drafts_list',

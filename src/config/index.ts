@@ -85,18 +85,18 @@ export interface Config {
   auditLogMaxBytes: number
   auditLogKeep: number
   /**
-   * Filesystem root where tools that take `outputPath` (attachment_get,
-   * message_get_raw) are allowed to write. Defaults to ~/Downloads; override
+   * Filesystem root where tools that take `outputPath` (attachment_save,
+   * message_raw) are allowed to write. Defaults to ~/Downloads; override
    * with MCP_GSUITE_DOWNLOAD_PATH. Any caller-provided `outputPath` is resolved
    * relative to this root and rejected if it escapes (lexically or via symlink).
    */
   downloadPath: string
   /**
-   * Maximum size (in decoded bytes) for inline `attachment_get` responses (no
-   * `outputPath`). The base64url-encoded form in the JSON response is ~1.33× this,
+   * Maximum size (in decoded bytes) for inline `attachment_get` responses.
+   * The base64url-encoded form in the JSON response is ~1.33× this,
    * so the default 256 KiB caps the on-wire size around 350 KB — well below the
    * MCP stdio transport's practical envelope. Above this, callers must use
-   * `outputPath` to write to disk instead. Override with
+   * `attachment_save` to write to disk instead. Override with
    * MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES (positive integer).
    */
   inlineAttachmentMaxBytes: number

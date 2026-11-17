@@ -1,8 +1,8 @@
 /**
  * Attachment operations against the Gmail API. Each entry point takes the
- * loaded `Config` as its first argument; inline responses are capped at
- * `cfg.inlineAttachmentMaxBytes` and `outputPath` writes are confined to
- * `cfg.downloadPath`.
+ * loaded `Config` as its first argument. `getAttachment` returns bytes inline,
+ * capped at `cfg.inlineAttachmentMaxBytes`; `saveAttachment` writes them to a
+ * new file confined to `cfg.downloadPath`, never overwriting.
  */
 import fs from 'node:fs'
 import * as fsp from 'node:fs/promises'
@@ -17,7 +17,7 @@ const inlineTooLargeError = (inlineMax: number, sizeBytes: number): ReturnType<t
   return errorResult(
     'getting attachment',
     new Error(
-      `Attachment is ${sizeBytes}B which exceeds the inline cap of ${inlineMax}B. Re-call with \`outputPath\` to write the bytes to disk under MCP_GSUITE_DOWNLOAD_PATH instead, or raise MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES if you understand the response-size implications.`
+      `Attachment is ${sizeBytes}B which exceeds the inline cap of ${inlineMax}B. Use \`gsuite_email_attachment_save\` to write the bytes to disk under MCP_GSUITE_DOWNLOAD_PATH instead, or raise MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES if you understand the response-size implications.`
     )
   )
 }
@@ -52,27 +52,43 @@ export const getAttachmentMetadata = async (
   }
 }
 
+export const saveAttachment = async (
+  cfg: Config,
+  { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath: string }
+) => {
+  try {
+    // The caller already has filename/mimeType from get_message and wants the
+    // decoded bytes on disk, so skip the message metadata fetch. Validate
+    // outputPath against downloadPath before any API call so an unauthorised
+    // target fails fast.
+    await fsp.mkdir(cfg.downloadPath, { recursive: true })
+    const resolved = await assertOutputPathWithinDownloadRoot(cfg.downloadPath, outputPath)
+    const gmail = gmailService(cfg.auth)
+    const att = await gmail.users.messages.attachments.get({ userId: 'me', messageId, id: attachmentId })
+    const bytes = Buffer.from(att.data.data ?? '', 'base64url')
+    await fsp.mkdir(path.dirname(resolved), { recursive: true })
+    // `wx`: never overwrite. The tool is marked non-destructive, so it must
+    // not be able to replace a file that is already there.
+    try {
+      fs.writeFileSync(resolved, bytes, { flag: 'wx' })
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+        throw new Error(`Output file already exists: "${outputPath}"`)
+      }
+      throw err
+    }
+    return jsonResult({ messageId, path: resolved, sizeBytes: bytes.length })
+  } catch (err) {
+    return errorResult('saving attachment', err)
+  }
+}
+
 export const getAttachment = async (
   cfg: Config,
-  { messageId, attachmentId, outputPath }: { messageId: string; attachmentId: string; outputPath?: string }
+  { messageId, attachmentId }: { messageId: string; attachmentId: string }
 ) => {
   try {
     const gmail = gmailService(cfg.auth)
-
-    // outputPath path: caller already has filename/mimeType from get_message
-    // and wants the decoded bytes on disk. Skip the message metadata fetch
-    // entirely — saves a round-trip and avoids the lookup-mismatch failure
-    // mode that motivated bug 1. Validate outputPath against downloadPath
-    // before any API call so an unauthorised target fails fast.
-    if (outputPath) {
-      await fsp.mkdir(cfg.downloadPath, { recursive: true })
-      const resolved = await assertOutputPathWithinDownloadRoot(cfg.downloadPath, outputPath)
-      const att = await gmail.users.messages.attachments.get({ userId: 'me', messageId, id: attachmentId })
-      const bytes = Buffer.from(att.data.data ?? '', 'base64url')
-      await fsp.mkdir(path.dirname(resolved), { recursive: true })
-      fs.writeFileSync(resolved, bytes)
-      return jsonResult({ messageId, path: resolved, sizeBytes: bytes.length })
-    }
 
     // Inline path: fetch the message so we can populate filename/mimeType.
     // The part lookup is best-effort — Gmail's attachments.get is the source

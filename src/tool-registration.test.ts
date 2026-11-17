@@ -284,15 +284,44 @@ describe('registerAttachmentTools', () => {
     registerAttachmentTools(server, cfg)
   })
 
-  it('registers both attachment tools', () => {
-    expect(calls.map((c) => c.name).sort()).toEqual(['gsuite_email_attachment_get', 'gsuite_email_attachment_metadata'])
+  it('registers the three attachment tools', () => {
+    expect(calls.map((c) => c.name).sort()).toEqual([
+      'gsuite_email_attachment_get',
+      'gsuite_email_attachment_metadata',
+      'gsuite_email_attachment_save'
+    ])
   })
 
-  it("'gsuite_email_attachment_get' requires messageId + attachmentId", () => {
+  it("'gsuite_email_attachment_get' takes only messageId + attachmentId and stays read-only", () => {
     const c = calls.find((c) => c.name === 'gsuite_email_attachment_get')
-    const shape = shapeOf(c?.config.inputSchema)
-    expect(shape).toHaveProperty('messageId')
-    expect(shape).toHaveProperty('attachmentId')
+    expect(shapeOf(c?.config.inputSchema)).toEqual({ messageId: expect.anything(), attachmentId: expect.anything() })
+    expect(c?.config.annotations).toMatchObject({ readOnlyHint: true })
+  })
+
+  it("'gsuite_email_attachment_save' requires outputPath and is a non-destructive write", () => {
+    const c = calls.find((c) => c.name === 'gsuite_email_attachment_save')
+    expect(shapeOf(c?.config.inputSchema)).toEqual({
+      messageId: expect.anything(),
+      attachmentId: expect.anything(),
+      outputPath: expect.anything()
+    })
+    expect(c?.config.annotations).toEqual(WRITE_IDEMPOTENT_REMOTE)
+  })
+
+  it('registers attachment_save at write but not at read, and attachment_get at both', () => {
+    const namesAt = (level: 'read' | 'write') => {
+      const { server: gated, calls: gatedCalls } = makeMockServer()
+      gated.registerTool = makeAccessGatedRegister(gated, level, {
+        mode: 'off',
+        path: '/nonexistent/audit.jsonl',
+        maxBytes: 1,
+        keep: 1
+      })
+      registerAttachmentTools(gated, cfg)
+      return gatedCalls.map((c) => c.name)
+    }
+    expect(namesAt('read')).toEqual(['gsuite_email_attachment_get', 'gsuite_email_attachment_metadata'])
+    expect(namesAt('write')).toContain('gsuite_email_attachment_save')
   })
 
   it("'gsuite_email_attachment_metadata' takes messageId + attachmentId", () => {
@@ -427,7 +456,7 @@ describe('registerHistoryTools', () => {
 })
 
 describe('combined registration (matches the brief)', () => {
-  it('the register*Tools functions expose exactly the 40 tools, with no send_* tool', () => {
+  it('the register*Tools functions expose exactly the 41 tools, with no send_* tool', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
@@ -444,6 +473,7 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_auth_status',
       'gsuite_email_attachment_get',
       'gsuite_email_attachment_metadata',
+      'gsuite_email_attachment_save',
       'gsuite_email_draft_create',
       'gsuite_email_draft_delete',
       'gsuite_email_draft_forward',

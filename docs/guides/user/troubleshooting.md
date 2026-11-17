@@ -81,7 +81,7 @@ Also check whether you are looking at one page of results: a paginated response 
 
 ## An attachment download is refused
 
-Two limits apply. An inline download is capped at 256 KiB of decoded bytes; above that the attachment must be written to disk with `outputPath`. And any `outputPath` is resolved beneath `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) and rejected if it escapes that root, lexically or through a symlink. Both are adjustable — see [Configure the server](configuration.md).
+Two limits apply. An inline download is capped at 256 KiB of decoded bytes; above that the attachment must be written to disk with `gsuite_email_attachment_save`, which needs the `write` access level. And its `outputPath` is resolved beneath `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) and rejected if it escapes that root, lexically or through a symlink. The save also refuses to overwrite a file that is already there. The limits are adjustable — see [Configure the server](configuration.md).
 
 ## Still stuck
 

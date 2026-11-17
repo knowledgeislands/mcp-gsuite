@@ -9,7 +9,7 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const auth = await import('../google-client/index.js')
-const { getAttachment, getAttachmentMetadata } = await import('./index.js')
+const { getAttachment, getAttachmentMetadata, saveAttachment } = await import('./index.js')
 
 const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 
@@ -18,8 +18,9 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, downloadPath: os.tmpdir(), inlineAttachmentMaxBytes: 256 * 1024 } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleGetAttachment = (args: { messageId: string; attachmentId: string; outputPath?: string }) =>
-  getAttachment(cfg, args)
+const handleGetAttachment = (args: { messageId: string; attachmentId: string }) => getAttachment(cfg, args)
+const handleSaveAttachment = (args: { messageId: string; attachmentId: string; outputPath: string }) =>
+  saveAttachment(cfg, args)
 const handleGetAttachmentMetadata = (args: { messageId: string; attachmentId: string }) =>
   getAttachmentMetadata(cfg, args)
 
@@ -197,7 +198,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
     const r = await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1' })
     expect(r).toHaveProperty('isError', true)
     expect(r.content[0].text).toMatch(/exceeds the inline cap/)
-    expect(r.content[0].text).toMatch(/outputPath/)
+    expect(r.content[0].text).toMatch(/gsuite_email_attachment_save/)
     // The bytes fetch must not have run — we should have failed fast on metadata.
     expect(gmail.users.messages.attachments.get).not.toHaveBeenCalled()
   })
@@ -221,7 +222,7 @@ describe('handleGetAttachment (inline / base64 response)', () => {
   })
 })
 
-describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => {
+describe('handleSaveAttachment (write decoded bytes to a new file)', () => {
   let tmpDir: string
   let outputPath: string
 
@@ -242,7 +243,7 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { data: b64data } })
     gmailServiceMock.mockReturnValue(gmail)
 
-    const r = await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
+    const r = await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
     const payload = JSON.parse(r.content[0].text)
     expect(payload).toEqual({
       messageId: 'm1',
@@ -262,7 +263,7 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
     gmailServiceMock.mockReturnValue(gmail)
 
     const payload = JSON.parse(
-      (await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })).content[0].text
+      (await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })).content[0].text
     )
     expect(payload).not.toHaveProperty('data')
     expect(payload).not.toHaveProperty('filename')
@@ -271,14 +272,14 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
 
   // Performance + robustness: skipping messages.get avoids both a round-trip and the
   // bug-1 lookup-mismatch failure mode.
-  it('skips the messages.get round-trip when outputPath is set', async () => {
+  it('skips the messages.get round-trip', async () => {
     const gmail = makeGmail()
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: { data: Buffer.from('x').toString('base64url') }
     })
     gmailServiceMock.mockReturnValue(gmail)
 
-    await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
+    await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
     expect(gmail.users.messages.get).not.toHaveBeenCalled()
     expect(gmail.users.messages.attachments.get).toHaveBeenCalledWith({ userId: 'me', messageId: 'm1', id: 'A1' })
   })
@@ -291,7 +292,7 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
     })
     gmailServiceMock.mockReturnValue(gmail)
 
-    await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
+    await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
     expect(fs.readFileSync(outputPath).equals(binary)).toBe(true)
   })
 
@@ -303,7 +304,7 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
     })
     gmailServiceMock.mockReturnValue(gmail)
 
-    await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath: nested })
+    await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath: nested })
     expect(fs.existsSync(nested)).toBe(true)
   })
 
@@ -312,9 +313,56 @@ describe('handleGetAttachment (outputPath: write decoded bytes to file)', () => 
     ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} })
     gmailServiceMock.mockReturnValue(gmail)
 
-    const r = await handleGetAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
+    const r = await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
     expect(JSON.parse(r.content[0].text).sizeBytes).toBe(0)
     expect(fs.readFileSync(outputPath).length).toBe(0)
+  })
+
+  it('refuses to overwrite an existing file at outputPath', async () => {
+    fs.writeFileSync(outputPath, 'already here')
+    const gmail = makeGmail()
+    ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { data: Buffer.from('new').toString('base64url') }
+    })
+    gmailServiceMock.mockReturnValue(gmail)
+
+    const r = await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath })
+    expect(r).toHaveProperty('isError', true)
+    expect(r.content[0].text).toMatch(/Error saving attachment: Output file already exists/)
+    expect(fs.readFileSync(outputPath, 'utf8')).toBe('already here')
+  })
+
+  it('reports other write failures as an error result', async () => {
+    const lockedDir = path.join(tmpDir, 'locked')
+    fs.mkdirSync(lockedDir)
+    fs.chmodSync(lockedDir, 0o500)
+    const gmail = makeGmail()
+    ;(gmail.users.messages.attachments.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { data: Buffer.from('x').toString('base64url') }
+    })
+    gmailServiceMock.mockReturnValue(gmail)
+
+    try {
+      const r = await handleSaveAttachment({
+        messageId: 'm1',
+        attachmentId: 'A1',
+        outputPath: path.join(lockedDir, 'a.pdf')
+      })
+      expect(r).toHaveProperty('isError', true)
+      expect(r.content[0].text).toMatch(/EACCES/)
+    } finally {
+      fs.chmodSync(lockedDir, 0o700)
+    }
+  })
+
+  it('rejects an outputPath outside MCP_GSUITE_DOWNLOAD_PATH before calling Gmail', async () => {
+    const gmail = makeGmail()
+    gmailServiceMock.mockReturnValue(gmail)
+
+    const r = await handleSaveAttachment({ messageId: 'm1', attachmentId: 'A1', outputPath: '/etc/escape.pdf' })
+    expect(r).toHaveProperty('isError', true)
+    expect(r.content[0].text).toMatch(/escapes download root/)
+    expect(gmail.users.messages.attachments.get).not.toHaveBeenCalled()
   })
 })
 

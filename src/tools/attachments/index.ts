@@ -1,8 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/server'
 import { z } from 'zod'
 import type { Config } from '../../config/index.js'
-import { getAttachment, getAttachmentMetadata } from '../../main/attachments/index.js'
-import { READ_ONLY_REMOTE } from '../../utils/annotations.js'
+import { getAttachment, getAttachmentMetadata, saveAttachment } from '../../main/attachments/index.js'
+import { READ_ONLY_REMOTE, WRITE_IDEMPOTENT_REMOTE } from '../../utils/annotations.js'
 import { attachmentIdSchema, idSchema } from '../../utils/schemas.js'
 
 // ── output schemas ──
@@ -11,18 +11,16 @@ import { attachmentIdSchema, idSchema } from '../../utils/schemas.js'
 // spec 2025-11-25 SHOULD). Defined inline in this coverage-excluded wiring
 // layer, matching the sibling mcp-ki-kb-notion-mirror convention.
 
-// gsuite_email_attachment_get has two return shapes depending on `outputPath`:
-//   with outputPath → { messageId, path, sizeBytes }   (bytes written to disk)
-//   without         → { filename, mimeType, data }      (base64url inline)
-// Modelled as one object (not a union) with both branches' fields optional so
-// the SDK can normalise it to an object outputSchema.
 const getAttachmentOutput = z.object({
-  messageId: z.string().optional(),
-  path: z.string().optional(),
-  sizeBytes: z.number().optional(),
-  filename: z.string().optional(),
-  mimeType: z.string().optional(),
-  data: z.string().optional()
+  filename: z.string(),
+  mimeType: z.string(),
+  data: z.string()
+})
+
+const saveAttachmentOutput = z.object({
+  messageId: z.string(),
+  path: z.string(),
+  sizeBytes: z.number()
 })
 
 const attachmentMetadataOutput = z.object({
@@ -38,19 +36,11 @@ export const registerAttachmentTools = (server: McpServer, cfg: Config): void =>
     'gsuite_email_attachment_get',
     {
       description:
-        'Download an attachment by id. With `outputPath`, writes the decoded bytes to that file and returns {messageId, path, sizeBytes} (filename/mimeType come from `gsuite_email_message_get` — they are not duplicated here). Without it, returns {filename, mimeType, data} where `data` is base64url as returned by Gmail; capped at `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES` (default 256 KiB decoded) — attachments above the cap return an error directing the caller to use `outputPath`. `outputPath` is validated against `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) — targets outside that root are rejected.',
+        'Download an attachment by id and return {filename, mimeType, data} inline, where `data` is base64url as returned by Gmail. Capped at `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES` (default 256 KiB decoded); attachments above the cap return an error directing the caller to `gsuite_email_attachment_save`, which writes to disk.',
       inputSchema: z
         .object({
           messageId: idSchema,
-          attachmentId: attachmentIdSchema,
-          outputPath: z
-            .string()
-            .min(1)
-            .max(4096)
-            .optional()
-            .describe(
-              'Optional file path to write the decoded bytes to. Must live inside MCP_GSUITE_DOWNLOAD_PATH. If provided, the response omits `data` and returns size metadata instead — useful for large attachments that would overflow the response.'
-            )
+          attachmentId: attachmentIdSchema
         })
         .strict(),
       outputSchema: getAttachmentOutput,
@@ -74,5 +64,29 @@ export const registerAttachmentTools = (server: McpServer, cfg: Config): void =>
       annotations: READ_ONLY_REMOTE
     },
     (args) => getAttachmentMetadata(cfg, args)
+  )
+
+  server.registerTool(
+    'gsuite_email_attachment_save',
+    {
+      description:
+        'Download an attachment by id and write the decoded bytes to a new file at `outputPath`. Returns {messageId, path, sizeBytes} (filename/mimeType come from `gsuite_email_message_get` — they are not duplicated here); the bytes never travel through the response, so this suits large attachments. `outputPath` is validated against `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) — targets outside that root are rejected. Never overwrites: an existing file at `outputPath` is an error. Registered at the `write` access level, since it writes to the local file system.',
+      inputSchema: z
+        .object({
+          messageId: idSchema,
+          attachmentId: attachmentIdSchema,
+          outputPath: z
+            .string()
+            .min(1)
+            .max(4096)
+            .describe(
+              'Filesystem path to write the decoded bytes to. Must live inside MCP_GSUITE_DOWNLOAD_PATH and must not already exist. Parent directories are created if missing.'
+            )
+        })
+        .strict(),
+      outputSchema: saveAttachmentOutput,
+      annotations: WRITE_IDEMPOTENT_REMOTE
+    },
+    (args) => saveAttachment(cfg, args)
   )
 }

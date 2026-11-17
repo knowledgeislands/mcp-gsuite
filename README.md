@@ -98,8 +98,9 @@ For an initial acquisition, read a checkpoint before searching the mailbox, comp
 
 | Tool | Level | Purpose |
 | --- | --- | --- |
-| `gsuite_email_attachment_get` | `read` | Download an attachment, to disk via `outputPath` or inline.[^attach-inline] |
+| `gsuite_email_attachment_get` | `read` | Download an attachment inline.[^attach-inline] |
 | `gsuite_email_attachment_metadata` | `read` | Get filename, MIME type, size without downloading bytes.[^attach-metadata] |
+| `gsuite_email_attachment_save` | `write` | Write an attachment to a new file at `outputPath`.[^attach-save] |
 
 ### thread
 
@@ -174,9 +175,11 @@ Drive access is read-only by scope: the default set requests `drive.readonly`, s
 
 [^batch-modify]: Backed by Gmail `messages.batchModify`. At least one of `addLabelIds` or `removeLabelIds` is required. Returns `{count, messageIds, addLabelIds, removeLabelIds}` echoing the operation; Gmail returns 204 No Content on success.
 
-[^attach-inline]: With `outputPath`, writes the decoded bytes and returns `{messageId, path, sizeBytes}`. Without it, returns `{filename, mimeType, data}` (base64url) — suitable for small attachments only.
+[^attach-inline]: Returns `{filename, mimeType, data}` (base64url), capped at `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES` — suitable for small attachments only; use `gsuite_email_attachment_save` above the cap.
 
 [^attach-metadata]: Backed by `messages.get(format=full)` — fetches the message part tree without downloading the attachment bytes. Returns `{messageId, attachmentId, filename, mimeType, sizeBytes}`.
+
+[^attach-save]: Returns `{messageId, path, sizeBytes}`; the bytes never travel through the response. `outputPath` must sit beneath `MCP_GSUITE_DOWNLOAD_PATH`. It writes to the local file system, so it registers at `write`, and it never overwrites: an existing file at `outputPath` is an error.
 
 [^thread-shape]: Each thread carries `id`, `snippet`, `messageCount`, latest-message headers, and the union of label ids across all messages.
 

@@ -9,7 +9,7 @@ Set these wherever your client supplies environment to the server — its `env` 
 `MCP_GSUITE_ACCESS_LEVEL` is the one setting worth a deliberate decision. It decides, at boot, which tools the server registers at all. A tool the server does not register cannot be called by mistake, cannot be suggested by a model, and does not appear in `tools/list`.
 
 - **`read`** (default) — the read-only tools. Search, read, list; nothing changes in your account.
-- **`write`** — adds the non-destructive mutations: drafts, labels, relabelling, trash, calendar events, sheet updates, saving a raw message to disk with `gsuite_email_message_raw`, and `gsuite_auth_start`.
+- **`write`** — adds the non-destructive mutations: drafts, labels, relabelling, trash, calendar events, sheet updates, saving a raw message or an attachment to disk with `gsuite_email_message_raw` and `gsuite_email_attachment_save`, and `gsuite_auth_start`.
 - **`destructive`** — adds the permanent deletions, such as deleting a label, a draft, or a calendar event.
 
 Levels nest, so `destructive` includes everything. Each tool's level comes from its MCP annotations rather than its name: `readOnlyHint: true` derives `read`; `destructiveHint: true` derives `destructive`; an explicit `readOnlyHint: false` with `destructiveHint: false` derives `write`; and missing annotations derive `destructive` as a fail-safe. A tool registers when its derived level is at or below the configured one. An unrecognised value aborts startup rather than falling back to a default.
@@ -44,7 +44,7 @@ Two habits worth having. Trash is recoverable and deletion is not, which is why 
 
 § Any caller-supplied `outputPath` is resolved beneath this root and rejected if it escapes, lexically or through a symlink.
 
-¶ Above this size an attachment must be written to disk with `outputPath` rather than returned inline.
+¶ Above this size an attachment must be written to disk with `gsuite_email_attachment_save` rather than returned inline.
 
 ‖ One of `off`, `writes` (record non-read tool calls only), or `all` (record every invocation).
 

@@ -1,6 +1,6 @@
 /**
  * Path-containment helpers for tools that accept caller-provided filesystem
- * write targets (e.g. `outputPath` on `attachment_get` and `message_get_raw`).
+ * write targets (e.g. `outputPath` on `attachment_save` and `message_raw`).
  *
  * Same two-layer pattern as mcp-kb-fs / mcp-claude-housekeeping:
  *   - `resolveWithinRoot` is a fast lexical guard (handles "..", absolute-style
