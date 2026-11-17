@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Engineering follows `ki-engineering`, and the server's shape follows `ki-repo-mcp`: its layout, configuration injection, tool naming, annotation-driven access gate and security invariants.
+Engineering follows `ki-engineering`, and the server's shape follows `ki-repo-mcp`: its layout, configuration injection, tool naming, annotation-driven access gate and security invariants, and where README and this file each hold what.
+
+Repository-specific implementation guidance follows. User-facing setup and tool documentation live in [README.md](./README.md) and [docs/guides/](./docs/guides/README.md).
 
 ## OAuth and data safety
 
@@ -8,37 +10,27 @@ Never log or return access or refresh tokens. Preserve atomic `0600` token stora
 
 ## Verification
 
-Run `bunx tsc --noEmit`, `bun run test`, `bun run test:coverage`, `bun run build`, and the relevant focused `ki repo audit` commands. Record/replay integration commands contact external systems and require explicit authority.
+`ki:test:record` and `self:test:integration:readonly` contact Google and require explicit authority; `ki:test:replay` runs against the committed fixture. The read-only probe runs only with `INTEGRATION=1` and a dedicated `integration-oauth-tokens.json`, never the server's own token store.
 
-Repository-specific implementation guidance follows. User-facing setup and tool documentation live in [README.md](./README.md) and [docs/guides/](./docs/guides/README.md).
+`bun run ki:test:smoke` boots the server over stdio and asserts the wire-level tool surface matches `EXPECTED_TOOLS` in [scripts/smoke.ts](./scripts/smoke.ts) — keep that list in sync when adding or removing tools, alongside [src/tool-registration.test.ts](./src/tool-registration.test.ts).
 
-## Bun vs Node
-
-The Bun-install, Node-run split, the `bun test` trap and the `.env` parity rule are `ki-engineering`'s. In this server:
-
-- Bun auto-loads `.env.${NODE_ENV}` from the CWD; Node needs the explicit `process.loadEnvFile()` call inside `loadConfig()` in [src/config/index.ts](./src/config/index.ts). The try/catch swallows the `TypeError` Bun raises (no `process.loadEnvFile`), so the same code works under both.
-- `NODE_ENV` is set to `development` only by `server:*:dev` and `ki:server:mcp:inspect`. Claude Desktop doesn't set it, so `.env.*` is ignored in production — `MCP_GSUITE_CLIENT_ID` / `MCP_GSUITE_CLIENT_SECRET` must come from the Claude Desktop config `env` block.
-
-Run `bun run` with no args for the full script list. `bun run ki:test:smoke` boots the server over stdio and asserts the wire-level tool surface matches `EXPECTED_TOOLS` in [scripts/smoke.ts](./scripts/smoke.ts) — keep that list in sync when adding or removing tools, alongside [src/tool-registration.test.ts](./src/tool-registration.test.ts).
+In production `MCP_GSUITE_CLIENT_ID` / `MCP_GSUITE_CLIENT_SECRET` come from the MCP client's `env` block or the package's `.env.local` or `.env`.
 
 ## Architecture Invariants
 
-This server targets MCP specification revision **2026-07-28**. The `@modelcontextprotocol/server` major 2 runtime dependency is what selects that profile — there is no separate switch to set, and no claim in configuration that could drift from the code. Three consequences bind anything you write here:
+This server targets MCP specification revision **2026-07-28**, selected by the `@modelcontextprotocol/server` major 2 runtime dependency. Three consequences bind anything you write here:
 
 - Every synchronous result helper in [src/utils/results.ts](./src/utils/results.ts) stamps `resultType: 'complete'`. A new helper that omits it produces a wire-level failure, not a visible one at the call site.
 - [src/mcp-server/index.ts](./src/mcp-server/index.ts) hands `serveStdio` a `createServer` **factory**, not an instance. Registration must be complete before the factory returns and must never depend on connection state.
 - `serveStdio` is configured `legacy: 'serve'`, a deliberate fallback that keeps a 2025-era client working while the fleet migrates. `bun run ki:test:smoke` asserts both eras, so removing the fallback fails a gate rather than silently dropping clients.
 
-### Project layout & config injection (the workspace MCP shape)
+### Configuration and layers
 
-This is the canonical layout we roll out across the MCPs:
-
-- **[src/config/index.ts](./src/config/index.ts)** — `loadConfig(env?) → Config`. Reads env (optionally hydrated from `.env.${NODE_ENV}`) into a plain `Config` value. **There is no module-level config singleton — nothing reads env at import time.** Exported constants (`SERVER_NAME`, `SERVER_VERSION`, `ACCESS_LEVELS`, `ACCESS_LEVEL_RANK`, `DEFAULT_SEARCH_RESULTS`) and types (`Config`, `AuthConfig`, `AccessLevel`, `AuditLogMode`) live here too. The OAuth/token vars are grouped under `config.auth` (an `AuthConfig`).
-- **[src/mcp-server/index.ts](./src/mcp-server/index.ts)** — the stdio MCP wrapper. Calls `loadConfig()` once at module scope, then exposes a `createServer` factory that builds the `AuditConfig`, installs `makeAccessGatedRegister(server, config.accessLevel, audit)`, and threads the `Config` into every `registerXxxTools(server, config)`. `serveStdio` pins one instance from that factory per connection. Keep the startup logging.
+- **[src/config/index.ts](./src/config/index.ts)** — exports `SERVER_NAME`, `SERVER_VERSION`, `GSUITE_DEFAULT_SCOPES` and `DEFAULT_SEARCH_RESULTS` beside the standard constants. The OAuth/token vars are grouped under `config.auth` (an `AuthConfig`).
+- **[src/mcp-server/index.ts](./src/mcp-server/index.ts)** — keep the startup logging, which warns when the client id or secret is unset.
 - **[src/auth-server/index.ts](./src/auth-server/index.ts)** — the standalone OAuth callback server, its own top-level entry. Also calls `loadConfig()` once and uses `config.auth`.
-- **[src/tools/](./src/tools/)** — MCP tool definitions only. Thin: each `registerXxxTools(server, cfg)` declares the schema/annotations and hands `(args) => mainFn(cfg, args)` to `server.registerTool`. Excluded from coverage.
-- **[src/main/](./src/main/)** — the real implementation, usable outside the MCP server (e.g. from a script). Grouped by concern: `main/auth/` (OAuth client + token store), `main/google-client/` (the shared authorized client + per-API service factories: gmail today; calendar/drive/sheets seams ready), `main/email/parse.ts` (Gmail payload parsing helpers), and `main/{labels,messages,threads,drafts,attachments,auth-info}/` (one function per tool). Every `main` entry point takes its config slice as its **first argument** — `listLabels(cfg)`, `gmailService(cfg.auth)`. No hidden state (the cached OAuth client in `main/auth` is the one process-lifetime exception, with `resetAuthClient()` to clear it; the cached authenticated email in `main/drafts` has `_resetAuthEmailCacheForTests()`).
-- **[src/utils/](./src/utils/)** — cross-MCP reusable helpers; keep in sync with sibling repos. These take the **specific config primitive** they need (`assertOutputPathWithinDownloadRoot(downloadRoot, …)`, `withAuditLog(auditConfig, …)`, `makeAccessGatedRegister(server, accessLevel, audit)`), not the whole `Config`, so they stay MCP-agnostic. `utils/access-level.ts` and `utils/audit-log.ts` are the parameterized versions shared verbatim with the sibling repos (only the `SERVER_NAME` constant and the gmail-specific `REDACT_FIELDS` set differ).
+- **[src/main/](./src/main/)** — `main/auth/` (OAuth client + token store), `main/google-client/` (the shared authorized client and the `gmailService`, `calendarService`, `driveService` and `sheetsService` factories, each taking `cfg.auth`), `main/email/parse.ts` (Gmail payload parsing helpers), `main/drive-client/` and `main/sheets-client/` (the `drive` tool group), `main/integration-readonly/` (the gated read-only probe), and `main/{labels,filters,history,messages,threads,drafts,attachments,calendar,auth-info}/`. No hidden state: the cached OAuth client in `main/auth` is the one process-lifetime exception, with `resetAuthClient()` to clear it; the cached authenticated email in `main/drafts` has `_resetAuthEmailCacheForTests()`.
+- **[src/utils/](./src/utils/)** — `assertOutputPathWithinDownloadRoot(downloadRoot, …)` takes its primitive; `utils/audit-log.ts` differs from its siblings only in `SERVER_NAME` and its Google-specific `REDACT_FIELDS` set. `utils/schemas.ts` holds the bounded id, query and text schemas.
 
 To use the code from a script: `const cfg = loadConfig(); await listLabels(cfg)`.
 
@@ -47,41 +39,31 @@ This dependency direction is enforced, not just described: [.dependency-cruiser.
 ### Two processes
 
 - `mcp-gsuite` — the stdio MCP server (entry: `dist/mcp-server/index.js`).
-- `mcp-gsuite-auth` — long-running OAuth callback server on `:3334` (entry: `dist/auth-server/index.js`). Must be up to complete the `gsuite_auth_start` flow.
+- `mcp-gsuite-auth` — long-running OAuth callback server on `MCP_GSUITE_AUTH_PORT`, default `:3334` (entry: `dist/auth-server/index.js`). Must be up to complete the `gsuite_auth_start` flow.
 
-### Naming convention
+### Tool surface and access levels
 
-Tool names follow `<app>_<resource>_<action>` (snake_case) with `<app>` = `gsuite`. Plural resource for collection ops, singular for single-item ops. The auth tools (`gsuite_about`, `gsuite_auth_start`, `gsuite_auth_status`) are server-level metadata and drop the resource segment.
+The `<app>` prefix is `gsuite`. The auth tools (`gsuite_about`, `gsuite_auth_start`, `gsuite_auth_status`) are server-level metadata and drop the resource segment.
 
-### Access-level gate — driven by annotations, not names
-
-[src/utils/access-level.ts](./src/utils/access-level.ts) `makeAccessGatedRegister(server, accessLevel, audit)` decides at startup whether to register each tool, based on the tool's `annotations`:
-
-- `readOnlyHint: true` → `read`
-- `destructiveHint: true` → `destructive`
-- explicit `readOnlyHint: false` AND `destructiveHint: false` → `write` (non-destructive mutation — e.g. send, draft create)
-- anything else (unannotated / partially annotated) → `destructive` (fail-safe)
-
-A tool registers when its derived level is at or below `config.accessLevel` (from `MCP_GSUITE_ACCESS_LEVEL`, default: `read`). Levels nest: `read` registers only readers; `write` adds non-destructive mutations like `gsuite_email_draft_create`; `destructive` adds delete/trash. New tools MUST set `annotations` to one of the presets in [src/utils/annotations.ts](./src/utils/annotations.ts) — `READ_ONLY_REMOTE` for reads, `WRITE_REMOTE`/`WRITE_IDEMPOTENT_REMOTE` for non-destructive writes, `DESTRUCTIVE_REMOTE` for deletes. Do not bypass the proxy.
+`MCP_GSUITE_ACCESS_LEVEL` defaults to `read`. `write` adds draft creation, update and forwarding, label and filter creation, calendar and sheet updates, and the message and thread modifications, trash among them, which are idempotent and recoverable; `destructive` adds only the deletes (`gsuite_calendar_event_delete`, `gsuite_email_draft_delete`, `gsuite_email_filter_delete`, `gsuite_email_label_delete`). The presets in [src/utils/annotations.ts](./src/utils/annotations.ts) are `READ_ONLY` (the local auth tools), `READ_ONLY_REMOTE`, `WRITE_REMOTE`, `WRITE_IDEMPOTENT_REMOTE` and `DESTRUCTIVE_REMOTE`.
 
 ## Security Requirements
 
-This server holds OAuth refresh tokens that grant the combined `GSUITE_DEFAULT_SCOPES` — `gmail.modify` (read/send/label/trash), `calendar`, `drive.readonly`, and `spreadsheets`. Token leakage = full mailbox, calendar, and drive-read compromise. New tools and changes to existing tools MUST preserve every invariant below.
+This server holds OAuth refresh tokens that grant the combined `GSUITE_DEFAULT_SCOPES` — `gmail.modify` (read/send/label/trash), `gmail.settings.basic` (filters), `calendar`, `drive.readonly` and `spreadsheets` — unless `MCP_GSUITE_SCOPES` overrides them. Token leakage = full mailbox, calendar and spreadsheet compromise, and read access to Drive. New tools and changes to existing tools MUST preserve every invariant below.
 
 1. **Tokens are never logged.** No `console.log`/`console.error` of token values, refresh tokens, or any object that contains them. [src/main/auth/index.ts](./src/main/auth/index.ts) follows this; `gsuite_auth_status` returns `redactedTokenSummary(cfg.auth)` (presence + scope + expiry only). No other tool may return token material.
 2. **Token persistence is atomic and `0600`.** `atomicWrite()` writes to `<path>.tmp.<pid>.<rand>` then `fs.renameSync` into place; both temp and final files use `mode: 0o600`. Refresh persistence goes through the same path via the `googleapis` `tokens` event listener — keep it that way.
 3. **Refresh-token preservation on refresh.** Google omits `refresh_token` on most refresh responses. The persist handler merges with the existing on-disk token (`{...tokens, ...refreshed}`) so the long-lived refresh token survives.
-4. **All Zod schemas are `.strict()` with bounded numerics.** Already true; new schemas must continue this (e.g. `z.number().int().positive().max(500)` for `maxResults`).
-5. **Caller-provided filesystem paths are confined to `MCP_GSUITE_DOWNLOAD_PATH`.** Both the WRITE side — tools that write fetched bytes to disk (`gsuite_email_message_raw`, `gsuite_email_attachment_get` with `outputPath`) — and the READ side — draft attachments read off disk in `readAttachments` (`gsuite_email_draft_create` / `gsuite_email_draft_update`) — validate via `assertOutputPathWithinDownloadRoot()` in [src/utils/paths.ts](./src/utils/paths.ts), the same lexical + symlink (realpath) guard against the same root, before any `fs.*` read/write or API call. The READ side matters as much as the WRITE side: an unguarded attachment read is an arbitrary-host-file exfiltration vector (any readable file becomes a draft attachment).
-6. **Inline `gsuite_email_attachment_get` responses are capped at `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES`** (default 256 KiB decoded). The handler bails on the metadata lookup when `meta.size` exceeds the cap (no bytes fetch), and re-checks post-fetch as defence in depth.
-7. **Header-injection guards must stay in [src/utils/mime.ts](./src/utils/mime.ts).** `buildRfc2822` rejects newlines in recipient/subject inputs. New mail-construction tools must reuse this builder, not handcraft headers.
-8. **401 hint surfaces remediation.** `errMessage()` in [src/utils/errors.ts](./src/utils/errors.ts) appends `AUTH_HINT` on 401: re-authenticate with `gsuite_auth_start`, including the `write` access-level change and client restart a read-level caller needs to reach it. New tools must use `errorResult(action, err)` so this contract holds.
-9. **No shell-string interpolation.** This server doesn't shell out. If a future tool needs to, use `execFile` with an argv array.
+4. **Caller-provided filesystem paths are confined to `MCP_GSUITE_DOWNLOAD_PATH`.** Both the WRITE side — tools that write fetched bytes to disk (`gsuite_email_message_raw`, `gsuite_email_attachment_get` with `outputPath`) — and the READ side — draft attachments read off disk in `readAttachments` (`gsuite_email_draft_create` / `gsuite_email_draft_update`) — validate via `assertOutputPathWithinDownloadRoot()` in [src/utils/paths.ts](./src/utils/paths.ts) before any `fs.*` read/write or API call. The READ side matters as much as the WRITE side: an unguarded attachment read is an arbitrary-host-file exfiltration vector (any readable file becomes a draft attachment).
+5. **Inline `gsuite_email_attachment_get` responses are capped at `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES`** (default 256 KiB decoded). The handler bails on the metadata lookup when `meta.size` exceeds the cap (no bytes fetch), and re-checks post-fetch as defence in depth.
+6. **Header-injection guards must stay in [src/utils/mime.ts](./src/utils/mime.ts).** `buildRfc2822` rejects newlines in recipient/subject inputs. New mail-construction tools must reuse this builder, not handcraft headers.
+7. **401 hint surfaces remediation.** `errMessage()` in [src/utils/errors.ts](./src/utils/errors.ts) appends `AUTH_HINT` on 401: re-authenticate with `gsuite_auth_start`, including the `write` access-level change and client restart a read-level caller needs to reach it. New tools must use `errorResult(action, err)` so this contract holds.
+8. **No shell-out.** This server doesn't spawn processes.
 
-**RFC 8707 `resource`/`aud` and Client ID Metadata Documents are deliberately N/A here.** This is a stdio loopback server: it is an OAuth _client_ of Google (which scopes tokens by `scope`, not RFC 8707 `resource`), not a remote HTTP OAuth _resource server_ or _authorization server_, and no bearer token crosses the stdio boundary. Per workspace MCP standard §14 (OAuth security) items 7–8, those protections govern roles this server does not occupy, so there is nothing to implement; the live token-passthrough defense is invariant #1 (we only ever use tokens issued to ourselves). Revisit only if this server is ever deployed as a remote HTTP resource/authorization server.
+**RFC 8707 `resource`/`aud` and Client ID Metadata Documents are deliberately N/A here.** This is a stdio loopback server: it is an OAuth _client_ of Google (which scopes tokens by `scope`, not RFC 8707 `resource`), not a remote HTTP OAuth _resource server_ or _authorization server_, and no bearer token crosses the stdio boundary. Per workspace MCP standard §14 (OAuth security) items 7–8, those protections govern roles this server does not occupy, so there is nothing to implement; the live token-passthrough defense is §14 item 1 (we only ever use tokens issued to ourselves). Revisit only if this server is ever deployed as a remote HTTP resource/authorization server.
 
 Atomic-write, mode-0600, redacted summary, and refresh-token preservation tests live in [src/main/auth/index.test.ts](./src/main/auth/index.test.ts); header-injection rejection in [src/utils/mime.test.ts](./src/utils/mime.test.ts).
 
 ## Tool registration call sites
 
-Each `<group>` declares its tools in `src/tools/<group>/index.ts` (`auth`, `labels`, `messages`, `attachments`, `threads`, `drafts`) as thin defs that call into `src/main/<group>/index.ts` (note: the `auth` tool group's implementation lives in `src/main/auth-info/`, distinct from the OAuth client in `src/main/auth/`). To survey the surface, `grep "registerTool" src/tools/*/index.ts`. The per-tool logic and its tests are co-located in `src/main/`. README's [Available Tools](./README.md#available-tools) tabulates them with purposes.
+Each `<group>` declares its tools in `src/tools/<group>/index.ts` (`auth`, `labels`, `filters`, `history`, `messages`, `attachments`, `threads`, `drive`, `calendar`, `drafts`) as thin defs that call into `src/main/`. The `auth` group's implementation lives in `src/main/auth-info/`, distinct from the OAuth client in `src/main/auth/`, and the `drive` group's in `src/main/drive-client/` and `src/main/sheets-client/`. To survey the surface, `grep "registerTool" src/tools/*/index.ts`. The per-tool logic and its tests are co-located in `src/main/`. README's [Available Tools](./README.md#available-tools) tabulates them with purposes.
