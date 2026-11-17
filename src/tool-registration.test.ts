@@ -38,7 +38,7 @@ vi.mock('./main/auth/index.js', () => ({
 
 const { registerAuthTools } = await import('./tools/auth/index.js')
 const { makeAccessGatedRegister } = await import('./utils/access-level.js')
-const { WRITE_REMOTE } = await import('./utils/annotations.js')
+const { WRITE_IDEMPOTENT_REMOTE, WRITE_REMOTE } = await import('./utils/annotations.js')
 const { registerLabelTools } = await import('./tools/labels/index.js')
 const { registerFilterTools } = await import('./tools/filters/index.js')
 const { registerHistoryTools } = await import('./tools/history/index.js')
@@ -201,6 +201,27 @@ describe('registerMessageTools', () => {
       'gsuite_email_messages_batch_modify',
       'gsuite_email_messages_search'
     ])
+  })
+
+  it("'gsuite_email_message_raw' writes to disk, so it is a non-destructive write, not a read", () => {
+    const c = calls.find((c) => c.name === 'gsuite_email_message_raw')
+    expect(c?.config.annotations).toEqual(WRITE_IDEMPOTENT_REMOTE)
+  })
+
+  it("'gsuite_email_message_raw' is absent at the read level and present at write", () => {
+    const namesAt = (level: 'read' | 'write') => {
+      const { server: gated, calls: gatedCalls } = makeMockServer()
+      gated.registerTool = makeAccessGatedRegister(gated, level, {
+        mode: 'off',
+        path: '/nonexistent/audit.jsonl',
+        maxBytes: 1,
+        keep: 1
+      })
+      registerMessageTools(gated, cfg)
+      return gatedCalls.map((c) => c.name)
+    }
+    expect(namesAt('read')).not.toContain('gsuite_email_message_raw')
+    expect(namesAt('write')).toContain('gsuite_email_message_raw')
   })
 
   it("'gsuite_email_messages_search' takes query + optional maxResults + labelIds", () => {

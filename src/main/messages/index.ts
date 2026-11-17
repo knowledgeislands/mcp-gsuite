@@ -123,7 +123,16 @@ export const getRawMessage = async (
     // raw bytes. The caller already has them from get_message.
     const bytes = Buffer.from(res.data.raw, 'base64url')
     await fsp.mkdir(path.dirname(resolved), { recursive: true })
-    fs.writeFileSync(resolved, bytes)
+    // `wx`: never overwrite. The tool is marked non-destructive, so it must
+    // not be able to replace a file that is already there.
+    try {
+      fs.writeFileSync(resolved, bytes, { flag: 'wx' })
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+        throw new Error(`Output file already exists: "${outputPath}"`)
+      }
+      throw err
+    }
     return jsonResult({
       messageId: res.data.id ?? messageId,
       path: resolved,

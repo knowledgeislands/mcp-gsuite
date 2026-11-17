@@ -433,6 +433,18 @@ describe('handleGetRawMessage', () => {
     expect(fs.existsSync(nested)).toBe(true)
   })
 
+  it('refuses to overwrite an existing file at outputPath', async () => {
+    fs.writeFileSync(outputPath, 'already here')
+    const gmail = makeGmail()
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1', raw: b64('new') } })
+    gmailServiceMock.mockReturnValue(gmail)
+
+    const r = await handleGetRawMessage({ messageId: 'm1', outputPath })
+    expect(r).toHaveProperty('isError', true)
+    expect(r.content[0].text).toMatch(/Output file already exists/)
+    expect(fs.readFileSync(outputPath, 'utf8')).toBe('already here')
+  })
+
   it('returns an error result when the API omits the raw field', async () => {
     const gmail = makeGmail()
     ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'm1' } })

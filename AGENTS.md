@@ -45,7 +45,7 @@ This dependency direction is enforced, not just described: [.dependency-cruiser.
 
 The `<app>` prefix is `gsuite`. The auth tools (`gsuite_about`, `gsuite_auth_start`, `gsuite_auth_status`) are server-level metadata and drop the resource segment.
 
-`MCP_GSUITE_ACCESS_LEVEL` defaults to `read`. `write` adds draft creation, update and forwarding, label and filter creation, calendar and sheet updates, and the message and thread modifications, trash among them, which are idempotent and recoverable; `destructive` adds only the deletes (`gsuite_calendar_event_delete`, `gsuite_email_draft_delete`, `gsuite_email_filter_delete`, `gsuite_email_label_delete`). The presets in [src/utils/annotations.ts](./src/utils/annotations.ts) are `READ_ONLY` (the local auth tools), `READ_ONLY_REMOTE`, `WRITE_REMOTE`, `WRITE_IDEMPOTENT_REMOTE` and `DESTRUCTIVE_REMOTE`.
+`MCP_GSUITE_ACCESS_LEVEL` defaults to `read`. `write` adds draft creation, update and forwarding, label and filter creation, calendar and sheet updates, `gsuite_email_message_raw` (it writes a new file to disk, never overwriting), and the message and thread modifications, trash among them, which are idempotent and recoverable; `destructive` adds only the deletes (`gsuite_calendar_event_delete`, `gsuite_email_draft_delete`, `gsuite_email_filter_delete`, `gsuite_email_label_delete`). The presets in [src/utils/annotations.ts](./src/utils/annotations.ts) are `READ_ONLY` (the local auth tools), `READ_ONLY_REMOTE`, `WRITE_REMOTE`, `WRITE_IDEMPOTENT_REMOTE` and `DESTRUCTIVE_REMOTE`.
 
 ## Security Requirements
 

@@ -53,7 +53,7 @@ Ask for an attachment and the client picks between two tools. `gsuite_email_atta
 
 Inline responses are capped at 256 KiB by default, because the encoded form travels through the MCP response envelope. Above that, the download has to go to disk. Written files are confined beneath `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`); a path that escapes that root, lexically or through a symlink, is rejected.
 
-For a whole message as a file, `gsuite_email_message_raw` writes RFC 2822 source to an `.eml` path without the body ever passing through the response.
+For a whole message as a file, `gsuite_email_message_raw` writes RFC 2822 source to a new `.eml` path without the body ever passing through the response. It needs the `write` access level, because it writes to disk, and it refuses to overwrite a file that is already there.
 
 ## Delete, and what deletion means
 

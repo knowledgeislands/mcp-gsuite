@@ -73,7 +73,7 @@ Filter creation supports sender, recipient, subject and Gmail query criteria, wi
 | --- | --- | --- |
 | `gsuite_email_messages_search` | `read` | Gmail-query search at message granularity.[^paginated] |
 | `gsuite_email_message_get` | `read` | Full message: headers, body, labels, attachments.[^html-strip][^msg-format] |
-| `gsuite_email_message_raw` | `read` | Write the raw RFC 2822 message to `outputPath` (e.g. `.eml`).[^raw-no-body] |
+| `gsuite_email_message_raw` | `write` | Write the raw RFC 2822 message to a new file at `outputPath` (e.g. `.eml`).[^raw-no-body] |
 | `gsuite_email_message_label` | `write` | Add label ids to a message. |
 | `gsuite_email_message_modify` | `write` | Add and remove labels on one message; return its resulting label ids. |
 | `gsuite_email_message_unlabel` | `write` | Remove label ids from a message. |
@@ -166,7 +166,7 @@ Drive access is read-only by scope: the default set requests `drive.readonly`, s
 
 [^msg-format]: `format` defaults to `'full'`. Pass `'metadata'` to skip the body (headers + labels only, with `body` and `attachments` empty) — cheaper when the caller doesn't need content.
 
-[^raw-no-body]: Returns `{messageId, path, sizeBytes}`. The body never travels through the response, so this is safe for messages with large attachments. Subject/date aren't returned — with `format=raw` Gmail does not break out headers (use `gsuite_email_message_get`).
+[^raw-no-body]: Returns `{messageId, path, sizeBytes}`. It writes to the local file system, so it registers at `write`, and it never overwrites: an existing file at `outputPath` is an error. The body never travels through the response, so this is safe for messages with large attachments. Subject/date aren't returned — with `format=raw` Gmail does not break out headers (use `gsuite_email_message_get`).
 
 [^sugar]: Sugar over `messages.modify` / `threads.modify` so callers don't have to know the magic system-label id.
 

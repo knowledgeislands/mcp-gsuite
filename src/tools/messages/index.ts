@@ -184,7 +184,7 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
     'gsuite_email_message_raw',
     {
       description:
-        'Fetch the raw RFC 2822 message and write it to `outputPath` (suitable for saving as `.eml`). Returns {messageId, path, sizeBytes} — the message body never travels through the response, so this is safe for messages with large attachments. Subject and date are NOT returned (they live inside the raw bytes; use `gsuite_email_message_get` for headers). `outputPath` is validated against `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) — targets outside that root are rejected.',
+        'Fetch the raw RFC 2822 message and write it to `outputPath` (suitable for saving as `.eml`). Returns {messageId, path, sizeBytes} — the message body never travels through the response, so this is safe for messages with large attachments. Subject and date are NOT returned (they live inside the raw bytes; use `gsuite_email_message_get` for headers). `outputPath` is validated against `MCP_GSUITE_DOWNLOAD_PATH` (default `~/Downloads`) — targets outside that root are rejected. Never overwrites: an existing file at `outputPath` is an error. Registered at the `write` access level, since it writes to the local file system.',
       inputSchema: z
         .object({
           messageId: idSchema,
@@ -193,12 +193,12 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
             .min(1)
             .max(4096)
             .describe(
-              'Filesystem path where the decoded RFC 2822 message will be written. Must live inside MCP_GSUITE_DOWNLOAD_PATH. Parent directories are created if missing.'
+              'Filesystem path where the decoded RFC 2822 message will be written. Must live inside MCP_GSUITE_DOWNLOAD_PATH and must not already exist. Parent directories are created if missing.'
             )
         })
         .strict(),
       outputSchema: rawMessageOutput,
-      annotations: READ_ONLY_REMOTE
+      annotations: WRITE_IDEMPOTENT_REMOTE
     },
     (args) => getRawMessage(cfg, args)
   )
