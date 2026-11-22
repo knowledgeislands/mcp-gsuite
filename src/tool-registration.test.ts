@@ -230,6 +230,7 @@ describe('registerMessageTools', () => {
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('query')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('maxResults')
     expect(shapeOf(c?.config.inputSchema)).toHaveProperty('labelIds')
+    expect(shapeOf(c?.config.inputSchema)).toHaveProperty('metadataOnly')
   })
 
   it("'gsuite_email_message_label' requires messageId + labelIds", () => {

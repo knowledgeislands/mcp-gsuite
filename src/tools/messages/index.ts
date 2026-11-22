@@ -30,7 +30,7 @@ const messageSummaryRow = z.object({
   subject: z.string(),
   from: z.string(),
   date: z.string(),
-  snippet: z.string(),
+  snippet: z.string().optional(),
   labelIds: z.array(z.string()),
   hasAttachments: z.boolean()
 })
@@ -257,7 +257,7 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
     'gsuite_email_messages_search',
     {
       description:
-        'Search messages with a Gmail query string (same syntax as the Gmail search box). Returns `{messages, nextPageToken?}`; pass `nextPageToken` back as `pageToken` to fetch the next page. The token is omitted when there are no more results. To filter by a label whose name contains spaces, either pass its exact id(s) via `labelIds` (most reliable) or quote the name in the query (`label:"Matters/Criminal - False Allegations"`) — the server rewrites quoted names to the hyphenated form Gmail expects. An unquoted `label:` with spaces silently matches nothing.',
+        'Search messages with a Gmail query string (same syntax as the Gmail search box). Returns `{messages, nextPageToken?}`; pass `metadataOnly: true` for headers and labels without the snippet; pass `nextPageToken` back as `pageToken` to fetch the next page. The token is omitted when there are no more results. To filter by a label whose name contains spaces, either pass its exact id(s) via `labelIds` (most reliable) or quote the name in the query (`label:"Matters/Criminal - False Allegations"`) — the server rewrites quoted names to the hyphenated form Gmail expects. An unquoted `label:` with spaces silently matches nothing.',
       inputSchema: z
         .object({
           query: querySchema.describe('Gmail query, e.g. `from:foo@bar.com has:attachment newer_than:7d`'),
@@ -280,6 +280,12 @@ export const registerMessageTools = (server: McpServer, cfg: Config): void => {
             .optional()
             .describe(
               'Exact label ids (from `gsuite_email_labels_list`) the message must carry. Reliable for any label name, including those with spaces or slashes; ANDed with `query`.'
+            ),
+          metadataOnly: z
+            .boolean()
+            .optional()
+            .describe(
+              'Headers and labels only: when true, each row omits `snippet`, so no message text travels in the response. Default false.'
             )
         })
         .strict(),

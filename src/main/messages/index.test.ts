@@ -30,8 +30,13 @@ const gmailServiceMock = auth.gmailService as ReturnType<typeof vi.fn>
 const cfg = { auth: {}, defaultSearchResults: 20, downloadPath: os.tmpdir() } as unknown as Config
 
 // Bind cfg so the existing call sites stay unchanged.
-const handleSearchMessages = (args: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }) =>
-  searchMessages(cfg, args)
+const handleSearchMessages = (args: {
+  query: string
+  maxResults?: number
+  pageToken?: string
+  labelIds?: string[]
+  metadataOnly?: boolean
+}) => searchMessages(cfg, args)
 const handleGetMessage = (args: { messageId: string; format?: 'metadata' | 'full' }) => getMessage(cfg, args)
 const handleGetRawMessage = (args: { messageId: string; outputPath: string }) => getRawMessage(cfg, args)
 const handleLabelMessage = (args: { messageId: string; labelIds: string[] }) => labelMessage(cfg, args)
@@ -104,6 +109,22 @@ describe('handleSearchMessages', () => {
       labelIds: ['INBOX'],
       hasAttachments: false
     })
+  })
+
+  it('drops the snippet on receipt when metadataOnly is set', async () => {
+    const gmail = makeGmail()
+    ;(gmail.users.messages.list as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { messages: [{ id: 'm1' }] } })
+    ;(gmail.users.messages.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: 'm1', threadId: 't1', snippet: 'private text', labelIds: ['INBOX'], payload: { headers: [] } }
+    })
+    gmailServiceMock.mockReturnValue(gmail)
+
+    const r = await handleSearchMessages({ query: 'in:inbox', metadataOnly: true })
+    expect(r.content[0].text).not.toContain('private text')
+    expect(JSON.parse(r.content[0].text).messages).toEqual([
+      { messageId: 'm1', threadId: 't1', subject: '', from: '', date: '', labelIds: ['INBOX'], hasAttachments: false }
+    ])
+    expect(gmail.users.messages.get).toHaveBeenCalledWith(expect.objectContaining({ format: 'metadata' }))
   })
 
   it('passes the query, maxResults, and pageToken through to the API (no labelIds key when omitted)', async () => {

@@ -79,7 +79,7 @@ Filter creation supports sender, recipient, subject and Gmail query criteria, wi
 
 | Tool | Level | Purpose |
 | --- | --- | --- |
-| `gsuite_email_messages_search` | `read` | Gmail-query search at message granularity.[^paginated] |
+| `gsuite_email_messages_search` | `read` | Gmail-query search at message granularity; `metadataOnly` drops the snippet.[^paginated] |
 | `gsuite_email_message_get` | `read` | Full message: headers, body, labels, attachments.[^html-strip][^msg-format] |
 | `gsuite_email_message_raw` | `write` | Write the raw RFC 2822 message to a new file at `outputPath` (e.g. `.eml`).[^raw-no-body] |
 | `gsuite_email_message_label` | `write` | Add label ids to a message. |

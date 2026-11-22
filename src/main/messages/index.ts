@@ -19,8 +19,9 @@ export const searchMessages = async (
     query,
     maxResults,
     pageToken,
-    labelIds
-  }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[] }
+    labelIds,
+    metadataOnly
+  }: { query: string; maxResults?: number; pageToken?: string; labelIds?: string[]; metadataOnly?: boolean }
 ) => {
   try {
     const gmail = gmailService(cfg.auth)
@@ -51,7 +52,8 @@ export const searchMessages = async (
           subject: headerValue(headers, 'Subject'),
           from: headerValue(headers, 'From'),
           date: headerValue(headers, 'Date'),
-          snippet: full.data.snippet ?? '',
+          // A metadata-only read drops the snippet on receipt: headers and labels only.
+          ...(metadataOnly ? {} : { snippet: full.data.snippet ?? '' }),
           labelIds: full.data.labelIds ?? [],
           hasAttachments: hasAttachments(full.data.payload)
         }
