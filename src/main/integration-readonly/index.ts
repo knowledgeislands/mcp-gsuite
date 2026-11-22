@@ -111,7 +111,8 @@ export const runReadOnlyIntegration = async (
       auditLogMaxBytes: 0,
       auditLogKeep: 0,
       downloadPath: path.dirname(tokenPath),
-      inlineAttachmentMaxBytes: 256 * 1024
+      inlineAttachmentMaxBytes: 256 * 1024,
+      protectedFile: null
     }
     resetAuthClient()
     const probe = createProbe(cfg)

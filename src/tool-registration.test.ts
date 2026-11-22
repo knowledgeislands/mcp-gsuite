@@ -46,6 +46,7 @@ const { registerMessageTools } = await import('./tools/messages/index.js')
 const { registerAttachmentTools } = await import('./tools/attachments/index.js')
 const { registerThreadTools } = await import('./tools/threads/index.js')
 const { registerDraftTools } = await import('./tools/drafts/index.js')
+const { registerProtectedTools } = await import('./tools/protected/index.js')
 
 // Config is injected into every register function; a stub with the slices the
 // tool defs read (defaultSearchResults for description interpolation) suffices.
@@ -429,6 +430,22 @@ describe('registerDraftTools', () => {
   })
 })
 
+describe('registerProtectedTools', () => {
+  it('registers the protected list as one read-level tool with no arguments', () => {
+    const { server, calls } = makeMockServer()
+    server.registerTool = makeAccessGatedRegister(server, 'read', {
+      mode: 'off',
+      path: '/nonexistent/audit.jsonl',
+      maxBytes: 1,
+      keep: 1
+    })
+    registerProtectedTools(server, cfg)
+    expect(calls.map((c) => c.name)).toEqual(['gsuite_email_protected_list'])
+    expect(calls[0]?.config.annotations).toMatchObject({ readOnlyHint: true })
+    expect(Object.keys(shapeOf(calls[0]?.config.inputSchema))).toEqual([])
+  })
+})
+
 describe('registerHistoryTools', () => {
   it('registers a read-only checkpoint and bounded paginated history list', () => {
     const { server, calls } = makeMockServer()
@@ -456,7 +473,7 @@ describe('registerHistoryTools', () => {
 })
 
 describe('combined registration (matches the brief)', () => {
-  it('the register*Tools functions expose exactly the 41 tools, with no send_* tool', () => {
+  it('the register*Tools functions expose exactly the 42 tools, with no send_* tool', () => {
     const { server, calls } = makeMockServer()
     registerAuthTools(server, cfg)
     registerLabelTools(server, cfg)
@@ -466,6 +483,7 @@ describe('combined registration (matches the brief)', () => {
     registerAttachmentTools(server, cfg)
     registerThreadTools(server, cfg)
     registerDraftTools(server, cfg)
+    registerProtectedTools(server, cfg)
 
     expect(calls.map((c) => c.name).sort()).toEqual([
       'gsuite_about',
@@ -501,6 +519,7 @@ describe('combined registration (matches the brief)', () => {
       'gsuite_email_message_unlabel',
       'gsuite_email_messages_batch_modify',
       'gsuite_email_messages_search',
+      'gsuite_email_protected_list',
       'gsuite_email_thread_archive',
       'gsuite_email_thread_get',
       'gsuite_email_thread_label',

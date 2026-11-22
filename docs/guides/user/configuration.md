@@ -32,6 +32,7 @@ Two habits worth having. Trash is recoverable and deletion is not, which is why 
 | `MCP_GSUITE_ACCESS_LEVEL` | no | `read` | Maximum tool access level to register. ‡ |
 | `MCP_GSUITE_DOWNLOAD_PATH` | no | `~/Downloads` | Directory where attachment downloads are written. § |
 | `MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES` | no | `262144` (256 KiB) | Cap on inline-returned attachment bytes. ¶ |
+| `MCP_GSUITE_PROTECTED_FILE` | no | — | The account's protected list, a TOML file; a leading `~/` is expanded. See [Protect labels from change](#protect-labels-from-change). |
 | `MCP_GSUITE_AUDIT_LOG` | no | `writes` | Audit-log scope. ‖ |
 | `MCP_GSUITE_AUDIT_LOG_PATH` | no | `~/.local/state/ki/mcp-gsuite/audit.jsonl` | Path to the JSONL audit log. |
 | `MCP_GSUITE_AUDIT_LOG_MAX_BYTES` | no | `10485760` (10 MiB) | Size-based rotation threshold in bytes. Set to `0` to disable rotation. |
@@ -49,6 +50,33 @@ Two habits worth having. Trash is recoverable and deletion is not, which is why 
 ‖ One of `off`, `writes` (record non-read tool calls only), or `all` (record every invocation).
 
 †† On load the server reads, from the package root and highest precedence first, `.env.local`, then `.env.${NODE_ENV}` when `NODE_ENV` is set, then `.env`. A variable already in the environment always wins over a file. The `ki:server:*:dev` and `ki:server:mcp:inspect` scripts set `development`, so `.env.development` is picked up there.
+
+## Protect labels from change
+
+`MCP_GSUITE_PROTECTED_FILE` names a TOML file that lists labels the server refuses to change, whoever calls it. Use one file per server entry, since each entry is one account, such as `~/.config/ki/mail-protected/kb-mcp-gsuite.toml`:
+
+```toml
+version = 1
+enforce = true
+
+[[protected]]
+kind = "label"                       # the only kind on Gmail
+id = "Label_5898964199230608656"     # held by id, so a rename does not lift it
+name = "Z_ARCHIVE"                   # for people; the id rules
+subtree = true                       # default true: every label named beneath it too
+reason = "Why, who and when"         # optional
+```
+
+Take each id from `gsuite_email_labels_list`. The file is read afresh on every check, so an edit applies to the next call with no restart. `gsuite_email_protected_list` reports the file, whether it is enforced, and the labels each entry covers now.
+
+While it is enforced, every tool that changes mail checks its targets before calling Gmail and refuses with `PROTECTED_REFUSED` when any is protected: a message or thread carrying a protected label (read from Gmail, not taken from the caller), adding or removing a protected label, creating or renaming a label into a protected subtree, renaming or deleting a protected label, and creating or deleting a filter whose action or query names one. A batch is refused whole, naming every refused target, and previews are refused as well. Sending and drafting are not refused. There is no override: only editing the file lifts protection.
+
+| State | `enforced` | Writes |
+| --- | --- | --- |
+| Variable unset, or no file at the path | `false` | Behave as before. |
+| `enforce = false` | `false` | Behave as before. |
+| File unreadable or invalid, or an entry id no longer resolves | `false`, with `error` | Every guarded write is refused with `PROTECTED_LIST_INVALID` until the file is fixed. |
+| Valid file with `enforce = true` | `true` | Protected targets are refused. |
 
 ## Keep two accounts side by side
 

@@ -178,6 +178,29 @@ describe('parseInlineMax (via inlineAttachmentMaxBytes)', () => {
   })
 })
 
+describe('parseProtectedFile (via protectedFile)', () => {
+  it('is null when MCP_GSUITE_PROTECTED_FILE is unset or blank', async () => {
+    const { loadConfig } = await import('./index.js')
+    expect(loadConfig(baseEnv()).protectedFile).toBeNull()
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_PROTECTED_FILE: '  ' }).protectedFile).toBeNull()
+  })
+
+  it('expands a leading ~ against the home directory', async () => {
+    const { loadConfig } = await import('./index.js')
+    expect(
+      loadConfig({ ...baseEnv(), MCP_GSUITE_PROTECTED_FILE: '~/.config/ki/mail-protected/kb.toml' }).protectedFile
+    ).toBe('/home/test/.config/ki/mail-protected/kb.toml')
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_PROTECTED_FILE: '~' }).protectedFile).toBe('/home/test')
+  })
+
+  it('resolves any other path to an absolute one', async () => {
+    const { loadConfig } = await import('./index.js')
+    expect(loadConfig({ ...baseEnv(), MCP_GSUITE_PROTECTED_FILE: '/etc/ki/p.toml' }).protectedFile).toBe(
+      '/etc/ki/p.toml'
+    )
+  })
+})
+
 describe('auth client id / secret passthrough', () => {
   it('threads empty strings through when client id/secret are unset', async () => {
     const { loadConfig } = await import('./index.js')

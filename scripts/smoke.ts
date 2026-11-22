@@ -59,6 +59,7 @@ const EXPECTED_TOOLS = [
   'gsuite_email_message_get',
   'gsuite_email_message_raw',
   'gsuite_email_messages_search',
+  'gsuite_email_protected_list',
   'gsuite_email_thread_get',
   'gsuite_email_threads_search',
   'gsuite_drive_files_list',

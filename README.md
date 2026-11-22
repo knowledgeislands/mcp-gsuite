@@ -57,6 +57,14 @@ The running server's `tools/list` response is the authority on what exists; the 
 | `gsuite_email_label_update` | `write`       | Rename a user label.[^system-labels]                        |
 | `gsuite_email_label_delete` | `destructive` | Delete a user label.[^system-labels] [^label-delete-effect] |
 
+### protected list
+
+| Tool | Level | Purpose |
+| --- | --- | --- |
+| `gsuite_email_protected_list` | `read` | Report the protected-list file, whether it is enforced, and what each entry covers now. |
+
+With `MCP_GSUITE_PROTECTED_FILE` set to a valid list, every tool that changes mail refuses a protected target with `PROTECTED_REFUSED`, all or nothing, with no override. See [Protect labels from change](./docs/guides/user/configuration.md#protect-labels-from-change).
+
 ### filter
 
 | Tool                         | Level         | Purpose                                                   |
@@ -203,4 +211,5 @@ Drive access is read-only by scope: the default set requests `drive.readonly`, s
 - Token values are **never** logged or returned by any MCP tool. The `gsuite_auth_status` tool exposes presence flags and metadata only.
 - The auth server binds to `localhost:3334` only and accepts a single OAuth callback at a time; CSRF state entries expire after 10 minutes.
 - Tool registration is gated by access level, so the default configuration cannot mutate anything at all.
+- An optional protected list (`MCP_GSUITE_PROTECTED_FILE`) makes every mail-changing tool refuse protected labels, their messages and threads, and filters that name them, whoever calls.
 - If the token file is lost, revoked, or you want to switch Google accounts, delete the file and re-authenticate — see [Authenticate with Google](./docs/guides/user/authentication.md).

@@ -12,6 +12,7 @@ import {
   registerHistoryTools,
   registerLabelTools,
   registerMessageTools,
+  registerProtectedTools,
   registerThreadTools
 } from '../tools/index.js'
 import { makeAccessGatedRegister } from '../utils/access-level.js'
@@ -48,6 +49,7 @@ const createServer = (): McpServer => {
   registerFilterTools(server, config)
   registerHistoryTools(server, config)
   registerMessageTools(server, config)
+  registerProtectedTools(server, config)
   registerAttachmentTools(server, config)
   registerThreadTools(server, config)
   registerDriveTools(server, config)

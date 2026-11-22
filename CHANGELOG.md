@@ -4,4 +4,5 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+- Added the protected list: `MCP_GSUITE_PROTECTED_FILE` names a per-account TOML file of labels, held by id with their subtrees, that every mail-changing tool refuses to touch with `PROTECTED_REFUSED`; `gsuite_email_protected_list` reports it, and an unusable file blocks those writes.
 - Consolidated Google email, calendar, and Drive access.

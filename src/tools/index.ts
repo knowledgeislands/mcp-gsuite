@@ -7,6 +7,7 @@ import { registerFilterTools } from './filters/index.js'
 import { registerHistoryTools } from './history/index.js'
 import { registerLabelTools } from './labels/index.js'
 import { registerMessageTools } from './messages/index.js'
+import { registerProtectedTools } from './protected/index.js'
 import { registerThreadTools } from './threads/index.js'
 
 export {
@@ -19,5 +20,6 @@ export {
   registerHistoryTools,
   registerLabelTools,
   registerMessageTools,
+  registerProtectedTools,
   registerThreadTools
 }

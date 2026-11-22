@@ -6,6 +6,7 @@
 import type { Config } from '../../config/index.js'
 import { errorResult, jsonResult } from '../../utils/results.js'
 import { gmailService } from '../google-client/index.js'
+import { guardWrite } from '../protected/index.js'
 
 export const listLabels = async (cfg: Config) => {
   try {
@@ -38,6 +39,8 @@ export const getLabel = async (cfg: Config, { labelId }: { labelId: string }) =>
 
 export const createLabel = async (cfg: Config, { name }: { name: string }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_label_create', { labelNames: [name] })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.labels.create({
       userId: 'me',
@@ -55,6 +58,10 @@ export const createLabel = async (cfg: Config, { name }: { name: string }) => {
 
 export const updateLabel = async (cfg: Config, { labelId, name }: { labelId: string; name: string }) => {
   try {
+    // Refused when the label is protected, or when the new name would place it
+    // in a protected subtree.
+    const refused = await guardWrite(cfg, 'gsuite_email_label_update', { labelIds: [labelId], labelNames: [name] })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     // Gmail's labels.patch lets us rename without re-asserting visibility flags.
     const res = await gmail.users.labels.patch({
@@ -70,6 +77,9 @@ export const updateLabel = async (cfg: Config, { labelId, name }: { labelId: str
 
 export const deleteLabel = async (cfg: Config, { labelId, dry_run }: { labelId: string; dry_run: boolean }) => {
   try {
+    // Checked on the preview too, so a dry run shows the refusal the real call would meet.
+    const refused = await guardWrite(cfg, 'gsuite_email_label_delete', { labelIds: [labelId] })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     // Gmail removes the label from every message that had it. System labels
     // (INBOX, SENT, etc.) cannot be deleted; Gmail returns 400 in that case.

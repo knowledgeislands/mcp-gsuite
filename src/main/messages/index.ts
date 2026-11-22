@@ -11,6 +11,7 @@ import { assertOutputPathWithinDownloadRoot } from '../../utils/paths.js'
 import { errorResult, jsonResult } from '../../utils/results.js'
 import { extractAttachments, extractBody, hasAttachments, headerValue, normaliseQueryLabels } from '../email/parse.js'
 import { gmailService } from '../google-client/index.js'
+import { guardWrite } from '../protected/index.js'
 
 export const searchMessages = async (
   cfg: Config,
@@ -145,6 +146,8 @@ export const getRawMessage = async (
 
 export const labelMessage = async (cfg: Config, { messageId, labelIds }: { messageId: string; labelIds: string[] }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_message_label', { messageIds: [messageId], labelIds })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.messages.modify({
       userId: 'me',
@@ -162,6 +165,8 @@ export const unlabelMessage = async (
   { messageId, labelIds }: { messageId: string; labelIds: string[] }
 ) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_message_unlabel', { messageIds: [messageId], labelIds })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.messages.modify({
       userId: 'me',
@@ -178,12 +183,18 @@ export const unlabelMessage = async (
 // Centralised so the four sugar handlers below stay one-liners.
 const modifyMessage = async (
   cfg: Config,
+  tool: string,
   messageId: string,
   body: { addLabelIds?: string[]; removeLabelIds?: string[] }
-): Promise<{ messageId: string; labelIds: string[] }> => {
+) => {
+  const refused = await guardWrite(cfg, tool, {
+    messageIds: [messageId],
+    labelIds: [...(body.addLabelIds ?? []), ...(body.removeLabelIds ?? [])]
+  })
+  if (refused) return refused
   const gmail = gmailService(cfg.auth)
   const res = await gmail.users.messages.modify({ userId: 'me', id: messageId, requestBody: body })
-  return { messageId: res.data.id ?? messageId, labelIds: res.data.labelIds ?? [] }
+  return jsonResult({ messageId: res.data.id ?? messageId, labelIds: res.data.labelIds ?? [] })
 }
 
 export const messageModify = async (
@@ -200,12 +211,10 @@ export const messageModify = async (
     return errorResult('modifying message', new Error('A label cannot appear in both addLabelIds and removeLabelIds.'))
   }
   try {
-    return jsonResult(
-      await modifyMessage(cfg, messageId, {
-        ...(addLabelIds?.length ? { addLabelIds } : {}),
-        ...(removeLabelIds?.length ? { removeLabelIds } : {})
-      })
-    )
+    return await modifyMessage(cfg, 'gsuite_email_message_modify', messageId, {
+      ...(addLabelIds?.length ? { addLabelIds } : {}),
+      ...(removeLabelIds?.length ? { removeLabelIds } : {})
+    })
   } catch (err) {
     return errorResult('modifying message', err)
   }
@@ -213,7 +222,7 @@ export const messageModify = async (
 
 export const messageMarkRead = async (cfg: Config, { messageId }: { messageId: string }) => {
   try {
-    return jsonResult(await modifyMessage(cfg, messageId, { removeLabelIds: ['UNREAD'] }))
+    return await modifyMessage(cfg, 'gsuite_email_message_mark_read', messageId, { removeLabelIds: ['UNREAD'] })
   } catch (err) {
     return errorResult('marking message read', err)
   }
@@ -221,7 +230,7 @@ export const messageMarkRead = async (cfg: Config, { messageId }: { messageId: s
 
 export const messageMarkUnread = async (cfg: Config, { messageId }: { messageId: string }) => {
   try {
-    return jsonResult(await modifyMessage(cfg, messageId, { addLabelIds: ['UNREAD'] }))
+    return await modifyMessage(cfg, 'gsuite_email_message_mark_unread', messageId, { addLabelIds: ['UNREAD'] })
   } catch (err) {
     return errorResult('marking message unread', err)
   }
@@ -229,7 +238,7 @@ export const messageMarkUnread = async (cfg: Config, { messageId }: { messageId:
 
 export const messageArchive = async (cfg: Config, { messageId }: { messageId: string }) => {
   try {
-    return jsonResult(await modifyMessage(cfg, messageId, { removeLabelIds: ['INBOX'] }))
+    return await modifyMessage(cfg, 'gsuite_email_message_archive', messageId, { removeLabelIds: ['INBOX'] })
   } catch (err) {
     return errorResult('archiving message', err)
   }
@@ -237,6 +246,11 @@ export const messageArchive = async (cfg: Config, { messageId }: { messageId: st
 
 export const messageTrash = async (cfg: Config, { messageId }: { messageId: string }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_message_trash', {
+      messageIds: [messageId],
+      labelIds: ['TRASH', 'INBOX']
+    })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     // `messages.trash` adds the TRASH label + removes INBOX; recoverable for
     // ~30 days from Gmail's Trash UI. Distinct from `messages.delete`, which
@@ -266,6 +280,11 @@ export const messageBatchModify = async (
     )
   }
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_messages_batch_modify', {
+      messageIds,
+      labelIds: [...(addLabelIds ?? []), ...(removeLabelIds ?? [])]
+    })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     await gmail.users.messages.batchModify({
       userId: 'me',

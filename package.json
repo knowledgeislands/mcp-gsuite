@@ -10,6 +10,7 @@
   "dependencies": {
     "@modelcontextprotocol/server": "2.4.0",
     "googleapis": "^188.0.0",
+    "smol-toml": "^1.9.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -63,6 +64,10 @@
     "./messages": {
       "types": "./dist/main/messages/index.d.ts",
       "import": "./dist/main/messages/index.js"
+    },
+    "./protected": {
+      "types": "./dist/main/protected/index.d.ts",
+      "import": "./dist/main/protected/index.js"
     },
     "./threads": {
       "types": "./dist/main/threads/index.d.ts",

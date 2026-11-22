@@ -100,6 +100,12 @@ export interface Config {
    * MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES (positive integer).
    */
   inlineAttachmentMaxBytes: number
+  /**
+   * The account's protected-list file (MCP_GSUITE_PROTECTED_FILE), or null when
+   * unset. Read afresh on every check by `main/protected`; a leading `~/` is
+   * expanded. Unset or absent means no list: writes behave as before.
+   */
+  protectedFile: string | null
 }
 
 const parseAccessLevel = (raw: string | undefined): AccessLevel => {
@@ -152,6 +158,14 @@ const parseNonNegativeInt = (raw: string | undefined, fallback: number, varName:
     throw new Error(`Invalid ${varName}="${raw}" — expected a non-negative integer.`)
   }
   return n
+}
+
+const parseProtectedFile = (raw: string | undefined, homeDir: string): string | null => {
+  const v = raw?.trim()
+  if (!v) return null
+  if (v === '~') return homeDir
+  if (v.startsWith('~/')) return path.join(homeDir, v.slice(2))
+  return path.resolve(v)
 }
 
 const parseInlineMax = (raw: string | undefined, fallback: number): number => {
@@ -215,6 +229,7 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
     downloadPath: env.MCP_GSUITE_DOWNLOAD_PATH?.trim()
       ? path.resolve(env.MCP_GSUITE_DOWNLOAD_PATH.trim())
       : path.join(homeDir, 'Downloads'),
-    inlineAttachmentMaxBytes: parseInlineMax(env.MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES, 256 * 1024)
+    inlineAttachmentMaxBytes: parseInlineMax(env.MCP_GSUITE_INLINE_ATTACHMENT_MAX_BYTES, 256 * 1024),
+    protectedFile: parseProtectedFile(env.MCP_GSUITE_PROTECTED_FILE, homeDir)
   }
 }

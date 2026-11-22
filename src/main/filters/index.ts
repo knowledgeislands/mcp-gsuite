@@ -1,6 +1,7 @@
 import type { Config } from '../../config/index.js'
 import { errorResult, jsonResult } from '../../utils/results.js'
 import { gmailService } from '../google-client/index.js'
+import { guardWrite } from '../protected/index.js'
 
 export interface FilterInput {
   criteria: {
@@ -54,6 +55,13 @@ export const listFilters = async (cfg: Config) => {
 export const createFilter = async (cfg: Config, input: FilterInput) => {
   try {
     const desired = definition(input)
+    // A filter that files into, or matches on, a protected label is refused,
+    // preview included.
+    const refused = await guardWrite(cfg, 'gsuite_email_filter_create', {
+      labelIds: [...(desired.action.addLabelIds ?? []), ...desired.action.removeLabelIds],
+      queries: [desired.criteria.query, desired.criteria.negatedQuery].filter((q): q is string => Boolean(q))
+    })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const current = (await gmail.users.settings.filters.list({ userId: 'me' })).data.filter ?? []
     const sameCriteria = current.filter((filter) => equivalent(filter.criteria ?? {}, desired.criteria))
@@ -93,6 +101,13 @@ export const deleteFilter = async (cfg: Config, { filterId, dry_run }: { filterI
   try {
     const gmail = gmailService(cfg.auth)
     const existing = await gmail.users.settings.filters.get({ userId: 'me', id: filterId })
+    const refused = await guardWrite(cfg, 'gsuite_email_filter_delete', {
+      labelIds: [...(existing.data.action?.addLabelIds ?? []), ...(existing.data.action?.removeLabelIds ?? [])],
+      queries: [existing.data.criteria?.query, existing.data.criteria?.negatedQuery].filter((q): q is string =>
+        Boolean(q)
+      )
+    })
+    if (refused) return refused
     if (dry_run) return jsonResult({ dry_run: true, deleted: false, filter: existing.data })
     await gmail.users.settings.filters.delete({ userId: 'me', id: filterId })
     return jsonResult({ dry_run: false, deleted: true, filter: existing.data })

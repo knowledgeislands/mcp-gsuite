@@ -7,6 +7,7 @@ import type { Config } from '../../config/index.js'
 import { errorResult, jsonResult } from '../../utils/results.js'
 import { extractAttachments, extractBody, hasAttachments, headerValue, normaliseQueryLabels } from '../email/parse.js'
 import { gmailService } from '../google-client/index.js'
+import { guardWrite } from '../protected/index.js'
 
 export const searchThreads = async (
   cfg: Config,
@@ -104,6 +105,8 @@ export const getThread = async (cfg: Config, { threadId }: { threadId: string })
 
 export const labelThread = async (cfg: Config, { threadId, labelIds }: { threadId: string; labelIds: string[] }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_thread_label', { threadIds: [threadId], labelIds })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.threads.modify({
       userId: 'me',
@@ -122,6 +125,8 @@ export const labelThread = async (cfg: Config, { threadId, labelIds }: { threadI
 
 export const unlabelThread = async (cfg: Config, { threadId, labelIds }: { threadId: string; labelIds: string[] }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_thread_unlabel', { threadIds: [threadId], labelIds })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     const res = await gmail.users.threads.modify({
       userId: 'me',
@@ -140,19 +145,25 @@ export const unlabelThread = async (cfg: Config, { threadId, labelIds }: { threa
 // Same label-union shape as label / unlabel so callers see a consistent payload.
 const modifyThread = async (
   cfg: Config,
+  tool: string,
   threadId: string,
   body: { addLabelIds?: string[]; removeLabelIds?: string[] }
-): Promise<{ threadId: string; labelIds: string[] }> => {
+) => {
+  const refused = await guardWrite(cfg, tool, {
+    threadIds: [threadId],
+    labelIds: [...(body.addLabelIds ?? []), ...(body.removeLabelIds ?? [])]
+  })
+  if (refused) return refused
   const gmail = gmailService(cfg.auth)
   const res = await gmail.users.threads.modify({ userId: 'me', id: threadId, requestBody: body })
   const labelIdSet = new Set<string>()
   for (const m of res.data.messages ?? []) for (const id of m.labelIds ?? []) labelIdSet.add(id)
-  return { threadId: res.data.id ?? threadId, labelIds: [...labelIdSet] }
+  return jsonResult({ threadId: res.data.id ?? threadId, labelIds: [...labelIdSet] })
 }
 
 export const threadMarkRead = async (cfg: Config, { threadId }: { threadId: string }) => {
   try {
-    return jsonResult(await modifyThread(cfg, threadId, { removeLabelIds: ['UNREAD'] }))
+    return await modifyThread(cfg, 'gsuite_email_thread_mark_read', threadId, { removeLabelIds: ['UNREAD'] })
   } catch (err) {
     return errorResult('marking thread read', err)
   }
@@ -160,7 +171,7 @@ export const threadMarkRead = async (cfg: Config, { threadId }: { threadId: stri
 
 export const threadMarkUnread = async (cfg: Config, { threadId }: { threadId: string }) => {
   try {
-    return jsonResult(await modifyThread(cfg, threadId, { addLabelIds: ['UNREAD'] }))
+    return await modifyThread(cfg, 'gsuite_email_thread_mark_unread', threadId, { addLabelIds: ['UNREAD'] })
   } catch (err) {
     return errorResult('marking thread unread', err)
   }
@@ -168,7 +179,7 @@ export const threadMarkUnread = async (cfg: Config, { threadId }: { threadId: st
 
 export const threadArchive = async (cfg: Config, { threadId }: { threadId: string }) => {
   try {
-    return jsonResult(await modifyThread(cfg, threadId, { removeLabelIds: ['INBOX'] }))
+    return await modifyThread(cfg, 'gsuite_email_thread_archive', threadId, { removeLabelIds: ['INBOX'] })
   } catch (err) {
     return errorResult('archiving thread', err)
   }
@@ -176,6 +187,11 @@ export const threadArchive = async (cfg: Config, { threadId }: { threadId: strin
 
 export const threadTrash = async (cfg: Config, { threadId }: { threadId: string }) => {
   try {
+    const refused = await guardWrite(cfg, 'gsuite_email_thread_trash', {
+      threadIds: [threadId],
+      labelIds: ['TRASH', 'INBOX']
+    })
+    if (refused) return refused
     const gmail = gmailService(cfg.auth)
     // `threads.trash` moves every message in the thread to Trash. Recoverable
     // for ~30 days; permanent deletion is intentionally not exposed.
