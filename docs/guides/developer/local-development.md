@@ -70,7 +70,7 @@ src/
 └── utils/                  # MIME builder, paths, result envelopes, access level, audit log, annotations
 ```
 
-The division matters: a module under `src/tools/` validates and adapts an MCP envelope and nothing else, while the work happens in `src/main/`, where every entry point takes its configuration slice as its first argument. Nothing reads `process.env` at import time. `CLAUDE.md` states these invariants in full.
+The division matters: a module under `src/tools/` validates and adapts an MCP envelope and nothing else, while the work happens in `src/main/`, where every entry point takes its configuration slice as its first argument. Nothing reads `process.env` at import time. `AGENTS.md` states these invariants in full.
 
 The build emits to `dist/`, which is gitignored; `dist/mcp-server/index.js` is the file a client launches.
 
@@ -79,15 +79,14 @@ The build emits to `dist/`, which is gitignored; `dist/mcp-server/index.js` is t
 Run these before handing work off, in roughly this order:
 
 ```bash
-bun run ki:lint:types          # tsc --noEmit
-bun run ki:lint:check          # Biome
+ki repo audit --repo .         # Biome, TypeScript, syncpack, knip and every declared skill
 bun run test                   # vitest
 bun run test:coverage          # vitest with the 100% threshold enforced
 bun run build                  # tsc → dist/
 bun run ki:test:smoke          # build, boot over stdio MCP, assert the wire-level tool surface
 ```
 
-Coverage is enforced at 100%, so a new branch without a test fails the gate rather than lowering the number. `bun run ki:lint:fix` applies Biome's safe and unsafe fixes when the check complains.
+Coverage is enforced at 100%, so a new branch without a test fails the gate rather than lowering the number. `ki repo conform --repo .` applies the safe fixes when the audit complains.
 
 For authored Markdown, the repository's own gates are the audits:
 

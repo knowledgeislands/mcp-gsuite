@@ -31,7 +31,7 @@ There is no send tool, and adding one is not an ordinary change. The smoke test 
 ## Verify
 
 ```bash
-bun run ki:lint:types
+ki repo audit --repo .
 bun run test:coverage
 bun run ki:test:smoke
 ```
