@@ -19,7 +19,7 @@ Nobody operates this server on anybody else's behalf: it is a local process star
 A guide answers **how**. The neighbouring sources answer other questions, and these guides link to them rather than restate them:
 
 - [`README.md`](../../README.md) says what the server is and enumerates its tool surface. The running server's `tools/list` response is the authority on which tools exist; the README table is a readable copy of it.
-- [Decision Records](../decisions/README.md) answer **why**, for choices that outlive the code that implements them.
+- [Decision Records](../decisions/_index.md) answer **why**, for choices that outlive the code that implements them.
 - [Roadmap items](../roadmap) answer **when**, covering behaviour that is planned rather than delivered.
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) holds contribution mechanics: cloning, the commit convention, and the checks to pass before opening a pull request.
 - [`AGENTS.md`](../../AGENTS.md) and [`CLAUDE.md`](../../CLAUDE.md) hold the architecture and safety invariants a change must not break. Read them before changing `src/`.

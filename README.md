@@ -18,7 +18,7 @@ An MCP (Model Context Protocol) server that connects Claude with Google Workspac
 
 ## Documentation
 
-Practical instructions live in [`docs/guides/`](./docs/guides/README.md), grouped by who needs them.
+Practical instructions live in [`docs/guides/`](./docs/guides/_index.md), grouped by who needs them.
 
 **To run this server against your own Google account**, follow the [user guides](./docs/guides/user/README.md) in order:
 
@@ -31,7 +31,7 @@ Practical instructions live in [`docs/guides/`](./docs/guides/README.md), groupe
 
 **To change this server**, read the [developer guides](./docs/guides/developer/README.md): [local development](./docs/guides/developer/local-development.md) for the two processes and the verification gates, and [add a tool](./docs/guides/developer/adding-a-tool.md) for extending the surface.
 
-[`CONTRIBUTING.md`](./CONTRIBUTING.md) covers the contribution mechanics, [`docs/decisions/`](./docs/decisions/README.md) records why the server is the way it is, and [`docs/roadmap/`](./docs/roadmap) records what is planned rather than delivered.
+[`CONTRIBUTING.md`](./CONTRIBUTING.md) covers the contribution mechanics, [`docs/decisions/`](./docs/decisions/_index.md) records why the server is the way it is, and [`docs/roadmap/`](./docs/roadmap) records what is planned rather than delivered.
 
 ## Available Tools
 
