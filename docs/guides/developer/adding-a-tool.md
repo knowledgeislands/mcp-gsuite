@@ -8,7 +8,7 @@ A tool is added in two halves: a thin definition under `src/tools/<resource>/` t
 
 Decide the tool's access level honestly, because the annotations you choose are what the gate reads. A tool that only reads is `READ_ONLY_REMOTE`. A tool that changes something recoverably is `WRITE_REMOTE`, or `WRITE_IDEMPOTENT_REMOTE` when repeating the call is harmless. A tool that destroys something is `DESTRUCTIVE_REMOTE`. If you cannot decide, the fail-safe derivation treats missing annotations as destructive, which tells you where the doubt should land.
 
-There is no send tool, and adding one is not an ordinary change. The smoke test asserts that no tool name matches a send pattern; that assertion is the boundary, and removing it is a decision for the repository, not a step in this guide.
+There is no send tool, and adding one is not an ordinary change. The smoke test and [src/tools/no-sending.test.ts](../../../src/tools/no-sending.test.ts) assert that no tool name matches a sending pattern, calendar responses included; that assertion is the boundary, and removing it is a decision for the repository, not a step in this guide.
 
 ## Procedure
 

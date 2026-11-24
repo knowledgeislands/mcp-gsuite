@@ -83,6 +83,27 @@ export const getEvent = async (cfg: Config, { calendarId, eventId }: { calendarI
   }
 }
 
+/**
+ * The server is draft-only, so no calendar write may notify anyone. Every write
+ * passes `sendUpdates: 'none'`, and because Google documents that some emails
+ * may still be sent and that a guest's calendar shows the change regardless,
+ * the writes also stay off meetings altogether: an event is created without
+ * guests, and an update or delete is refused for any event that has attendees
+ * or that this calendar did not organise.
+ */
+const NO_UPDATES = { sendUpdates: 'none' } as const
+
+export const ATTENDEES_REFUSED =
+  'Attendees are not supported: this server never sends calendar invitations. Create the event without attendees and invite people from Google Calendar.'
+
+const isMeeting = (event: calendar_v3.Schema$Event): boolean =>
+  event.organizer?.self !== true || (event.attendees?.length ?? 0) > 0
+
+const meetingRefused = (eventId: string, event: calendar_v3.Schema$Event, verb: string) =>
+  new Error(
+    `Refused: event ${eventId} ("${event.summary ?? ''}") is a meeting, and ${verb} it would notify its attendees or organiser. This server never sends; change it in Google Calendar instead.`
+  )
+
 export const createEvent = async (
   cfg: Config,
   {
@@ -100,20 +121,22 @@ export const createEvent = async (
     end: string
     description?: string
     location?: string
-    attendees?: string[]
+    attendees?: unknown
   }
 ) => {
+  if (attendees !== undefined && (!Array.isArray(attendees) || attendees.length > 0))
+    return errorResult('creating event', new Error(ATTENDEES_REFUSED))
   try {
     const calendar = calendarService(cfg.auth)
     const res = await calendar.events.insert({
       calendarId: calendarId ?? 'primary',
+      ...NO_UPDATES,
       requestBody: {
         summary,
         start: { dateTime: start },
         end: { dateTime: end },
         description,
-        location,
-        ...(attendees?.length ? { attendees: attendees.map((email) => ({ email })) } : {})
+        location
       }
     })
     return jsonResult(trimEvent(res.data))
@@ -141,11 +164,15 @@ export const updateEvent = async (
     end?: string
     description?: string
     location?: string
-    attendees?: string[]
+    attendees?: unknown
   }
 ) => {
+  if (attendees !== undefined) return errorResult('updating event', new Error(ATTENDEES_REFUSED))
   try {
     const calendar = calendarService(cfg.auth)
+    const resolvedCalendarId = calendarId ?? 'primary'
+    const current = await calendar.events.get({ calendarId: resolvedCalendarId, eventId })
+    if (isMeeting(current.data)) throw meetingRefused(eventId, current.data, 'changing')
     // events.patch merges: only the fields present in the request body change.
     const requestBody: calendar_v3.Schema$Event = {}
     if (summary !== undefined) requestBody.summary = summary
@@ -153,8 +180,7 @@ export const updateEvent = async (
     if (end !== undefined) requestBody.end = { dateTime: end }
     if (description !== undefined) requestBody.description = description
     if (location !== undefined) requestBody.location = location
-    if (attendees !== undefined) requestBody.attendees = attendees.map((email) => ({ email }))
-    const res = await calendar.events.patch({ calendarId: calendarId ?? 'primary', eventId, requestBody })
+    const res = await calendar.events.patch({ calendarId: resolvedCalendarId, eventId, ...NO_UPDATES, requestBody })
     return jsonResult(trimEvent(res.data))
   } catch (err) {
     return errorResult('updating event', err)
@@ -168,12 +194,12 @@ export const deleteEvent = async (
   try {
     const calendar = calendarService(cfg.auth)
     const resolvedCalendarId = calendarId ?? 'primary'
-    if (dry_run) {
-      // Look up the event so the caller sees what would be deleted.
-      const res = await calendar.events.get({ calendarId: resolvedCalendarId, eventId })
-      return jsonResult({ eventId, dry_run: true, deleted: false, would_delete: trimEvent(res.data) })
-    }
-    await calendar.events.delete({ calendarId: resolvedCalendarId, eventId })
+    // Look up the event first, in a preview and a live call alike: the caller
+    // sees what would be deleted, and a meeting is refused before any delete.
+    const res = await calendar.events.get({ calendarId: resolvedCalendarId, eventId })
+    if (isMeeting(res.data)) throw meetingRefused(eventId, res.data, 'deleting')
+    if (dry_run) return jsonResult({ eventId, dry_run: true, deleted: false, would_delete: trimEvent(res.data) })
+    await calendar.events.delete({ calendarId: resolvedCalendarId, eventId, ...NO_UPDATES })
     return jsonResult({ eventId, dry_run: false, deleted: true })
   } catch (err) {
     return errorResult('deleting event', err)

@@ -32,8 +32,6 @@ const eventIdSchema = z
 // RFC 3339 timestamps for event start/end and window bounds.
 const rfc3339Schema = shortTextSchema.min(1)
 
-const emailSchema = z.string().min(3).max(320)
-
 // ── output schemas ──
 // Each mirrors the exact shape the matching main/calendar handler returns via
 // jsonResult, so clients can validate structuredContent (workspace MCP §12,
@@ -86,7 +84,7 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
     'gsuite_calendar_event_create',
     {
       description:
-        'Create an event. `start`/`end` are RFC 3339 timestamps (timed events; the calendar’s timezone applies when the offset is omitted). Attendees are invited by email. Returns the created event’s trimmed projection.',
+        'Create a personal event with no attendees. Never sends an invitation: the server is draft-only, so attendees are not accepted and Google is told to send no updates. `start`/`end` are RFC 3339 timestamps (timed events; the calendar’s timezone applies when the offset is omitted). Returns the created event’s trimmed projection.',
       inputSchema: z
         .object({
           calendarId: calendarIdSchema.optional(),
@@ -94,8 +92,7 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
           start: rfc3339Schema.describe('Start, RFC 3339 (e.g. `2026-07-09T10:00:00+01:00`).'),
           end: rfc3339Schema.describe('End, RFC 3339.'),
           description: shortTextSchema.optional(),
-          location: shortTextSchema.optional(),
-          attendees: z.array(emailSchema).min(1).optional().describe('Attendee email addresses.')
+          location: shortTextSchema.optional()
         })
         .strict(),
       outputSchema: eventRow,
@@ -108,7 +105,7 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
     'gsuite_calendar_event_delete',
     {
       description:
-        'Delete an event. Attendees are notified per the calendar’s defaults. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the event and returns its trimmed projection in `would_delete` without calling the delete API.',
+        'Delete a personal event. Refused for a meeting (any event with attendees, or one this calendar did not organise), and Google is told to send no updates, so no one is notified. `dry_run` defaults to true — callers must pass `dry_run: false` to actually delete; dry-run fetches the event and returns its trimmed projection in `would_delete` without calling the delete API.',
       inputSchema: z
         .object({
           calendarId: calendarIdSchema.optional(),
@@ -145,7 +142,7 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
     'gsuite_calendar_event_update',
     {
       description:
-        'Update an event with patch semantics — only the fields provided change; passing `attendees` replaces the full attendee list. Returns the updated event’s trimmed projection.',
+        'Update a personal event with patch semantics — only the fields provided change. Refused for a meeting (any event with attendees, or one this calendar did not organise), and Google is told to send no updates, so no one is notified. Attendees cannot be set. Returns the updated event’s trimmed projection.',
       inputSchema: z
         .object({
           calendarId: calendarIdSchema.optional(),
@@ -154,11 +151,7 @@ export const registerCalendarTools = (server: McpServer, cfg: Config): void => {
           start: rfc3339Schema.optional().describe('New start, RFC 3339.'),
           end: rfc3339Schema.optional().describe('New end, RFC 3339.'),
           description: shortTextSchema.optional(),
-          location: shortTextSchema.optional(),
-          attendees: z
-            .array(emailSchema)
-            .optional()
-            .describe('Replacement attendee email list (empty array clears attendees).')
+          location: shortTextSchema.optional()
         })
         .strict(),
       outputSchema: eventRow,

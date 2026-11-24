@@ -6,7 +6,9 @@ vi.mock('../google-client/index.js', () => ({
 }))
 
 const client = await import('../google-client/index.js')
-const { createEvent, deleteEvent, getEvent, listCalendars, listEvents, updateEvent } = await import('./index.js')
+const { ATTENDEES_REFUSED, createEvent, deleteEvent, getEvent, listCalendars, listEvents, updateEvent } = await import(
+  './index.js'
+)
 
 const calendarServiceMock = client.calendarService as ReturnType<typeof vi.fn>
 
@@ -260,8 +262,28 @@ describe('getEvent', () => {
   })
 })
 
+// A personal event: this calendar organised it and it has no guests.
+const personal = (extra: Record<string, unknown> = {}) => ({
+  data: {
+    id: 'e1',
+    summary: 'Doomed',
+    start: { dateTime: '2026-07-09T10:00:00Z' },
+    end: { dateTime: '2026-07-09T11:00:00Z' },
+    status: 'confirmed',
+    organizer: { email: 'me@example.com', self: true },
+    ...extra
+  }
+})
+
+// Every shape that makes an event a meeting, so any write to it could notify someone.
+const MEETINGS: [string, Record<string, unknown>][] = [
+  ['an organised meeting with guests', { attendees: [{ email: 'a@example.com' }] }],
+  ['an invitation someone else organised', { organizer: { email: 'boss@example.com' } }],
+  ['an event with no organiser flag', { organizer: undefined }]
+]
+
 describe('createEvent', () => {
-  it('creates the event with attendees and returns the trimmed projection', async () => {
+  it('creates a personal event with sendUpdates none and returns the trimmed projection', async () => {
     const calendar = makeCalendar()
     calendar.events.insert.mockResolvedValue({
       data: {
@@ -280,7 +302,7 @@ describe('createEvent', () => {
       end: '2026-07-09T10:30:00Z',
       description: 'Weekly sync',
       location: 'Meet',
-      attendees: ['a@example.com', 'b@example.com']
+      attendees: []
     })
     expect(JSON.parse(r.content[0].text)).toEqual({
       eventId: 'new1',
@@ -291,18 +313,18 @@ describe('createEvent', () => {
     })
     expect(calendar.events.insert).toHaveBeenCalledWith({
       calendarId: 'primary',
+      sendUpdates: 'none',
       requestBody: {
         summary: 'Sync',
         start: { dateTime: '2026-07-09T10:00:00Z' },
         end: { dateTime: '2026-07-09T10:30:00Z' },
         description: 'Weekly sync',
-        location: 'Meet',
-        attendees: [{ email: 'a@example.com' }, { email: 'b@example.com' }]
+        location: 'Meet'
       }
     })
   })
 
-  it('omits the attendees field when none are given and honours an explicit calendarId', async () => {
+  it('honours an explicit calendarId and never sends updates', async () => {
     const calendar = makeCalendar()
     calendar.events.insert.mockResolvedValue({ data: {} })
     calendarServiceMock.mockReturnValue(calendar)
@@ -310,6 +332,7 @@ describe('createEvent', () => {
     await createEvent(cfg, { calendarId: 'other@example.com', summary: 'Solo', start: 's', end: 'e' })
     expect(calendar.events.insert).toHaveBeenCalledWith({
       calendarId: 'other@example.com',
+      sendUpdates: 'none',
       requestBody: {
         summary: 'Solo',
         start: { dateTime: 's' },
@@ -319,6 +342,19 @@ describe('createEvent', () => {
       }
     })
   })
+
+  it.each([[['a@example.com']], ['a@example.com'], [[{ email: 'a@example.com' }]]])(
+    'never notifies attendees: refuses attendees %j without calling the API',
+    async (attendees) => {
+      const calendar = makeCalendar()
+      calendarServiceMock.mockReturnValue(calendar)
+
+      const r = await createEvent(cfg, { summary: 'Sync', start: 's', end: 'e', attendees })
+      expect(r).toHaveProperty('isError', true)
+      expect(r.content[0].text).toBe(`Error creating event: ${ATTENDEES_REFUSED}`)
+      expect(calendar.events.insert).not.toHaveBeenCalled()
+    }
+  )
 
   it('returns an error result when the Calendar API rejects the event', async () => {
     const calendar = makeCalendar()
@@ -334,8 +370,9 @@ describe('createEvent', () => {
 })
 
 describe('updateEvent', () => {
-  it('patches only the provided fields and returns the trimmed projection', async () => {
+  it('patches only the provided fields with sendUpdates none and returns the trimmed projection', async () => {
     const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal())
     calendar.events.patch.mockResolvedValue({
       data: {
         id: 'e1',
@@ -355,15 +392,18 @@ describe('updateEvent', () => {
       end: '2026-07-09T11:00:00Z',
       status: 'confirmed'
     })
+    expect(calendar.events.get).toHaveBeenCalledWith({ calendarId: 'primary', eventId: 'e1' })
     expect(calendar.events.patch).toHaveBeenCalledWith({
       calendarId: 'primary',
       eventId: 'e1',
+      sendUpdates: 'none',
       requestBody: { summary: 'Renamed' }
     })
   })
 
-  it('maps every mutable field into the patch body (explicit calendarId, attendees replaced)', async () => {
+  it('maps every mutable field into the patch body (explicit calendarId)', async () => {
     const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal())
     calendar.events.patch.mockResolvedValue({ data: {} })
     calendarServiceMock.mockReturnValue(calendar)
 
@@ -374,35 +414,65 @@ describe('updateEvent', () => {
       start: '2026-07-09T10:00:00Z',
       end: '2026-07-09T11:00:00Z',
       description: 'D',
-      location: 'L',
-      attendees: ['a@example.com']
+      location: 'L'
     })
     expect(calendar.events.patch).toHaveBeenCalledWith({
       calendarId: 'other@example.com',
       eventId: 'e1',
+      sendUpdates: 'none',
       requestBody: {
         summary: 'S',
         start: { dateTime: '2026-07-09T10:00:00Z' },
         end: { dateTime: '2026-07-09T11:00:00Z' },
         description: 'D',
-        location: 'L',
-        attendees: [{ email: 'a@example.com' }]
+        location: 'L'
       }
     })
   })
 
   it('sends an empty patch body when no mutable fields are provided', async () => {
     const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal())
     calendar.events.patch.mockResolvedValue({ data: {} })
     calendarServiceMock.mockReturnValue(calendar)
 
     await updateEvent(cfg, { eventId: 'e1' })
-    expect(calendar.events.patch).toHaveBeenCalledWith({ calendarId: 'primary', eventId: 'e1', requestBody: {} })
+    expect(calendar.events.patch).toHaveBeenCalledWith({
+      calendarId: 'primary',
+      eventId: 'e1',
+      sendUpdates: 'none',
+      requestBody: {}
+    })
+  })
+
+  it.each([[['a@example.com']], [[]]])(
+    'never notifies attendees: refuses an attendees list %j without calling the API',
+    async (attendees) => {
+      const calendar = makeCalendar()
+      calendarServiceMock.mockReturnValue(calendar)
+
+      const r = await updateEvent(cfg, { eventId: 'e1', attendees })
+      expect(r).toHaveProperty('isError', true)
+      expect(r.content[0].text).toBe(`Error updating event: ${ATTENDEES_REFUSED}`)
+      expect(calendar.events.get).not.toHaveBeenCalled()
+      expect(calendar.events.patch).not.toHaveBeenCalled()
+    }
+  )
+
+  it.each(MEETINGS)('never notifies attendees: refuses to change %s', async (_label, shape) => {
+    const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal(shape))
+    calendarServiceMock.mockReturnValue(calendar)
+
+    const r = await updateEvent(cfg, { eventId: 'e1', summary: 'Moved' })
+    expect(r).toHaveProperty('isError', true)
+    expect(r.content[0].text).toMatch(/^Error updating event: Refused: event e1 \("Doomed"\) is a meeting/)
+    expect(calendar.events.patch).not.toHaveBeenCalled()
   })
 
   it('returns an error result on 404', async () => {
     const calendar = makeCalendar()
-    calendar.events.patch.mockRejectedValue({
+    calendar.events.get.mockRejectedValue({
       response: { status: 404, data: { error: { message: 'Not Found' } } }
     })
     calendarServiceMock.mockReturnValue(calendar)
@@ -410,31 +480,25 @@ describe('updateEvent', () => {
     const r = await updateEvent(cfg, { eventId: 'nope', summary: 'X' })
     expect(r).toHaveProperty('isError', true)
     expect(r.content[0].text).toBe('Error updating event: HTTP 404: Not Found')
+    expect(calendar.events.patch).not.toHaveBeenCalled()
   })
 })
 
 describe('deleteEvent', () => {
-  it('deletes the event and returns {eventId, deleted: true} when dry_run is false', async () => {
+  it('deletes a personal event with sendUpdates none when dry_run is false', async () => {
     const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal())
     calendar.events.delete.mockResolvedValue({ data: {} })
     calendarServiceMock.mockReturnValue(calendar)
 
     const r = await deleteEvent(cfg, { eventId: 'e1', dry_run: false })
     expect(JSON.parse(r.content[0].text)).toEqual({ eventId: 'e1', dry_run: false, deleted: true })
-    expect(calendar.events.delete).toHaveBeenCalledWith({ calendarId: 'primary', eventId: 'e1' })
+    expect(calendar.events.delete).toHaveBeenCalledWith({ calendarId: 'primary', eventId: 'e1', sendUpdates: 'none' })
   })
 
   it('returns a preview without calling delete when dry_run is true (explicit calendarId)', async () => {
     const calendar = makeCalendar()
-    calendar.events.get.mockResolvedValue({
-      data: {
-        id: 'e1',
-        summary: 'Doomed',
-        start: { dateTime: '2026-07-09T10:00:00Z' },
-        end: { dateTime: '2026-07-09T11:00:00Z' },
-        status: 'confirmed'
-      }
-    })
+    calendar.events.get.mockResolvedValue(personal())
     calendarServiceMock.mockReturnValue(calendar)
 
     const r = await deleteEvent(cfg, { calendarId: 'other@example.com', eventId: 'e1', dry_run: true })
@@ -454,8 +518,31 @@ describe('deleteEvent', () => {
     expect(calendar.events.delete).not.toHaveBeenCalled()
   })
 
+  it.each(MEETINGS)('never notifies attendees: refuses to delete %s, live or preview', async (_label, shape) => {
+    for (const dry_run of [false, true]) {
+      const calendar = makeCalendar()
+      calendar.events.get.mockResolvedValue(personal(shape))
+      calendarServiceMock.mockReturnValue(calendar)
+
+      const r = await deleteEvent(cfg, { eventId: 'e1', dry_run })
+      expect(r).toHaveProperty('isError', true)
+      expect(r.content[0].text).toMatch(/^Error deleting event: Refused: event e1 \("Doomed"\) is a meeting/)
+      expect(calendar.events.delete).not.toHaveBeenCalled()
+    }
+  })
+
+  it('a refusal uses a placeholder for a missing summary', async () => {
+    const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue({ data: { id: 'e1' } })
+    calendarServiceMock.mockReturnValue(calendar)
+
+    const r = await deleteEvent(cfg, { eventId: 'e1', dry_run: true })
+    expect(r.content[0].text).toMatch(/Refused: event e1 \(""\) is a meeting/)
+  })
+
   it('returns an error result on 410 (already deleted)', async () => {
     const calendar = makeCalendar()
+    calendar.events.get.mockResolvedValue(personal())
     calendar.events.delete.mockRejectedValue({
       response: { status: 410, data: { error: { message: 'Resource has been deleted' } } }
     })

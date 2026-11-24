@@ -267,18 +267,18 @@ export interface KitMcpGsuiteTools {
   gsuite_calendar_calendars_list(params?: Record<string, never>): Promise<CallResult>;
 
   /**
-   * Create an event. `start`/`end` are RFC 3339 timestamps (timed events; the calendar’s timezone
-   * applies when the offset is omitted). Attendees are invited by email. Returns the created event’s
-   * trimmed projection.
+   * Create a personal event with no attendees. Never sends an invitation: the server is draft-only, so
+   * attendees are not accepted and Google is told to send no updates. `start`/`end` are RFC 3339
+   * timestamps (timed events; the calendar’s timezone applies when the offset is omitted). Returns the
+   * created event’s trimmed projection.
    *
    * @param calendarId? Calendar id (from `gsuite_calendar_calendars_list`); defaults to `primary`.
    * @param summary Event title.
    * @param start Start, RFC 3339 (e.g. `2026-07-09T10:00:00+01:00`).
    * @param end End, RFC 3339.
-   * @param attendees? Attendee email addresses.
    */
   gsuite_calendar_event_create(params: { calendarId?: string; summary: string; start: string; end: string; description?: string }): Promise<CallResult>;
-  // optional (2): location, attendees
+  // optional (1): location
 
   /**
    * Get a single event, including its description and attendee emails.
@@ -289,17 +289,18 @@ export interface KitMcpGsuiteTools {
   gsuite_calendar_event_get(params: { calendarId?: string; eventId: string }): Promise<CallResult>;
 
   /**
-   * Update an event with patch semantics — only the fields provided change; passing `attendees` replaces
-   * the full attendee list. Returns the updated event’s trimmed projection.
+   * Update a personal event with patch semantics — only the fields provided change. Refused for a
+   * meeting (any event with attendees, or one this calendar did not organise), and Google is told to
+   * send no updates, so no one is notified. Attendees cannot be set. Returns the updated event’s
+   * trimmed projection.
    *
    * @param calendarId? Calendar id (from `gsuite_calendar_calendars_list`); defaults to `primary`.
    * @param eventId Event id (from `gsuite_calendar_events_list`).
    * @param start? New start, RFC 3339.
    * @param end? New end, RFC 3339.
-   * @param attendees? Replacement attendee email list (empty array clears attendees).
    */
   gsuite_calendar_event_update(params: { calendarId?: string; eventId: string; summary?: string; start?: string; end?: string }): Promise<CallResult>;
-  // optional (3): description, location, attendees
+  // optional (2): description, location
 
   /**
    * List events on a calendar, ordered by start time (recurring events are expanded into instances).

@@ -16,7 +16,7 @@ Levels nest, so `destructive` includes everything. Each tool's level comes from 
 
 Note the consequence for first-time setup: `gsuite_auth_start` persists a token file, so it is a `write` tool. At the default level you cannot sign in. Raise the level to `write`, authenticate, and lower it again afterwards if you want a read-only working posture — the token stays valid.
 
-Two habits worth having. Trash is recoverable and deletion is not, which is why `gsuite_email_message_trash` is a `write` tool while `gsuite_email_draft_delete` is `destructive`. And there is no send tool at any level: the server composes drafts and you press Send in Gmail.
+Two habits worth having. Trash is recoverable and deletion is not, which is why `gsuite_email_message_trash` is a `write` tool while `gsuite_email_draft_delete` is `destructive`. And there is no send tool at any level, and no setting adds one: the server composes drafts and you press Send in Gmail. Calendar writes never notify anyone, so they touch only personal events with no attendees.
 
 ## Every environment variable
 
@@ -69,7 +69,7 @@ reason = "Why, who and when"         # optional
 
 Take each id from `gsuite_email_labels_list`. The file is read afresh on every check, so an edit applies to the next call with no restart. `gsuite_email_protected_list` reports the file, whether it is enforced, and the labels each entry covers now.
 
-While it is enforced, every tool that changes mail checks its targets before calling Gmail and refuses with `PROTECTED_REFUSED` when any is protected: a message or thread carrying a protected label (read from Gmail, not taken from the caller), adding or removing a protected label, creating or renaming a label into a protected subtree, renaming or deleting a protected label, and creating or deleting a filter whose action or query names one. A batch is refused whole, naming every refused target, and previews are refused as well. Sending and drafting are not refused. There is no override: only editing the file lifts protection.
+While it is enforced, every tool that changes mail checks its targets before calling Gmail and refuses with `PROTECTED_REFUSED` when any is protected: a message or thread carrying a protected label (read from Gmail, not taken from the caller), adding or removing a protected label, creating or renaming a label into a protected subtree, renaming or deleting a protected label, and creating or deleting a filter whose action or query names one. A batch is refused whole, naming every refused target, and previews are refused as well. Drafting is not refused. There is no override: only editing the file lifts protection.
 
 | State | `enforced` | Writes |
 | --- | --- | --- |

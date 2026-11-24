@@ -135,7 +135,7 @@ For an initial acquisition, read a checkpoint before searching the mailbox, comp
 | `gsuite_email_draft_get` | `read` | Get a draft's full headers, body, label ids, and attachment refs. |
 | `gsuite_email_draft_delete` | `destructive` | Permanently delete a draft (does not go to Trash). |
 
-This server deliberately exposes draft creation but no sending tool. The user reviews drafts in Gmail and clicks Send — Claude never directly delivers mail. The OAuth scope technically permits sending; the MCP surface does not.
+This server deliberately exposes draft creation but no sending tool. The user reviews drafts in Gmail and clicks Send — Claude never directly delivers mail. The OAuth scope technically permits sending; the MCP surface does not, at any access level, and no setting adds a sending tool. The same holds for the calendar: there is no tool to accept, decline or cancel a meeting, and no calendar write notifies anyone.
 
 For a table in a draft, put semantic HTML table markup in `bodyHtml` and a readable plain-text version in `bodyText`. For example, `bodyHtml: "<table><tr><th>Item</th><th>Qty</th></tr><tr><td>Alpha</td><td>2</td></tr></table>"` can accompany `bodyText: "Item | Qty\nAlpha | 2"`. If fixed spacing is essential in HTML, escape the content and wrap it in `<pre>` instead. The server preserves the supplied body; review the HTML rendering in Gmail before sending because the plain-text alternative does not repair malformed HTML.
 
@@ -146,9 +146,9 @@ For a table in a draft, put semantic HTML table markup in `bodyHtml` and a reada
 | `gsuite_calendar_calendars_list` | `read` | List the calendars on the user's calendar list. |
 | `gsuite_calendar_events_list` | `read` | Events on a calendar, ordered by start time.[^cal-expand] |
 | `gsuite_calendar_event_get` | `read` | One event's trimmed projection: summary, start, end, location, status. |
-| `gsuite_calendar_event_create` | `write` | Create a timed event from RFC 3339 start/end; attendees invited by email.[^cal-tz] |
-| `gsuite_calendar_event_update` | `write` | Update an existing event's summary, times, description, or location. |
-| `gsuite_calendar_event_delete` | `destructive` | Delete an event.[^cal-dry-run] |
+| `gsuite_calendar_event_create` | `write` | Create a personal timed event from RFC 3339 start/end; attendees are refused.[^cal-tz] [^cal-quiet] |
+| `gsuite_calendar_event_update` | `write` | Update a personal event's summary, times, description, or location; meetings are refused.[^cal-quiet] |
+| `gsuite_calendar_event_delete` | `destructive` | Delete a personal event; meetings are refused.[^cal-dry-run] [^cal-quiet] |
 
 ### drive and sheets
 
@@ -196,6 +196,8 @@ Drive access is read-only by scope: the default set requests `drive.readonly`, s
 [^cal-expand]: Recurring events are expanded into instances. `start` / `end` are RFC 3339 timestamps, or bare dates for all-day events.
 
 [^cal-tz]: A timestamp without an offset is interpreted in the calendar's own timezone.
+
+[^cal-quiet]: Calendar writes never notify anyone. Every write passes `sendUpdates: "none"`, and because Google warns that some emails may still be sent and a guest's calendar shows a change regardless, the writes stay off meetings entirely: an event is created without attendees, and an update or delete is refused for any event that has attendees or that this calendar did not organise, previews included.
 
 [^cal-dry-run]: `dry_run` defaults to `true` and returns the event that would be deleted; only an explicit `dry_run: false` removes it.
 

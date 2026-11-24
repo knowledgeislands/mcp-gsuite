@@ -125,8 +125,13 @@ const main = async (): Promise<void> => {
       die('tool surface mismatch', { missing, extra, actualCount: names.length, expectedCount: expected.length })
     }
 
-    // Hard invariant: this server never exposes a `send` tool. Drafts only.
-    const sendTools = names.filter((n) => /(_send_|_send$)/.test(n))
+    // Hard invariant: this server never exposes a sending tool, for mail or for a
+    // calendar response. Drafts only; the reply and forward draft tools save a draft.
+    const sendTools = names.filter(
+      (n) =>
+        /(^|_)(send|reply|reply_all|forward|accept|decline|cancel|tentative|respond|invite)(_|$)/.test(n) &&
+        !/^gsuite_email_draft_(reply|reply_all|forward)$/.test(n)
+    )
     if (sendTools.length) die('forbidden send tool(s) exposed', sendTools)
 
     // Sanity: every tool advertises an inputSchema object.
@@ -158,7 +163,7 @@ const main = async (): Promise<void> => {
     }
 
     console.error(
-      `✓ smoke passed: modern discovery, legacy fallback, ${names.length} tools listed, no send_* tools, all schemas present`
+      `✓ smoke passed: modern discovery, legacy fallback, ${names.length} tools listed, no sending tools, all schemas present`
     )
   } finally {
     await client.close()

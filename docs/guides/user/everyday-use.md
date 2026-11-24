@@ -61,13 +61,13 @@ Trashing is recoverable: `gsuite_email_message_trash` and `gsuite_email_thread_t
 
 Three tools genuinely destroy something and are registered only at `MCP_GSUITE_ACCESS_LEVEL=destructive`: deleting a user label, deleting a draft, and deleting a calendar event. Deleting a label removes it from every message that carried it; the messages themselves are untouched.
 
-Calendar deletion asks twice by design — `gsuite_calendar_event_delete` defaults to `dry_run: true` and returns the event it would delete. Only an explicit `dry_run: false` removes it.
+Calendar deletion asks twice by design — `gsuite_calendar_event_delete` defaults to `dry_run: true` and returns the event it would delete. Only an explicit `dry_run: false` removes it. A meeting is refused, in a preview as well, because deleting it would tell its attendees or organiser.
 
 ## Beyond email
 
 > "What's on my calendar next Tuesday?"
 
-`gsuite_calendar_events_list` returns events ordered by start time, with recurring events expanded into instances. Creating and updating events takes RFC 3339 timestamps; a timestamp without an offset is interpreted in the calendar's own timezone, which is usually what you meant but worth knowing when the answer looks an hour out.
+`gsuite_calendar_events_list` returns events ordered by start time, with recurring events expanded into instances. Creating and updating events takes RFC 3339 timestamps; a timestamp without an offset is interpreted in the calendar's own timezone, which is usually what you meant but worth knowing when the answer looks an hour out. Calendar writes never notify anyone: an event is created without attendees, and an update or delete refuses any meeting, so invite people and change meetings in Google Calendar itself.
 
 > "Read the totals from my budget spreadsheet."
 
