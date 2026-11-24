@@ -1,7 +1,7 @@
 {
   "name": "@knowledgeislands/mcp-gsuite",
   "description": "MCP for Google Workspace — email (read, search, draft, label), calendar events, and Drive/Sheets read-write via the Google API.",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": "kris@kris.me.uk",
   "bin": {
     "mcp-gsuite": "dist/mcp-server/index.js",
